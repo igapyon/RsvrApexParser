@@ -223,7 +223,7 @@ public class RsvrApexLexicalParser {
             Integer next = readChar();
             if (isJavaLetter(next)) {
                 isExist = true;
-                result.target = result.target + int2string(next);
+                result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
                 continue;
             } else {
                 if (isExist == false) {
@@ -340,7 +340,7 @@ public class RsvrApexLexicalParser {
         }
 
         // start string literal.
-        result.original = int2string(first);
+        result.original = RsvrApexLexicalParserUtil.int2string(first);
         result.target = '';
         for (;;) {
             Integer next = readChar();
@@ -353,14 +353,14 @@ public class RsvrApexLexicalParser {
             if (next == '\''.charAt(0)) {
                 // end of string literal.
                 mark();
-                result.original = result.original + result.target + int2string(next);
+                result.original = result.original + result.target + RsvrApexLexicalParserUtil.int2string(next);
                 return result;
             }
 
             // TODO エスケープシーケンス
             // TODO Unicode
         
-            result.target = result.target + int2string(next);
+            result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
         }
 
         reset();
@@ -418,8 +418,8 @@ public class RsvrApexLexicalParser {
         result.target = '';
         for (;;) {
             Integer next = readChar();
-            if (isSeparator(int2string(next))) {
-                result.target = result.target + int2string(next);
+            if (isSeparator(RsvrApexLexicalParserUtil.int2string(next))) {
+                result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
                 result.original = result.target;
                 return result;
             } else {
@@ -476,7 +476,7 @@ public class RsvrApexLexicalParser {
             Integer next = readChar();
             if (isOperatorLetter(next)) {
                 isExist = true;
-                result.target = result.target + int2string(next);
+                result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
                 continue;
             } else {
                 if (isExist == false) {
@@ -514,7 +514,7 @@ public class RsvrApexLexicalParser {
 
         Integer next = readChar();
         if (next == '@'.charAt(0)) {
-            result.target = int2string(next);
+            result.target = RsvrApexLexicalParserUtil.int2string(next);
             result.original = result.target;
             return result;
         }
@@ -539,7 +539,7 @@ public class RsvrApexLexicalParser {
             Integer next = readChar();
             if (isJavaLetterOrDigit(next)) {
                 isExist = true;
-                result.target = result.target + int2string(next);
+                result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
                 continue;
             } else {
                 if (isExist == false) {
@@ -667,7 +667,7 @@ public class RsvrApexLexicalParser {
             || next == '\u000C'.charAt(0)) {
                 isExist = true;
                 mark();
-                result.target = result.target + int2string(next);
+                result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
                 continue;
             }
             // Other.
@@ -709,7 +709,7 @@ public class RsvrApexLexicalParser {
         }
 
         // hit line comment
-        result.original = int2string(first) + int2string(second) + int2string(third);
+        result.original = RsvrApexLexicalParserUtil.int2string(first) + RsvrApexLexicalParserUtil.int2string(second) + RsvrApexLexicalParserUtil.int2string(third);
         result.target = '';
         for (;;) {
             Integer next = readChar();
@@ -719,14 +719,14 @@ public class RsvrApexLexicalParser {
                 if (next2 == '/'.charAt(0)) {
                     // End of comment.
                     mark();
-                    result.original = result.original + result.target + int2string(next) + int2string(next2);
+                    result.original = result.original + result.target + RsvrApexLexicalParserUtil.int2string(next) + RsvrApexLexicalParserUtil.int2string(next2);
                     return result;
                 }
                 reset();
             }
 
             mark();
-            result.target = result.target + int2string(next);
+            result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
         }
 
         return result;
@@ -752,7 +752,7 @@ public class RsvrApexLexicalParser {
         }
 
         // hit line comment
-        result.original = int2string(first) + int2string(second);
+        result.original = RsvrApexLexicalParserUtil.int2string(first) + RsvrApexLexicalParserUtil.int2string(second);
         result.target = '';
         for (;;) {
             Integer next = readChar();
@@ -762,14 +762,14 @@ public class RsvrApexLexicalParser {
                 if (next2 == '/'.charAt(0)) {
                     // End of comment.
                     mark();
-                    result.original = result.original + result.target + int2string(next) + int2string(next2);
+                    result.original = result.original + result.target + RsvrApexLexicalParserUtil.int2string(next) + RsvrApexLexicalParserUtil.int2string(next2);
                     return result;
                 }
                 reset();
             }
 
             mark();
-            result.target = result.target + int2string(next);
+            result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
         }
 
         return result;
@@ -795,7 +795,7 @@ public class RsvrApexLexicalParser {
         }
 
         // hit line comment
-        result.original = int2string(first) + int2string(second);
+        result.original = RsvrApexLexicalParserUtil.int2string(first) + RsvrApexLexicalParserUtil.int2string(second);
         result.target = '';
         for (;;) {
             Integer next = readChar();
@@ -808,16 +808,10 @@ public class RsvrApexLexicalParser {
             }
 
             mark();
-            result.target = result.target + int2string(next);
+            result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
         }
 
         return result;
-    }
-
-    public static String int2string(Integer val) {
-        List<Integer> nextOne = new List<Integer>();
-        nextOne.add(val);
-        return String.fromCharArray(nextOne);
     }
 
     public String getRemainingtext(Boolean isNext) {

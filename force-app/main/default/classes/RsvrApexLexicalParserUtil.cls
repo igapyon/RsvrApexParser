@@ -14,6 +14,16 @@
  * limitations under the License.
  */
 public class RsvrApexLexicalParserUtil {
+    public static String int2string(Integer val) {
+        List<Integer> nextOne = new List<Integer>();
+        nextOne.add(val);
+        return String.fromCharArray(nextOne);
+    }
+
+
+
+
+
     public static String readApexClassBody(String apexClassName) {
         ApexClass apc = [SELECT Name, Body, NamespacePrefix
             FROM ApexClass
