@@ -660,6 +660,8 @@ public class RsvrApexLexicalParser {
     //     :   '//' ~[\r\n]* -> channel(COMMENT_CHANNEL)
     //     ;
     private CommentToken parseLINE_COMMENT() {
+        CommentToken result = new CommentToken();
+
         mark();
         Integer first = readChar();
         if (first != '/'.charAt(0)) {
@@ -673,25 +675,22 @@ public class RsvrApexLexicalParser {
         }
 
         // hit line comment
-        String original = int2string(first) + int2string(second);
-        String comment = '';
+        result.original = int2string(first) + int2string(second);
+        result.comment = '';
         for (;;) {
             Integer next = readChar();
             if (next == '\r'.charAt(0)
             || next == '\n'.charAt(0)
             || next < 0) {
                 reset();
-                CommentToken tok = new CommentToken();
-                tok.original = original;
-                tok.comment = comment;
-                return tok;
+                result.original = result.original + result.comment;
+                break;
             }
             mark();
-            original += int2string(next);
-            comment += int2string(next);
+            result.comment = result.comment + int2string(next);
         }
 
-        return null;
+        return result;
     }
 
     public static String int2string(Integer val) {
