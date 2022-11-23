@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 public class RsvrApexLexicalParser {
-    private static final Boolean IS_DEBUG = true;
+    private static final Boolean IS_DEBUG = false;
 
     public abstract class LexicalToken {
         public String original {get; set;}
@@ -633,6 +633,7 @@ public class RsvrApexLexicalParser {
                 continue;
             }
             // Other.
+            reset();
             break;
         }
 
