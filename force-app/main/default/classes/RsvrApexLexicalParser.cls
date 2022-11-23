@@ -333,42 +333,6 @@ public class RsvrApexLexicalParser {
 
     // // §3.12 Operators
 
-    // ASSIGN          : '=';
-    // GT              : '>';
-    // LT              : '<';
-    // BANG            : '!';
-    // TILDE           : '~';
-    // QUESTIONDOT     : '?.';
-    // QUESTION        : '?';
-    // COLON           : ':';
-    // EQUAL           : '==';
-    // TRIPLEEQUAL     : '===';
-    // NOTEQUAL        : '!=';
-    // LESSANDGREATER  : '<>';
-    // TRIPLENOTEQUAL  : '!==';
-    // AND             : '&&';
-    // OR              : '||';
-    // INC             : '++';
-    // DEC             : '--';
-    // ADD             : '+';
-    // SUB             : '-';
-    // MUL             : '*';
-    // DIV             : '/';
-    // BITAND          : '&';
-    // BITOR           : '|';
-    // CARET           : '^';
-    // MAPTO           : '=>';
-
-    // ADD_ASSIGN      : '+=';
-    // SUB_ASSIGN      : '-=';
-    // MUL_ASSIGN      : '*=';
-    // DIV_ASSIGN      : '/=';
-    // AND_ASSIGN      : '&=';
-    // OR_ASSIGN       : '|=';
-    // XOR_ASSIGN      : '^=';
-    // LSHIFT_ASSIGN   : '<<=';
-    // RSHIFT_ASSIGN   : '>>=';
-    // URSHIFT_ASSIGN  : '>>>=';
 
     //
     // Additional symbols not defined in the lexical specification

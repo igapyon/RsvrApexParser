@@ -400,4 +400,80 @@ public class RsvrApexConstants {
         ',',
         '.'
     };
+
+    // // §3.12 Operators
+
+    public static final Integer OPE_ASSIGN          = 0; // '='
+    public static final Integer OPE_GT              = 1; // '>'
+    public static final Integer OPE_LT              = 2; // '<'
+    public static final Integer OPE_BANG            = 3; // '!'
+    public static final Integer OPE_TILDE           = 4; // '~'
+    public static final Integer OPE_QUESTIONDOT     = 5; // '?.'
+    public static final Integer OPE_QUESTION        = 6; // '?'
+    public static final Integer OPE_COLON           = 7; // '= 1; //'
+    public static final Integer OPE_EQUAL           = 8; // '=='
+    public static final Integer OPE_TRIPLEEQUAL     = 9; // '==='
+    public static final Integer OPE_NOTEQUAL        = 10; // '!='
+    public static final Integer OPE_LESSANDGREATER  = 11; // '<>'
+    public static final Integer OPE_TRIPLENOTEQUAL  = 12; // '!=='
+    public static final Integer OPE_AND             = 13; // '&&'
+    public static final Integer OPE_OR              = 14; // '||'
+    public static final Integer OPE_INC             = 15; // '++'
+    public static final Integer OPE_DEC             = 16; // '--'
+    public static final Integer OPE_ADD             = 17; // '+'
+    public static final Integer OPE_SUB             = 18; // '-'
+    public static final Integer OPE_MUL             = 19; // '*'
+    public static final Integer OPE_DIV             = 20; // '/'
+    public static final Integer OPE_BITAND          = 21; // '&'
+    public static final Integer OPE_BITOR           = 22; // '|'
+    public static final Integer OPE_CARET           = 23; // '^'
+    public static final Integer OPE_MAPTO           = 24; // '=>'
+    public static final Integer OPE_ADD_ASSIGN      = 25; // '+='
+    public static final Integer OPE_SUB_ASSIGN      = 26; // '-='
+    public static final Integer OPE_MUL_ASSIGN      = 27; // '*='
+    public static final Integer OPE_DIV_ASSIGN      = 28; // '/='
+    public static final Integer OPE_AND_ASSIGN      = 29; // '&='
+    public static final Integer OPE_OR_ASSIGN       = 30; // '|='
+    public static final Integer OPE_XOR_ASSIGN      = 31; // '^='
+    public static final Integer OPE_LSHIFT_ASSIGN   = 32; // '<<='
+    public static final Integer OPE_RSHIFT_ASSIGN   = 33; // '>>='
+    public static final Integer OPE_URSHIFT_ASSIGN  = 34; // '>>>='
+    
+    public static final String[] OPERATORS = new String[]{
+        '=',
+        '>',
+        '<',
+        '!',
+        '~',
+        '?.',
+        '?',
+        ':',
+        '==',
+        '===',
+        '!=',
+        '<>',
+        '!==',
+        '&&',
+        '||',
+        '++',
+        '--',
+        '+',
+        '-',
+        '*',
+        '/',
+        '&',
+        '|',
+        '^',
+        '=>',
+        '+=',
+        '-=',
+        '*=',
+        '/=',
+        '&=',
+        '|=',
+        '^=',
+        '<<=',
+        '>>=',
+        '>>>='
+    };
 }
