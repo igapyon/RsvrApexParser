@@ -170,24 +170,24 @@ public class RsvrApexLexicalParser {
                 }
             }
             {
-                if (IS_DEBUG) System.debug('TRACE: parseDOC_COMMENT: ');
-                CommentToken tok = parseDOC_COMMENT();
+                if (IS_DEBUG) System.debug('TRACE: parseDocComment: ');
+                CommentToken tok = parseDocComment();
                 if (tok != null) {
                     tokenList.add(tok);
                     continue;
                 }
             }
             {
-                if (IS_DEBUG) System.debug('TRACE: parseCOMMENT: ');
-                CommentToken tok = parseCOMMENT();
+                if (IS_DEBUG) System.debug('TRACE: parseComment: ');
+                CommentToken tok = parseComment();
                 if (tok != null) {
                     tokenList.add(tok);
                     continue;
                 }
             }
             {
-                if (IS_DEBUG) System.debug('TRACE: parseLINE_COMMENT: ');
-                CommentToken tok = parseLINE_COMMENT();
+                if (IS_DEBUG) System.debug('TRACE: parseLineComment: ');
+                CommentToken tok = parseLineComment();
                 if (tok != null) {
                     tokenList.add(tok);
                     continue;
@@ -214,7 +214,7 @@ public class RsvrApexLexicalParser {
 
     private KeywordToken parseKeyword() {
         KeywordToken result = new KeywordToken();
-        result.type = 'KEYWORD';
+        result.type = 'Keyword';
 
         mark();
         result.target = '';
@@ -410,7 +410,7 @@ public class RsvrApexLexicalParser {
      */
     private SeparatorToken parseSeparator() {
         SeparatorToken result = new SeparatorToken();
-        result.type = 'SEPARATOR';
+        result.type = 'Separator';
 
         mark();
         result.target = '';
@@ -465,7 +465,7 @@ public class RsvrApexLexicalParser {
 
     private OperatorToken parseOperator() {
         OperatorToken result = new OperatorToken();
-        result.type = 'OPERATOR';
+        result.type = 'Operator';
 
         mark();
         result.target = '';
@@ -505,7 +505,7 @@ public class RsvrApexLexicalParser {
     // ATSIGN : '@';
     private AtsignToken parseAtsign() {
         AtsignToken result = new AtsignToken();
-        result.type = 'ATSIGN';
+        result.type = 'Atsign';
 
         mark();
         result.target = '';
@@ -645,7 +645,7 @@ public class RsvrApexLexicalParser {
     //     ;
     private WhitespaceToken parseWS() {
         WhitespaceToken result = new WhitespaceToken();
-        result.type = 'WHITESPACE';
+        result.type = 'Whitespace';
 
         mark();
         result.target = '';
@@ -689,9 +689,9 @@ public class RsvrApexLexicalParser {
     // DOC_COMMENT
     //     :   '/**' .*? '*/' -> channel(COMMENT_CHANNEL)
     //     ;
-    private CommentToken parseDOC_COMMENT() {
+    private CommentToken parseDocComment() {
         CommentToken result = new CommentToken();
-        result.type = 'DOC_COMMENT';
+        result.type = 'DocComment';
 
         mark();
         Integer first = readChar();
@@ -737,9 +737,9 @@ public class RsvrApexLexicalParser {
     // COMMENT
     //     :   '/*' .*? '*/' -> channel(COMMENT_CHANNEL)
     //     ;
-    private CommentToken parseCOMMENT() {
+    private CommentToken parseComment() {
         CommentToken result = new CommentToken();
-        result.type = 'DOC_COMMENT';
+        result.type = 'Comment';
 
         mark();
         Integer first = readChar();
@@ -780,9 +780,9 @@ public class RsvrApexLexicalParser {
     // LINE_COMMENT
     //     :   '//' ~[\r\n]* -> channel(COMMENT_CHANNEL)
     //     ;
-    private CommentToken parseLINE_COMMENT() {
+    private CommentToken parseLineComment() {
         CommentToken result = new CommentToken();
-        result.type = 'LINE_COMMENT';
+        result.type = 'LineComment';
 
         mark();
         Integer first = readChar();
