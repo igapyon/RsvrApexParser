@@ -94,114 +94,102 @@ public class RsvrApexLexicalParser {
 
         for (;;) {
             if (IS_DEBUG) System.debug('TRACE: Current remaining text: ' + getRemainingtext(true));
-            {
-                // Check End of file.
-                mark();
-                if (readChar() == -1) {
-                    if (IS_DEBUG) System.debug('TRACE: check EOF: ');
-                    // End of file
-                    break;
-                }
-                reset();
+
+            ////////////////////////////////
+            // Check End of file.
+            mark();
+            if (readChar() == -1) {
+                if (IS_DEBUG) System.debug('TRACE: check EOF: ');
+                // End of file
+                break;
+            }
+            reset();
+
+            if (IS_DEBUG) System.debug('TRACE: parseKeyword: ');
+            LexicalToken tok = null;
+            tok = parseKeyword();
+            if (tok != null) {
+                tokenList.add(tok);
+                continue;
             }
 
-            {
-                if (IS_DEBUG) System.debug('TRACE: parseKeyword: ');
-                KeywordToken tok = parseKeyword();
-                if (tok != null) {
-                    tokenList.add(tok);
-                    continue;
-                }
+            if (IS_DEBUG) System.debug('TRACE: parseIdentifier: ');
+            tok = parseIdentifier();
+            if (tok != null) {
+                tokenList.add(tok);
+                continue;
             }
-            {
-                if (IS_DEBUG) System.debug('TRACE: parseIdentifier: ');
-                IdentifierToken tok = parseIdentifier();
-                if (tok != null) {
-                    tokenList.add(tok);
-                    continue;
-                }
+
+            if (IS_DEBUG) System.debug('TRACE: parseSeparator: ');
+            tok = parseSeparator();
+            if (tok != null) {
+                tokenList.add(tok);
+                continue;
             }
-            {
-                if (IS_DEBUG) System.debug('TRACE: parseSeparator: ');
-                SeparatorToken tok = parseSeparator();
-                if (tok != null) {
-                    tokenList.add(tok);
-                    continue;
-                }
+
+            if (IS_DEBUG) System.debug('TRACE: parseOperator: ');
+            tok = parseOperator();
+            if (tok != null) {
+                tokenList.add(tok);
+                continue;
             }
-            {
-                if (IS_DEBUG) System.debug('TRACE: parseOperator: ');
-                OperatorToken tok = parseOperator();
-                if (tok != null) {
-                    tokenList.add(tok);
-                    continue;
-                }
-            }
-            {
-                if (IS_DEBUG) System.debug('TRACE: parseAtsign: ');
-                AtsignToken tok = parseAtsign();
-                if (tok != null) {
-                    tokenList.add(tok);
-                    continue;
-                }
+
+            if (IS_DEBUG) System.debug('TRACE: parseAtsign: ');
+            tok = parseAtsign();
+            if (tok != null) {
+                tokenList.add(tok);
+                continue;
             }
 
             ////////////////////////
             // Literals
 
-            {
-                if (IS_DEBUG) System.debug('TRACE: parseStringLiteral: ');
-                LiteralToken tok = parseStringLiteral();
-                if (tok != null) {
-                    tokenList.add(tok);
-                    continue;
-                }
+            if (IS_DEBUG) System.debug('TRACE: parseStringLiteral: ');
+            tok = parseStringLiteral();
+            if (tok != null) {
+                tokenList.add(tok);
+                continue;
             }
 
             ////////////////////////
             // Whitespace and comments.
 
-            {
-                if (IS_DEBUG) System.debug('TRACE: parseWS: ');
-                WhitespaceToken tok = parseWS();
-                if (tok != null) {
-                    tokenList.add(tok);
-                    continue;
-                }
-            }
-            {
-                if (IS_DEBUG) System.debug('TRACE: parseDocComment: ');
-                CommentToken tok = parseDocComment();
-                if (tok != null) {
-                    tokenList.add(tok);
-                    continue;
-                }
-            }
-            {
-                if (IS_DEBUG) System.debug('TRACE: parseComment: ');
-                CommentToken tok = parseComment();
-                if (tok != null) {
-                    tokenList.add(tok);
-                    continue;
-                }
-            }
-            {
-                if (IS_DEBUG) System.debug('TRACE: parseLineComment: ');
-                CommentToken tok = parseLineComment();
-                if (tok != null) {
-                    tokenList.add(tok);
-                    continue;
-                }
+            if (IS_DEBUG) System.debug('TRACE: parseWS: ');
+            tok = parseWS();
+            if (tok != null) {
+                tokenList.add(tok);
+                continue;
             }
 
-            // Can't here.
+            if (IS_DEBUG) System.debug('TRACE: parseDocComment: ');
+            tok = parseDocComment();
+            if (tok != null) {
+                tokenList.add(tok);
+                continue;
+            }
+
+            if (IS_DEBUG) System.debug('TRACE: parseComment: ');
+            tok = parseComment();
+            if (tok != null) {
+                tokenList.add(tok);
+                continue;
+            }
+
+            if (IS_DEBUG) System.debug('TRACE: parseLineComment: ');
+            tok = parseLineComment();
+            if (tok != null) {
+                tokenList.add(tok);
+                continue;
+            }
+
+            // Do NOT enter here..
             {
                 System.debug('TRACE: PANIC: Unexpected error. Process stopped.: ' + getRemainingtext(true));
-                PanicToken tok = new PanicToken();
-                tok.type = 'PANIC';
-                tok.message = 'Unexpected error. Process stopped.';
-                tok.remainingtext = getRemainingtext(false);
-                tokenList.add(tok);
+                PanicToken panic = new PanicToken();
+                panic.type = 'PANIC';
+                panic.message = 'Unexpected error. Process stopped.';
+                panic.remainingtext = getRemainingtext(false);
+                tokenList.add(panic);
                 break;
             }        
         }
