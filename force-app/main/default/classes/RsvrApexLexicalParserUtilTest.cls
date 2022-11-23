@@ -14,21 +14,8 @@
  * limitations under the License.
  */
 @isTest(SeeAllData=false)
-private class RsvrApexLexicalParserTest {
+private class RsvrApexLexicalParserUtilTest {
     @isTest(SeeAllData=false)
     static void test01() {
-        String apexClassBody = RsvrApexLexicalParserUtil.readApexClassBody('RsvrApexLexicalParserTest');
-        RsvrApexLexicalParser parser = new RsvrApexLexicalParser();
-        List<RsvrApexLexicalParser.LexicalToken> result = parser.parse(apexClassBody);
-
-        String parsedInput = '';
-        for (RsvrApexLexicalParser.LexicalToken look : result) {
-            parsedInput += look.original;
-        }
-        System.debug('Was fukugen?: ' + parsedInput);
-
-        for (RsvrApexLexicalParser.LexicalToken look : result) {
-            System.debug(look.toString());
-        }
     }
 }
