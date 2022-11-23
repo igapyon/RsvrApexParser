@@ -17,40 +17,33 @@ public class RsvrApexLexicalParser {
     private static final Boolean IS_DEBUG = false;
 
     public abstract class LexicalToken {
-        public String original {get; set;}
         public String type {get; set;}
+        public String target {get; set;}
+        public String original {get; set;}
     }
 
     public class KeywordToken extends LexicalToken {
-        public String keyword {get; set;}
     }
 
     public class LiteralToken extends LexicalToken {
-        public String literal {get; set;}
     }
 
     public class SeparatorToken extends LexicalToken {
-        public String separator {get; set;}
     }
 
     public class OperatorToken extends LexicalToken {
-        public String operator {get; set;}
     }
 
     public class WhitespaceToken extends LexicalToken {
-        public String whitespace {get; set;}
     }
 
     public class CommentToken extends LexicalToken {
-        public String comment {get; set;}
     }
 
     public class IdentifierToken extends LexicalToken {
-        public String identifier {get; set;}
     }
 
     public class AtsignToken extends LexicalToken {
-        public String atsign {get; set;}
     }
 
     public class PanicToken extends LexicalToken {
@@ -224,13 +217,13 @@ public class RsvrApexLexicalParser {
         result.type = 'KEYWORD';
 
         mark();
-        result.keyword = '';
+        result.target = '';
         Boolean isExist = false;
         for (;;) {
             Integer next = readChar();
             if (isJavaLetter(next)) {
                 isExist = true;
-                result.keyword = result.keyword + int2string(next);
+                result.target = result.target + int2string(next);
                 continue;
             } else {
                 if (isExist == false) {
@@ -239,10 +232,10 @@ public class RsvrApexLexicalParser {
                 }
 
                 move(pos() - 1);
-                if (isKeyword(result.keyword)) {
+                if (isKeyword(result.target)) {
                     // Hit
                     mark();
-                    result.original = result.keyword;
+                    result.original = result.target;
                     return result;
                 } else {
                     break;
@@ -347,7 +340,7 @@ public class RsvrApexLexicalParser {
         }
 
         // start string literal.
-        result.literal = '';
+        result.target = '';
         for (;;) {
             Integer next = readChar();
             if (next == -1) {
@@ -365,7 +358,7 @@ public class RsvrApexLexicalParser {
             // TODO エスケープシーケンス
             // TODO Unicode
         
-            result.literal = result.literal + int2string(next);
+            result.target = result.target + int2string(next);
         }
 
         reset();
@@ -420,12 +413,12 @@ public class RsvrApexLexicalParser {
         result.type = 'SEPARATOR';
 
         mark();
-        result.separator = '';
+        result.target = '';
         for (;;) {
             Integer next = readChar();
             if (isSeparator(int2string(next))) {
-                result.separator = result.separator + int2string(next);
-                result.original = result.separator;
+                result.target = result.target + int2string(next);
+                result.original = result.target;
                 return result;
             } else {
                 break;
@@ -475,13 +468,13 @@ public class RsvrApexLexicalParser {
         result.type = 'OPERATOR';
 
         mark();
-        result.operator = '';
+        result.target = '';
         Boolean isExist = false;
         for (;;) {
             Integer next = readChar();
             if (isOperatorLetter(next)) {
                 isExist = true;
-                result.operator = result.operator + int2string(next);
+                result.target = result.target + int2string(next);
                 continue;
             } else {
                 if (isExist == false) {
@@ -490,10 +483,10 @@ public class RsvrApexLexicalParser {
                 }
 
                 move(pos() - 1);
-                if (isOperator(result.operator)) {
+                if (isOperator(result.target)) {
                     // Hit
                     mark();
-                    result.original = result.operator;
+                    result.original = result.target;
                     return result;
                 } else {
                     break;
@@ -515,12 +508,12 @@ public class RsvrApexLexicalParser {
         result.type = 'ATSIGN';
 
         mark();
-        result.atsign = '';
+        result.target = '';
 
         Integer next = readChar();
         if (next == '@'.charAt(0)) {
-            result.atsign = int2string(next);
-            result.original = result.atsign;
+            result.target = int2string(next);
+            result.original = result.target;
             return result;
         }
 
@@ -538,13 +531,13 @@ public class RsvrApexLexicalParser {
         result.type = 'Identifier';
 
         mark();
-        result.identifier = '';
+        result.target = '';
         Boolean isExist = false;
         for (;;) {
             Integer next = readChar();
             if (isJavaLetterOrDigit(next)) {
                 isExist = true;
-                result.identifier = result.identifier + int2string(next);
+                result.target = result.target + int2string(next);
                 continue;
             } else {
                 if (isExist == false) {
@@ -556,7 +549,7 @@ public class RsvrApexLexicalParser {
 
                 // Hit
                 mark();
-                result.original = result.identifier;
+                result.original = result.target;
                 return result;
             }
         }
@@ -655,7 +648,7 @@ public class RsvrApexLexicalParser {
         result.type = 'WHITESPACE';
 
         mark();
-        result.whitespace = '';
+        result.target = '';
         Boolean isExist = false;
         for (;;) {
             Integer next = readChar();
@@ -676,7 +669,7 @@ public class RsvrApexLexicalParser {
             || next == '\u000C'.charAt(0)) {
                 isExist = true;
                 mark();
-                result.whitespace = result.whitespace + int2string(next);
+                result.target = result.target + int2string(next);
                 continue;
             }
             // Other.
@@ -689,7 +682,7 @@ public class RsvrApexLexicalParser {
             return null;
         }
 
-        result.original = result.whitespace;
+        result.original = result.target;
         return result;
     }
 
@@ -719,7 +712,7 @@ public class RsvrApexLexicalParser {
 
         // hit line comment
         result.original = int2string(first) + int2string(second) + int2string(third);
-        result.comment = '';
+        result.target = '';
         for (;;) {
             Integer next = readChar();
             if (next == '*'.charAt(0)) {
@@ -728,14 +721,14 @@ public class RsvrApexLexicalParser {
                 if (next2 == '/'.charAt(0)) {
                     // End of comment.
                     mark();
-                    result.original = result.original + result.comment;
+                    result.original = result.original + result.target;
                     return result;
                 }
                 reset();
             }
 
             mark();
-            result.comment = result.comment + int2string(next);
+            result.target = result.target + int2string(next);
         }
 
         return result;
@@ -762,7 +755,7 @@ public class RsvrApexLexicalParser {
 
         // hit line comment
         result.original = int2string(first) + int2string(second);
-        result.comment = '';
+        result.target = '';
         for (;;) {
             Integer next = readChar();
             if (next == '*'.charAt(0)) {
@@ -771,14 +764,14 @@ public class RsvrApexLexicalParser {
                 if (next2 == '/'.charAt(0)) {
                     // End of comment.
                     mark();
-                    result.original = result.original + result.comment;
+                    result.original = result.original + result.target;
                     return result;
                 }
                 reset();
             }
 
             mark();
-            result.comment = result.comment + int2string(next);
+            result.target = result.target + int2string(next);
         }
 
         return result;
@@ -805,19 +798,19 @@ public class RsvrApexLexicalParser {
 
         // hit line comment
         result.original = int2string(first) + int2string(second);
-        result.comment = '';
+        result.target = '';
         for (;;) {
             Integer next = readChar();
             if (next == '\r'.charAt(0)
             || next == '\n'.charAt(0)
             || next == -1) {
                 reset();
-                result.original = result.original + result.comment;
+                result.original = result.original + result.target;
                 break;
             }
 
             mark();
-            result.comment = result.comment + int2string(next);
+            result.target = result.target + int2string(next);
         }
 
         return result;
