@@ -100,6 +100,7 @@ public class RsvrApexLexicalParser {
                 // Check End of file.
                 mark();
                 if (readChar() == -1) {
+                    if (IS_DEBUG) System.debug('TRACE: check EOF: ' + getRemainingtext(true));
                     // End of file
                     break;
                 }
@@ -173,6 +174,7 @@ public class RsvrApexLexicalParser {
 
             // Can't here.
             {
+                System.debug('TRACE: PANIC: Unexpected error. Process stopped.: ' + getRemainingtext(true));
                 PanicToken tok = new PanicToken();
                 tok.type = 'PANIC';
                 tok.message = 'Unexpected error. Process stopped.';
@@ -706,16 +708,16 @@ public class RsvrApexLexicalParser {
     }
 
     public String getRemainingtext(Boolean isNext) {
-        if (isNext == false) {
-            if (apexClassText.length() <= currentPos) {
-                return '';
-            }
-            return apexClassText.substring(currentPos);
-        } else {
-            if (apexClassText.length() <= (currentPos + 1)) {
-                return '';
-            }
-            return apexClassText.substring(currentPos + 1);
+        Integer pos = currentPos;
+        if (isNext) {
+            pos++;
         }
+        if (pos < 0) {
+            pos = 0;
+        }
+        if (apexClassText.length() <= (pos)) {
+            return '';
+        }
+        return apexClassText.substring(pos);
     }
 }
