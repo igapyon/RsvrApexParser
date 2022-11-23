@@ -84,7 +84,7 @@ public class RsvrApexLexicalParser {
     }
 
     ////////////////////////////////
-    // Mail process.
+    // Mail process loop.
 
     public List<LexicalToken> parse(String apexClassText) {
         this.apexClassText = apexClassText;
@@ -196,6 +196,9 @@ public class RsvrApexLexicalParser {
         
         return tokenList;
     }
+
+    // Mail process loop.
+    ////////////////////////////////
 
     ///////////////////////////////////////
     // Parse
