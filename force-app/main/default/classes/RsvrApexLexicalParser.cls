@@ -267,16 +267,6 @@ public class RsvrApexLexicalParser {
     //     :   Digit* '.' Digit Digit* [dD]?
     //     ;
 
-    // fragment
-    // HexCharacter
-    //     :   Digit | 'a' | 'b' | 'c' | 'd' | 'e' | 'f'
-    //     ;
-
-    // fragment
-    // Digit
-    //     :   [0-9]
-    //     ;
-
     // // §3.10.3 Boolean Literals
 
     // BooleanLiteral
@@ -285,6 +275,28 @@ public class RsvrApexLexicalParser {
     //     ;
 
     // // §3.10.5 String Literals
+
+    // StringLiteral
+    //     :   '\'' StringCharacters? '\''
+    //     ;
+
+    // fragment
+    // StringCharacters
+    //     :   StringCharacter+
+    //     ;
+
+    // fragment
+    // StringCharacter
+    //     :   ~['\\]
+    //     |   EscapeSequence
+    //     ;
+    // // §3.10.6 Escape Sequences for Character and String Literals
+    // fragment
+    // EscapeSequence
+    //     :   '\\' [btnfr"'\\]
+    //     |   '\\u' HexCharacter HexCharacter HexCharacter HexCharacter
+    //     ;
+
     private LiteralToken parseStringLiteral() {
         LiteralToken result = new LiteralToken();
         result.type = 'StringLiteral';
@@ -312,42 +324,86 @@ public class RsvrApexLexicalParser {
             if (next == '\''.charAt(0)) {
                 // end of string literal.
                 input.mark();
-                result.original = result.original + result.target + RsvrApexLexicalParserUtil.int2string(next);
+                result.original = result.original + RsvrApexLexicalParserUtil.int2string(next);
                 return result;
             }
 
             // TODO エスケープシーケンス
             // TODO Unicode
-        
+
+            //     :   '\\' [btnfr"'\\]
+            if (next == '\\'.charAt(0)) {
+                // Escape begin.
+                result.original = result.original + RsvrApexLexicalParserUtil.int2string(next);
+
+                Integer next2 = input.readChar();
+                result.original = result.original + RsvrApexLexicalParserUtil.int2string(next2);
+                if (next2 == 'b'.charAt(0)) {
+                    result.target = result.target + '\b';
+                    continue;
+                }
+                if (next2 == 't'.charAt(0)) {
+                    result.target = result.target + '\t';
+                    continue;
+                }
+                if (next2 == 'n'.charAt(0)) {
+                    result.target = result.target + '\n';
+                    continue;
+                }
+                if (next2 == 'f'.charAt(0)) {
+                    result.target = result.target + '\f';
+                    continue;
+                }
+                if (next2 == 'r'.charAt(0)) {
+                    result.target = result.target + '\r';
+                    continue;
+                }
+                if (next2 == '"'.charAt(0)
+                || next2 == '\''.charAt(0)
+                || next2 == '\\'.charAt(0)) {
+                    result.target = result.target + RsvrApexLexicalParserUtil.int2string(next2);
+                    continue;
+                }
+                // '\\u' HexCharacter HexCharacter HexCharacter HexCharacter
+                if (next2 == 'u'.charAt(0)) {
+                    Integer hex1 = input.readChar();
+                    if (RsvrApexLexicalParserUtil.isHexCharacter(hex1) == false) {
+                        input.reset();
+                        break;
+                    }
+                    Integer hex2 = input.readChar();
+                    if (RsvrApexLexicalParserUtil.isHexCharacter(hex2) == false) {
+                        input.reset();
+                        break;
+                    }
+                    Integer hex3 = input.readChar();
+                    if (RsvrApexLexicalParserUtil.isHexCharacter(hex3) == false) {
+                        input.reset();
+                        break;
+                    }
+                    Integer hex4 = input.readChar();
+                    if (RsvrApexLexicalParserUtil.isHexCharacter(hex4) == false) {
+                        input.reset();
+                        break;
+                    }
+                    String hexTarget = RsvrApexLexicalParserUtil.int2string(hex1) + RsvrApexLexicalParserUtil.int2string(hex2) + RsvrApexLexicalParserUtil.int2string(hex3) + RsvrApexLexicalParserUtil.int2string(hex4);
+                    result.original = result.original + hexTarget;
+                    // Hex錬成
+                    Blob blobHexTarget = EncodingUtil.convertFromHex(hexTarget);
+                    result.target = result.target + blobHexTarget;
+                    continue;
+                }
+                // エスケープ中の想定外のコース。ここに入ってはダメ。
+                break;
+            }
+
             result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
+            result.original = result.original + RsvrApexLexicalParserUtil.int2string(next);
         }
 
         input.reset();
         return null;
     }
-
-    // StringLiteral
-    //     :   '\'' StringCharacters? '\''
-    //     ;
-
-
-
-    // fragment
-    // StringCharacters
-    //     :   StringCharacter+
-    //     ;
-
-    // fragment
-    // StringCharacter
-    //     :   ~['\\]
-    //     |   EscapeSequence
-    //     ;
-    // // §3.10.6 Escape Sequences for Character and String Literals
-    // fragment
-    // EscapeSequence
-    //     :   '\\' [btnfr"'\\]
-    //     |   '\\u' HexCharacter HexCharacter HexCharacter HexCharacter
-    //     ;
 
     // // §3.10.7 The Null Literal
 

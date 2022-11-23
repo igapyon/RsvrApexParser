@@ -139,6 +139,46 @@ public class RsvrApexLexicalParserUtil {
         return false;
     }
 
+    // fragment
+    // Digit
+    //     :   [0-9]
+    //     ;
+
+    public static Boolean isDigit(Integer val) {
+        if ('0'.charAt(0) == val
+        || '1'.charAt(0) == val
+        || '2'.charAt(0) == val
+        || '3'.charAt(0) == val
+        || '4'.charAt(0) == val
+        || '5'.charAt(0) == val
+        || '6'.charAt(0) == val
+        || '7'.charAt(0) == val
+        || '8'.charAt(0) == val
+        || '9'.charAt(0) == val) {
+            return true;
+        }
+        return false;
+    }
+
+    // fragment
+    // HexCharacter
+    //     :   Digit | 'a' | 'b' | 'c' | 'd' | 'e' | 'f'
+    //     ;
+    public static Boolean isHexCharacter(Integer val) {
+        if (isDigit(val)) {
+            return true;
+        }
+        if ('a'.charAt(0) == val
+        || 'b'.charAt(0) == val
+        || 'c'.charAt(0) == val
+        || 'd'.charAt(0) == val
+        || 'e'.charAt(0) == val
+        || 'f'.charAt(0) == val) {
+            return true;
+        }
+        return false;
+    }
+
     //////////////////////////////////////
     //
 

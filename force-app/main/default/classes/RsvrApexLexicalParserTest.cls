@@ -25,7 +25,8 @@ private class RsvrApexLexicalParserTest {
         for (RsvrApexLexicalParser.LexicalToken look : result) {
             parsedInput += look.original;
         }
-        System.debug('Was fukugen?: ' + parsedInput);
+        // Fukugen check.
+        System.assertEquals(apexClassBody, parsedInput);
 
         for (RsvrApexLexicalParser.LexicalToken look : result) {
             System.debug(look.toString());
