@@ -404,6 +404,10 @@ public class RsvrApexLexicalParser {
     public class IdentifierToken extends LexicalToken {
     }
 
+    public class PanicToken extends LexicalToken {
+        public String remainingtext {get; set;}
+    }
+
     private String apexClassText;
     private List<LexicalToken> tokenList = new List<LexicalToken>();
     private Integer currentPos = -1;
@@ -474,8 +478,13 @@ public class RsvrApexLexicalParser {
                 reset();
             }
 
-            System.debug('Panic. Unexpected error. Process stopped.' + apexClassText.substring(currentPos));
-            break;
+            // Can't here.
+            {
+                PanicToken tok = new PanicToken();
+                tok.remainingtext = 'PANIC. Unexpected error. Process stopped.' + apexClassText.substring(currentPos);
+                tokenList.add(tok);
+                break;
+            }        
         }
         
         return tokenList;
@@ -495,6 +504,7 @@ public class RsvrApexLexicalParser {
             Integer next = readChar();
             if (isJavaLetter(next)) {
                 result.keyword = result.keyword + int2string(next);
+                continue;
             } else {
                 move(pos() - 1);
                 if (isKeyword(result.keyword)) {
