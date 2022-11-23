@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 public class RsvrApexLexicalParser {
+    private static final Boolean IS_DEBUG = false;
+
     public static final Integer KEY_ABSTRACT = 0;
     public static final Integer KEY_AFTER = 1;
     public static final Integer KEY_BEFORE = 2;
@@ -402,6 +404,7 @@ public class RsvrApexLexicalParser {
     }
 
     public class IdentifierToken extends LexicalToken {
+        public String identifier {get; set;}
     }
 
     public class PanicToken extends LexicalToken {
@@ -441,6 +444,9 @@ public class RsvrApexLexicalParser {
         currentPos = markPos;
     }
 
+    ////////////////////////////////
+    // Mail process.
+
     public List<LexicalToken> parse(String apexClassText) {
         this.apexClassText = apexClassText;
         tokenList = new List<LexicalToken>();
@@ -449,6 +455,7 @@ public class RsvrApexLexicalParser {
 
         for (;;) {
             {
+                if (IS_DEBUG) System.debug('TRACE: parseKEYWORD: ' + apexClassText.substring(currentPos + 1));
                 KeywordToken tok = parseKEYWORD();
                 if (tok != null) {
                     tokenList.add(tok);
@@ -456,6 +463,15 @@ public class RsvrApexLexicalParser {
                 }
             }
             {
+                if (IS_DEBUG) System.debug('TRACE: parseIdentifier: ' + apexClassText.substring(currentPos + 1));
+                IdentifierToken tok = parseIdentifier();
+                if (tok != null) {
+                    tokenList.add(tok);
+                    continue;
+                }
+            }
+            {
+                if (IS_DEBUG) System.debug('TRACE: parseWS: ' + apexClassText.substring(currentPos + 1));
                 WhitespaceToken tok = parseWS();
                 if (tok != null) {
                     tokenList.add(tok);
@@ -463,6 +479,7 @@ public class RsvrApexLexicalParser {
                 }
             }
             {
+                if (IS_DEBUG) System.debug('TRACE: parseLINE_COMMENT: ' + apexClassText.substring(currentPos + 1));
                 CommentToken tok = parseLINE_COMMENT();
                 if (tok != null) {
                     tokenList.add(tok);
@@ -503,9 +520,15 @@ public class RsvrApexLexicalParser {
         for (;;) {
             Integer next = readChar();
             if (isJavaLetter(next)) {
+                isExist = true;
                 result.keyword = result.keyword + int2string(next);
                 continue;
             } else {
+                if (isExist == false) {
+                    reset();
+                    return null;
+                }
+
                 move(pos() - 1);
                 if (isKeyword(result.keyword)) {
                     // Hit
@@ -692,6 +715,36 @@ public class RsvrApexLexicalParser {
     // Identifier
     //     :   JavaLetter JavaLetterOrDigit*
     //     ;
+    private IdentifierToken parseIdentifier() {
+        IdentifierToken result = new IdentifierToken();
+        result.type = 'Identifier';
+
+        mark();
+        result.identifier = '';
+        boolean isExist = false;
+        for (;;) {
+            Integer next = readChar();
+            if (isJavaLetterOrDigit(next)) {
+                isExist = true;
+                result.identifier = result.identifier + int2string(next);
+                continue;
+            } else {
+                if (isExist == false) {
+                    reset();
+                    return null;
+                }
+
+                move(pos() - 1);
+
+                // Hit
+                mark();
+                return result;
+            }
+        }
+
+        reset();
+        return null;
+    }
 
     // // Apex identifiers don't support non-ascii but we maintain Java rules here and post-validate
     // // so we can give better error messages
@@ -711,10 +764,10 @@ public class RsvrApexLexicalParser {
         if ('A'.charAt(0) <= val && val <= 'Z'.charAt(0)) {
             return true;
         }
-        if ('$'.charAt(0) <= val) {
+        if ('$'.charAt(0) == val) {
             return true;
         }
-        if ('_'.charAt(0) <= val) {
+        if ('_'.charAt(0) == val) {
             return true;
         }
         // ~[\u0000-\u00FF\uD800-\uDBFF]
@@ -727,6 +780,43 @@ public class RsvrApexLexicalParser {
         return true;
     }
 
+    // fragment
+    // JavaLetterOrDigit
+    //     :   [a-zA-Z0-9$_] // these are the "java letters or digits" below 0xFF
+    //     |   // covers all characters above 0xFF which are not a surrogate
+    //         ~[\u0000-\u00FF\uD800-\uDBFF]
+    //     |   // covers UTF-16 surrogate pairs encodings for U+10000 to U+10FFFF
+    //         [\uD800-\uDBFF] [\uDC00-\uDFFF]
+    //     ;
+    private static boolean isJavaLetterOrDigit(Integer val) {
+        // [a-zA-Z$_] // these are the "java letters" below 0xFF
+        if ('a'.charAt(0) <= val && val <= 'z'.charAt(0)) {
+            return true;
+        }
+        if ('A'.charAt(0) <= val && val <= 'Z'.charAt(0)) {
+            return true;
+        }
+        if ('0'.charAt(0) <= val && val <= '9'.charAt(0)) {
+            return true;
+        }
+        if ('$'.charAt(0) == val) {
+            return true;
+        }
+        if ('_'.charAt(0) == val) {
+            return true;
+        }
+        // ~[\u0000-\u00FF\uD800-\uDBFF]
+        if ('\u0000'.charAt(0) <= val && val <= '\u00FF'.charAt(0)) {
+            return false;
+        }
+        if ('\uD800'.charAt(0) <= val && val <= '\uDBFF'.charAt(0)) {
+            return false;
+        }
+        return true;
+    }
+
+
+
     private boolean isKeyword(String val) {
         for (String look : KEYWORDS) {
             if (look.toLowerCase() == val.toLowerCase()) {
@@ -736,14 +826,6 @@ public class RsvrApexLexicalParser {
         return false;
     }
 
-    // fragment
-    // JavaLetterOrDigit
-    //     :   [a-zA-Z0-9$_] // these are the "java letters or digits" below 0xFF
-    //     |   // covers all characters above 0xFF which are not a surrogate
-    //         ~[\u0000-\u00FF\uD800-\uDBFF]
-    //     |   // covers UTF-16 surrogate pairs encodings for U+10000 to U+10FFFF
-    //         [\uD800-\uDBFF] [\uDC00-\uDFFF]
-    //     ;
 
     // //
     // // Whitespace and comments
