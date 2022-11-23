@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 public class RsvrApexLexicalParser {
-    private static final Boolean IS_DEBUG = false;
+    private static final Boolean IS_DEBUG = true;
 
     public abstract class LexicalToken {
         public String original {get; set;}
@@ -63,7 +63,6 @@ public class RsvrApexLexicalParser {
         currentPos++;
         if (apexClassText.length() <= currentPos) {
             // end of string.
-            currentPos--;
             return -1;
         }
 
@@ -98,54 +97,7 @@ public class RsvrApexLexicalParser {
 
         for (;;) {
             {
-                if (IS_DEBUG) System.debug('TRACE: parseKeyword: ' + apexClassText.substring(currentPos + 1));
-                KeywordToken tok = parseKeyword();
-                if (tok != null) {
-                    tokenList.add(tok);
-                    continue;
-                }
-            }
-            {
-                if (IS_DEBUG) System.debug('TRACE: parseIdentifier: ' + apexClassText.substring(currentPos + 1));
-                IdentifierToken tok = parseIdentifier();
-                if (tok != null) {
-                    tokenList.add(tok);
-                    continue;
-                }
-            }
-            {
-                if (IS_DEBUG) System.debug('TRACE: parseSeparator: ' + apexClassText.substring(currentPos + 1));
-                SeparatorToken tok = parseSeparator();
-                if (tok != null) {
-                    tokenList.add(tok);
-                    continue;
-                }
-            }
-            {
-                if (IS_DEBUG) System.debug('TRACE: parseOperator: ' + apexClassText.substring(currentPos + 1));
-                OperatorToken tok = parseOperator();
-                if (tok != null) {
-                    tokenList.add(tok);
-                    continue;
-                }
-            }
-            {
-                if (IS_DEBUG) System.debug('TRACE: parseWS: ' + apexClassText.substring(currentPos + 1));
-                WhitespaceToken tok = parseWS();
-                if (tok != null) {
-                    tokenList.add(tok);
-                    continue;
-                }
-            }
-            {
-                if (IS_DEBUG) System.debug('TRACE: parseLINE_COMMENT: ' + apexClassText.substring(currentPos + 1));
-                CommentToken tok = parseLINE_COMMENT();
-                if (tok != null) {
-                    tokenList.add(tok);
-                    continue;
-                }
-            }
-            {
+                // Check End of file.
                 mark();
                 if (readChar() == -1) {
                     // End of file
@@ -154,12 +106,77 @@ public class RsvrApexLexicalParser {
                 reset();
             }
 
+            {
+                if (IS_DEBUG) System.debug('TRACE: parseKeyword: ' + getRemainingtext(true));
+                KeywordToken tok = parseKeyword();
+                if (tok != null) {
+                    tokenList.add(tok);
+                    continue;
+                }
+            }
+            {
+                if (IS_DEBUG) System.debug('TRACE: parseIdentifier: ' + getRemainingtext(true));
+                IdentifierToken tok = parseIdentifier();
+                if (tok != null) {
+                    tokenList.add(tok);
+                    continue;
+                }
+            }
+            {
+                if (IS_DEBUG) System.debug('TRACE: parseSeparator: ' + getRemainingtext(true));
+                SeparatorToken tok = parseSeparator();
+                if (tok != null) {
+                    tokenList.add(tok);
+                    continue;
+                }
+            }
+            {
+                if (IS_DEBUG) System.debug('TRACE: parseOperator: ' + getRemainingtext(true));
+                OperatorToken tok = parseOperator();
+                if (tok != null) {
+                    tokenList.add(tok);
+                    continue;
+                }
+            }
+
+            ////////////////////////
+            // Literals
+
+            {
+                if (IS_DEBUG) System.debug('TRACE: parseStringLiteral: ' + getRemainingtext(true));
+                LiteralToken tok = parseStringLiteral();
+                if (tok != null) {
+                    tokenList.add(tok);
+                    continue;
+                }
+            }
+
+            ////////////////////////
+            // Whitespace and comments.
+
+            {
+                if (IS_DEBUG) System.debug('TRACE: parseWS: ' + getRemainingtext(true));
+                WhitespaceToken tok = parseWS();
+                if (tok != null) {
+                    tokenList.add(tok);
+                    continue;
+                }
+            }
+            {
+                if (IS_DEBUG) System.debug('TRACE: parseLINE_COMMENT: ' + getRemainingtext(true));
+                CommentToken tok = parseLINE_COMMENT();
+                if (tok != null) {
+                    tokenList.add(tok);
+                    continue;
+                }
+            }
+
             // Can't here.
             {
                 PanicToken tok = new PanicToken();
                 tok.type = 'PANIC';
                 tok.message = 'Unexpected error. Process stopped.';
-                tok.remainingtext = apexClassText.substring(currentPos);
+                tok.remainingtext = getRemainingtext(false);
                 tokenList.add(tok);
                 break;
             }        
@@ -285,10 +302,50 @@ public class RsvrApexLexicalParser {
     //     ;
 
     // // §3.10.5 String Literals
+    private LiteralToken parseStringLiteral() {
+        LiteralToken result = new LiteralToken();
+        result.type = 'StringLiteral';
+
+        mark();
+
+        // canma should be first.
+        Integer first = readChar();
+        if (first != '\''.charAt(0)) {
+            reset();
+            return null;
+        }
+
+        // start string literal.
+        result.literal = '';
+        for (;;) {
+            Integer next = readChar();
+            if (next == -1) {
+                // End of file.
+                // Unexpected.
+                reset();
+                return result;
+            }
+            if (next == '\''.charAt(0)) {
+                // end of string literal.
+                mark();
+                return result;
+            }
+
+            // TODO エスケープシーケンス
+            // TODO Unicode
+        
+            result.literal = result.literal + int2string(next);
+        }
+
+        reset();
+        return null;
+    }
 
     // StringLiteral
     //     :   '\'' StringCharacters? '\''
     //     ;
+
+
 
     // fragment
     // StringCharacters
@@ -555,6 +612,16 @@ public class RsvrApexLexicalParser {
         Boolean isExist = false;
         for (;;) {
             Integer next = readChar();
+            if (next == -1) {
+                // end of file.
+                mark();
+                if (isExist) {
+                    return result;
+                }else {
+                    return null;
+                }
+            }
+
             if (next == ' '.charAt(0)
             || next == '\t'.charAt(0)
             || next == '\r'.charAt(0)
@@ -565,11 +632,12 @@ public class RsvrApexLexicalParser {
                 result.whitespace = result.whitespace + int2string(next);
                 continue;
             }
-            reset();
+            // Other.
             break;
         }
 
         if (isExist == false) {
+            reset();
             return null;
         }
 
@@ -634,5 +702,19 @@ public class RsvrApexLexicalParser {
         List<Integer> nextOne = new List<Integer>();
         nextOne.add(val);
         return String.fromCharArray(nextOne);
+    }
+
+    public String getRemainingtext(Boolean isNext) {
+        if (isNext == false) {
+            if (apexClassText.length() <= currentPos) {
+                return '';
+            }
+            return apexClassText.substring(currentPos);
+        } else {
+            if (apexClassText.length() <= (currentPos + 1)) {
+                return '';
+            }
+            return apexClassText.substring(currentPos + 1);
+        }
     }
 }
