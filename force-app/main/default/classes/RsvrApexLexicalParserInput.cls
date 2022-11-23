@@ -14,4 +14,52 @@
  * limitations under the License.
  */
 public class RsvrApexLexicalParserInput {
+    private String apexClassText;
+    private Integer currentPos = -1;
+    private Integer markPos = -1;
+
+    public RsvrApexLexicalParserInput(String apexClassText) {
+        this.apexClassText = apexClassText;
+    }
+
+    public Integer readChar() {
+        currentPos++;
+        if (apexClassText.length() <= currentPos) {
+            // end of string.
+            return -1;
+        }
+
+        return apexClassText.charAt(currentPos);
+    }
+
+    public Integer mark() {
+        markPos = currentPos;
+        return markPos;
+    }
+
+    public void move(Integer pos) {
+        currentPos = pos;
+    }
+
+    public Integer pos() {
+        return currentPos;
+    }
+
+    public void reset() {
+        currentPos = markPos;
+    }
+
+    public String getRemainingtext(Boolean isNext) {
+        Integer pos = currentPos;
+        if (isNext) {
+            pos++;
+        }
+        if (pos < 0) {
+            pos = 0;
+        }
+        if (apexClassText.length() <= (pos)) {
+            return '';
+        }
+        return apexClassText.substring(pos);
+    }
 }

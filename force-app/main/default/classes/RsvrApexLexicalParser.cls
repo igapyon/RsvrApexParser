@@ -51,59 +51,27 @@ public class RsvrApexLexicalParser {
         public String remainingtext {get; set;}
     }
 
-    private String apexClassText;
-    private List<LexicalToken> tokenList = new List<LexicalToken>();
-    private Integer currentPos = -1;
-    private Integer markPos = -1;
-
-    private Integer readChar() {
-        currentPos++;
-        if (apexClassText.length() <= currentPos) {
-            // end of string.
-            return -1;
-        }
-
-        return apexClassText.charAt(currentPos);
-    }
-
-    private Integer mark() {
-        markPos = currentPos;
-        return markPos;
-    }
-
-    private void move(Integer pos) {
-        currentPos = pos;
-    }
-
-    private Integer pos() {
-        return currentPos;
-    }
-
-    private void reset() {
-        currentPos = markPos;
-    }
+    private RsvrApexLexicalParserInput input = null;
+    private List<RsvrApexLexicalParser.LexicalToken> tokenList = new List<RsvrApexLexicalParser.LexicalToken>();
 
     ////////////////////////////////
     // Mail process loop.
 
     public List<LexicalToken> parse(String apexClassText) {
-        this.apexClassText = apexClassText;
-        tokenList = new List<LexicalToken>();
-        currentPos = -1;
-        markPos = -1;
+        input = new RsvrApexLexicalParserInput(apexClassText);
 
         for (;;) {
-            if (IS_DEBUG) System.debug('TRACE: Current remaining text: ' + getRemainingtext(true));
+            if (IS_DEBUG) System.debug('TRACE: Current remaining text: ' + input.getRemainingtext(true));
 
             ////////////////////////////////
             // Check End of file.
-            mark();
-            if (readChar() == -1) {
+            input.mark();
+            if (input.readChar() == -1) {
                 if (IS_DEBUG) System.debug('TRACE: check EOF: ');
                 // End of file
                 break;
             }
-            reset();
+            input.reset();
 
             if (IS_DEBUG) System.debug('TRACE: parseKeyword: ');
             LexicalToken tok = null;
@@ -184,11 +152,11 @@ public class RsvrApexLexicalParser {
 
             // Do NOT enter here..
             {
-                System.debug('TRACE: PANIC: Unexpected error. Process stopped.: ' + getRemainingtext(true));
+                System.debug('TRACE: PANIC: Unexpected error. Process stopped.: ' + input.getRemainingtext(true));
                 PanicToken panic = new PanicToken();
                 panic.type = 'PANIC';
                 panic.message = 'Unexpected error. Process stopped.';
-                panic.remainingtext = getRemainingtext(false);
+                panic.remainingtext = input.getRemainingtext(false);
                 tokenList.add(panic);
                 break;
             }        
@@ -207,25 +175,25 @@ public class RsvrApexLexicalParser {
         KeywordToken result = new KeywordToken();
         result.type = 'Keyword';
 
-        mark();
+        input.mark();
         result.target = '';
         Boolean isExist = false;
         for (;;) {
-            Integer next = readChar();
+            Integer next = input.readChar();
             if (RsvrApexLexicalParserUtil.isJavaLetter(next)) {
                 isExist = true;
                 result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
                 continue;
             } else {
                 if (isExist == false) {
-                    reset();
+                    input.reset();
                     return null;
                 }
 
-                move(pos() - 1);
+                input.move(input.pos() - 1);
                 if (RsvrApexLexicalParserUtil.isKeyword(result.target)) {
                     // Hit
-                    mark();
+                    input.mark();
                     result.original = result.target;
                     return result;
                 } else {
@@ -234,7 +202,7 @@ public class RsvrApexLexicalParser {
             }
         }
 
-        reset();
+        input.reset();
         return null;
     }
 
@@ -321,12 +289,12 @@ public class RsvrApexLexicalParser {
         LiteralToken result = new LiteralToken();
         result.type = 'StringLiteral';
 
-        mark();
+        input.mark();
 
         // canma should be first.
-        Integer first = readChar();
+        Integer first = input.readChar();
         if (first != '\''.charAt(0)) {
-            reset();
+            input.reset();
             return null;
         }
 
@@ -334,16 +302,16 @@ public class RsvrApexLexicalParser {
         result.original = RsvrApexLexicalParserUtil.int2string(first);
         result.target = '';
         for (;;) {
-            Integer next = readChar();
+            Integer next = input.readChar();
             if (next == -1) {
                 // End of file.
                 // Unexpected.
-                reset();
+                input.reset();
                 return result;
             }
             if (next == '\''.charAt(0)) {
                 // end of string literal.
-                mark();
+                input.mark();
                 result.original = result.original + result.target + RsvrApexLexicalParserUtil.int2string(next);
                 return result;
             }
@@ -354,7 +322,7 @@ public class RsvrApexLexicalParser {
             result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
         }
 
-        reset();
+        input.reset();
         return null;
     }
 
@@ -396,10 +364,10 @@ public class RsvrApexLexicalParser {
         SeparatorToken result = new SeparatorToken();
         result.type = 'Separator';
 
-        mark();
+        input.mark();
         result.target = '';
         for (;;) {
-            Integer next = readChar();
+            Integer next = input.readChar();
             if (RsvrApexLexicalParserUtil.isSeparator(RsvrApexLexicalParserUtil.int2string(next))) {
                 result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
                 result.original = result.target;
@@ -409,7 +377,7 @@ public class RsvrApexLexicalParser {
             }
         }
 
-        reset();
+        input.reset();
         return null;
     }
 
@@ -419,25 +387,25 @@ public class RsvrApexLexicalParser {
         OperatorToken result = new OperatorToken();
         result.type = 'Operator';
 
-        mark();
+        input.mark();
         result.target = '';
         Boolean isExist = false;
         for (;;) {
-            Integer next = readChar();
+            Integer next = input.readChar();
             if (RsvrApexLexicalParserUtil.isOperatorLetter(next)) {
                 isExist = true;
                 result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
                 continue;
             } else {
                 if (isExist == false) {
-                    reset();
+                    input.reset();
                     return null;
                 }
 
-                move(pos() - 1);
+                input.move(input.pos() - 1);
                 if (RsvrApexLexicalParserUtil.isOperator(result.target)) {
                     // Hit
-                    mark();
+                    input.mark();
                     result.original = result.target;
                     return result;
                 } else {
@@ -446,7 +414,7 @@ public class RsvrApexLexicalParser {
             }
         }
 
-        reset();
+        input.reset();
         return null;
     }
 
@@ -459,17 +427,17 @@ public class RsvrApexLexicalParser {
         AtsignToken result = new AtsignToken();
         result.type = 'Atsign';
 
-        mark();
+        input.mark();
         result.target = '';
 
-        Integer next = readChar();
+        Integer next = input.readChar();
         if (next == '@'.charAt(0)) {
             result.target = RsvrApexLexicalParserUtil.int2string(next);
             result.original = result.target;
             return result;
         }
 
-        reset();
+        input.reset();
         return null;
     }
 
@@ -482,31 +450,31 @@ public class RsvrApexLexicalParser {
         IdentifierToken result = new IdentifierToken();
         result.type = 'Identifier';
 
-        mark();
+        input.mark();
         result.target = '';
         Boolean isExist = false;
         for (;;) {
-            Integer next = readChar();
+            Integer next = input.readChar();
             if (RsvrApexLexicalParserUtil.isJavaLetterOrDigit(next)) {
                 isExist = true;
                 result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
                 continue;
             } else {
                 if (isExist == false) {
-                    reset();
+                    input.reset();
                     return null;
                 }
 
-                move(pos() - 1);
+                input.move(input.pos() - 1);
 
                 // Hit
-                mark();
+                input.mark();
                 result.original = result.target;
                 return result;
             }
         }
 
-        reset();
+        input.reset();
         return null;
     }
 
@@ -520,14 +488,14 @@ public class RsvrApexLexicalParser {
         WhitespaceToken result = new WhitespaceToken();
         result.type = 'Whitespace';
 
-        mark();
+        input.mark();
         result.target = '';
         Boolean isExist = false;
         for (;;) {
-            Integer next = readChar();
+            Integer next = input.readChar();
             if (next == -1) {
                 // end of file.
-                mark();
+                input.mark();
                 break;
             }
 
@@ -537,17 +505,17 @@ public class RsvrApexLexicalParser {
             || next == '\n'.charAt(0)
             || next == '\u000C'.charAt(0)) {
                 isExist = true;
-                mark();
+                input.mark();
                 result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
                 continue;
             }
             // Other.
-            reset();
+            input.reset();
             break;
         }
 
         if (isExist == false) {
-            reset();
+            input.reset();
             return null;
         }
 
@@ -562,20 +530,20 @@ public class RsvrApexLexicalParser {
         CommentToken result = new CommentToken();
         result.type = 'DocComment';
 
-        mark();
-        Integer first = readChar();
+        input.mark();
+        Integer first = input.readChar();
         if (first != '/'.charAt(0)) {
-            reset();
+            input.reset();
             return null;
         }
-        Integer second = readChar();
+        Integer second = input.readChar();
         if (second != '*'.charAt(0)) {
-            reset();
+            input.reset();
             return null;
         }
-        Integer third = readChar();
+        Integer third = input.readChar();
         if (third != '*'.charAt(0)) {
-            reset();
+            input.reset();
             return null;
         }
 
@@ -583,20 +551,20 @@ public class RsvrApexLexicalParser {
         result.original = RsvrApexLexicalParserUtil.int2string(first) + RsvrApexLexicalParserUtil.int2string(second) + RsvrApexLexicalParserUtil.int2string(third);
         result.target = '';
         for (;;) {
-            Integer next = readChar();
+            Integer next = input.readChar();
             if (next == '*'.charAt(0)) {
-                mark();
-                Integer next2 = readChar();
+                input.mark();
+                Integer next2 = input.readChar();
                 if (next2 == '/'.charAt(0)) {
                     // End of comment.
-                    mark();
+                    input.mark();
                     result.original = result.original + result.target + RsvrApexLexicalParserUtil.int2string(next) + RsvrApexLexicalParserUtil.int2string(next2);
                     return result;
                 }
-                reset();
+                input.reset();
             }
 
-            mark();
+            input.mark();
             result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
         }
 
@@ -610,15 +578,15 @@ public class RsvrApexLexicalParser {
         CommentToken result = new CommentToken();
         result.type = 'Comment';
 
-        mark();
-        Integer first = readChar();
+        input.mark();
+        Integer first = input.readChar();
         if (first != '/'.charAt(0)) {
-            reset();
+            input.reset();
             return null;
         }
-        Integer second = readChar();
+        Integer second = input.readChar();
         if (second != '*'.charAt(0)) {
-            reset();
+            input.reset();
             return null;
         }
 
@@ -626,20 +594,20 @@ public class RsvrApexLexicalParser {
         result.original = RsvrApexLexicalParserUtil.int2string(first) + RsvrApexLexicalParserUtil.int2string(second);
         result.target = '';
         for (;;) {
-            Integer next = readChar();
+            Integer next = input.readChar();
             if (next == '*'.charAt(0)) {
-                mark();
-                Integer next2 = readChar();
+                input.mark();
+                Integer next2 = input.readChar();
                 if (next2 == '/'.charAt(0)) {
                     // End of comment.
-                    mark();
+                    input.mark();
                     result.original = result.original + result.target + RsvrApexLexicalParserUtil.int2string(next) + RsvrApexLexicalParserUtil.int2string(next2);
                     return result;
                 }
-                reset();
+                input.reset();
             }
 
-            mark();
+            input.mark();
             result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
         }
 
@@ -653,15 +621,15 @@ public class RsvrApexLexicalParser {
         CommentToken result = new CommentToken();
         result.type = 'LineComment';
 
-        mark();
-        Integer first = readChar();
+        input.mark();
+        Integer first = input.readChar();
         if (first != '/'.charAt(0)) {
-            reset();
+            input.reset();
             return null;
         }
-        Integer second = readChar();
+        Integer second = input.readChar();
         if (second != '/'.charAt(0)) {
-            reset();
+            input.reset();
             return null;
         }
 
@@ -669,33 +637,19 @@ public class RsvrApexLexicalParser {
         result.original = RsvrApexLexicalParserUtil.int2string(first) + RsvrApexLexicalParserUtil.int2string(second);
         result.target = '';
         for (;;) {
-            Integer next = readChar();
+            Integer next = input.readChar();
             if (next == '\r'.charAt(0)
             || next == '\n'.charAt(0)
             || next == -1) {
-                reset();
+                input.reset();
                 result.original = result.original + result.target;
                 break;
             }
 
-            mark();
+            input.mark();
             result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
         }
 
         return result;
-    }
-
-    public String getRemainingtext(Boolean isNext) {
-        Integer pos = currentPos;
-        if (isNext) {
-            pos++;
-        }
-        if (pos < 0) {
-            pos = 0;
-        }
-        if (apexClassText.length() <= (pos)) {
-            return '';
-        }
-        return apexClassText.substring(pos);
     }
 }
