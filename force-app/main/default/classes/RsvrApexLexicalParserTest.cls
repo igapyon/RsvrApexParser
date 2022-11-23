@@ -1,0 +1,43 @@
+/*
+ * Copyright 2022 Reservoir Consulting - Toshiki Iga
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+@isTest(SeeAllData=false)
+private class RsvrApexLexicalParserTest {
+    @isTest(SeeAllData=false)
+    static void test01() {
+        RsvrApexLexicalParser parser = new RsvrApexLexicalParser();
+        List<RsvrApexLexicalParser.LexicalToken> result = parser.parse('/*\n'
+        + ' * Copyright 2022 Reservoir Consulting - Toshiki Iga\n'
+        + ' */\n'
+        + '@isTest(SeeAllData=false)\n'
+        + 'private class RsvrApexLexicalParserTest {\n'
+        + '    @isTest(SeeAllData=false)\n'
+        + '    static void test01() {\n'
+        + '        RsvrApexLexicalParser parser = new RsvrApexLexicalParser();\n'
+        + '        parser.parse(\'\');\n'
+        + '    }\n'
+        + '}\n');
+
+        String parsedInput = '';
+        for (RsvrApexLexicalParser.LexicalToken look : result) {
+            parsedInput += look.original;
+        }
+        System.debug('Was fukugen?: ' + parsedInput);
+
+        for (RsvrApexLexicalParser.LexicalToken look : result) {
+            System.debug(look.toString());
+        }
+    }
+}
