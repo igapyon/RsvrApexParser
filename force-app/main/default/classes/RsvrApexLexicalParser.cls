@@ -390,9 +390,15 @@ public class RsvrApexLexicalParser {
     }
 
     public class LiteralToken extends LexicalToken {
+        public String literal {get; set;}
     }
 
     public class SeparatorToken extends LexicalToken {
+        public String separator {get; set;}
+    }
+
+    public class OperatorToken extends LexicalToken {
+        public String operator {get; set;}
     }
 
     public class WhitespaceToken extends LexicalToken {
@@ -472,6 +478,14 @@ public class RsvrApexLexicalParser {
                 }
             }
             {
+                if (IS_DEBUG) System.debug('TRACE: parseSeparator: ' + apexClassText.substring(currentPos + 1));
+                SeparatorToken tok = parseSeparator();
+                if (tok != null) {
+                    tokenList.add(tok);
+                    continue;
+                }
+            }
+            {
                 if (IS_DEBUG) System.debug('TRACE: parseWS: ' + apexClassText.substring(currentPos + 1));
                 WhitespaceToken tok = parseWS();
                 if (tok != null) {
@@ -519,7 +533,7 @@ public class RsvrApexLexicalParser {
 
         mark();
         result.keyword = '';
-        boolean isExist = false;
+        Boolean isExist = false;
         for (;;) {
             Integer next = readChar();
             if (isJavaLetter(next)) {
@@ -655,18 +669,54 @@ public class RsvrApexLexicalParser {
     //     :   NULL
     //     ;
 
-
     // §3.11 Separators
+    public static final Integer SEP_LPAREN = 0; // '('
+    public static final Integer SEP_RPAREN = 1; // ')'
+    public static final Integer SEP_LBRACE = 2; // '{'
+    public static final Integer SEP_RBRACE = 3; // '}'
+    public static final Integer SEP_LBRACK = 4; // '['
+    public static final Integer SEP_RBRACK = 5; // ']'
+    public static final Integer SEP_SEMI   = 6; // ';'
+    public static final Integer SEP_COMMA  = 7; // ','
+    public static final Integer SEP_DOT    = 8; // '.'
+    
+    public static final String[] SEPARATORS = new String[]{
+        '(',
+        ')',
+        '{',
+        '}',
+        '[',
+        ']',
+        ',',
+        ',',
+        '.'
+    };
 
-    // LPAREN          : '(';
-    // RPAREN          : ')';
-    // LBRACE          : '{';
-    // RBRACE          : '}';
-    // LBRACK          : '[';
-    // RBRACK          : ']';
-    // SEMI            : ';';
-    // COMMA           : ',';
-    // DOT             : '.';
+    /**
+     * Parse separator.
+     * 
+     * Must be one char.
+     */
+    private SeparatorToken parseSeparator() {
+        SeparatorToken result = new SeparatorToken();
+        result.type = 'SEPARATOR';
+
+        mark();
+        result.separator = '';
+        for (;;) {
+            Integer next = readChar();
+            if (isSeparator(int2string(next))) {
+                result.separator = result.separator + int2string(next);
+                result.original = result.separator;
+                return result;
+            } else {
+                break;
+            }
+        }
+
+        reset();
+        return null;
+    }
 
     // // §3.12 Operators
 
@@ -725,7 +775,7 @@ public class RsvrApexLexicalParser {
 
         mark();
         result.identifier = '';
-        boolean isExist = false;
+        Boolean isExist = false;
         for (;;) {
             Integer next = readChar();
             if (isJavaLetterOrDigit(next)) {
@@ -761,7 +811,7 @@ public class RsvrApexLexicalParser {
     //     |   // covers UTF-16 surrogate pairs encodings for U+10000 to U+10FFFF
     //         [\uD800-\uDBFF] [\uDC00-\uDFFF]
     //     ;
-    private static boolean isJavaLetter(Integer val) {
+    private static Boolean isJavaLetter(Integer val) {
         // [a-zA-Z$_] // these are the "java letters" below 0xFF
         if ('a'.charAt(0) <= val && val <= 'z'.charAt(0)) {
             return true;
@@ -793,7 +843,7 @@ public class RsvrApexLexicalParser {
     //     |   // covers UTF-16 surrogate pairs encodings for U+10000 to U+10FFFF
     //         [\uD800-\uDBFF] [\uDC00-\uDFFF]
     //     ;
-    private static boolean isJavaLetterOrDigit(Integer val) {
+    private static Boolean isJavaLetterOrDigit(Integer val) {
         // [a-zA-Z$_] // these are the "java letters" below 0xFF
         if ('a'.charAt(0) <= val && val <= 'z'.charAt(0)) {
             return true;
@@ -820,9 +870,7 @@ public class RsvrApexLexicalParser {
         return true;
     }
 
-
-
-    private boolean isKeyword(String val) {
+    private static Boolean isKeyword(String val) {
         for (String look : KEYWORDS) {
             if (look.toLowerCase() == val.toLowerCase()) {
                 return true;
@@ -831,6 +879,14 @@ public class RsvrApexLexicalParser {
         return false;
     }
 
+    private static Boolean isSeparator(String val) {
+        for (String look : SEPARATORS) {
+            if (look.toLowerCase() == val.toLowerCase()) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     // //
     // // Whitespace and comments
@@ -844,7 +900,7 @@ public class RsvrApexLexicalParser {
 
         mark();
         result.whitespace = '';
-        boolean isExist = false;
+        Boolean isExist = false;
         for (;;) {
             Integer next = readChar();
             if (next == ' '.charAt(0)
