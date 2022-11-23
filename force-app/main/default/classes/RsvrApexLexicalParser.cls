@@ -467,7 +467,7 @@ public class RsvrApexLexicalParser {
             }
             {
                 mark();
-                if (readChar() < 0) {
+                if (readChar() == -1) {
                     // End of file
                     break;
                 }
@@ -493,20 +493,21 @@ public class RsvrApexLexicalParser {
         boolean isExist = false;
         for (;;) {
             Integer next = readChar();
-            if (isJavaLetter(next) == false) {
+            if (isJavaLetter(next)) {
+                result.keyword = result.keyword + int2string(next);
+            } else {
+                move(pos() - 1);
                 if (isKeyword(result.keyword)) {
                     // Hit
                     mark();
                     return result;
                 } else {
-                    reset();
-                    return null;
+                    break;
                 }
             }
-            result.keyword = result.keyword + int2string(next);
         }
 
-        // Never
+        reset();
         return null;
     }
 
@@ -811,7 +812,7 @@ public class RsvrApexLexicalParser {
             Integer next = readChar();
             if (next == '\r'.charAt(0)
             || next == '\n'.charAt(0)
-            || next < 0) {
+            || next == -1) {
                 reset();
                 result.original = result.original + result.comment;
                 break;
