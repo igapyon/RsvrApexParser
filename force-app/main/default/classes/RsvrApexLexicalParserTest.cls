@@ -30,6 +30,12 @@ private class RsvrApexLexicalParserTest {
         + '    }\n'
         + '}\n');
 
+        String parsedInput = '';
+        for (RsvrApexLexicalParser.LexicalToken look : result) {
+            parsedInput += look.original;
+        }
+        System.debug('Was fukugen?: ' + parsedInput);
+
         for (RsvrApexLexicalParser.LexicalToken look : result) {
             System.debug(look.toString());
         }
