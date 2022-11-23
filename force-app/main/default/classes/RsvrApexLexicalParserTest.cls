@@ -20,7 +20,7 @@ private class RsvrApexLexicalParserTest {
         RsvrApexLexicalParser parser = new RsvrApexLexicalParser();
         List<RsvrApexLexicalParser.LexicalToken> result = parser.parse('// @isTest(SeeAllData=false)\n'
         + 'private class RsvrApexLexicalParserTest {\n'
-        + '    @isTest(SeeAllData=false)\n'
+        + '    // @isTest(SeeAllData=false)\n'
         + '    static void test01() {\n'
         + '        RsvrApexLexicalParser parser = new RsvrApexLexicalParser();\n'
         + '        parser.parse(\'\');\n'

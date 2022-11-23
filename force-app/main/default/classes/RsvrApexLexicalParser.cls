@@ -393,6 +393,7 @@ public class RsvrApexLexicalParser {
     }
 
     public class WhitespaceToken extends LexicalToken {
+        public String whitespace {get; set;}
     }
 
     public class CommentToken extends LexicalToken {
@@ -432,9 +433,32 @@ public class RsvrApexLexicalParser {
         currentPos = -1;
         markPos = -1;
 
-        CommentToken tok = parseLINE_COMMENT();
-        if (tok != null) {
-            tokenList.add(tok);
+        for (;;) {
+            {
+                WhitespaceToken tok = parseWS();
+                if (tok != null) {
+                    tokenList.add(tok);
+                    continue;
+                }
+            }
+            {
+                CommentToken tok = parseLINE_COMMENT();
+                if (tok != null) {
+                    tokenList.add(tok);
+                    continue;
+                }
+            }
+            {
+                mark();
+                if (readChar() < 0) {
+                    // End of file
+                    break;
+                }
+                reset();
+            }
+
+            System.debug('Panic. Process stopped.' + apexClassText.substring(currentPos));
+            break;
         }
         
         return tokenList;
@@ -639,7 +663,34 @@ public class RsvrApexLexicalParser {
     // WS  :  [ \t\r\n\u000C]+ -> channel(WHITESPACE_CHANNEL)
     //     ;
     private WhitespaceToken parseWS() {
-        return null;
+        WhitespaceToken result = new WhitespaceToken();
+        result.type = 'WHITESPACE';
+
+        mark();
+        result.whitespace = '';
+        boolean isExist = false;
+        for (;;) {
+            Integer next = readChar();
+            if (next == ' '.charAt(0)
+            || next == '\t'.charAt(0)
+            || next == '\r'.charAt(0)
+            || next == '\n'.charAt(0)
+            || next == '\u000C'.charAt(0)) {
+                isExist = true;
+                mark();
+                result.whitespace = result.whitespace + int2string(next);
+                continue;
+            }
+            reset();
+            break;
+        }
+
+        if (isExist == false) {
+            return null;
+        }
+
+        result.original = result.whitespace;
+        return result;
     }
 
     // DOC_COMMENT
@@ -661,6 +712,7 @@ public class RsvrApexLexicalParser {
     //     ;
     private CommentToken parseLINE_COMMENT() {
         CommentToken result = new CommentToken();
+        result.type = 'LINE_COMMENT';
 
         mark();
         Integer first = readChar();
@@ -686,6 +738,7 @@ public class RsvrApexLexicalParser {
                 result.original = result.original + result.comment;
                 break;
             }
+
             mark();
             result.comment = result.comment + int2string(next);
         }
