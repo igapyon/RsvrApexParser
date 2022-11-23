@@ -164,6 +164,22 @@ public class RsvrApexLexicalParser {
                 }
             }
             {
+                if (IS_DEBUG) System.debug('TRACE: parseDOC_COMMENT: ' + getRemainingtext(true));
+                CommentToken tok = parseDOC_COMMENT();
+                if (tok != null) {
+                    tokenList.add(tok);
+                    continue;
+                }
+            }
+            {
+                if (IS_DEBUG) System.debug('TRACE: parseCOMMENT: ' + getRemainingtext(true));
+                CommentToken tok = parseCOMMENT();
+                if (tok != null) {
+                    tokenList.add(tok);
+                    continue;
+                }
+            }
+            {
                 if (IS_DEBUG) System.debug('TRACE: parseLINE_COMMENT: ' + getRemainingtext(true));
                 CommentToken tok = parseLINE_COMMENT();
                 if (tok != null) {
@@ -651,14 +667,55 @@ public class RsvrApexLexicalParser {
     // DOC_COMMENT
     //     :   '/**' .*? '*/' -> channel(COMMENT_CHANNEL)
     //     ;
-    private WhitespaceToken parseDOC_COMMENT() {
-        return null;
+    private CommentToken parseDOC_COMMENT() {
+        CommentToken result = new CommentToken();
+        result.type = 'DOC_COMMENT';
+
+        mark();
+        Integer first = readChar();
+        if (first != '/'.charAt(0)) {
+            reset();
+            return null;
+        }
+        Integer second = readChar();
+        if (second != '*'.charAt(0)) {
+            reset();
+            return null;
+        }
+        Integer third = readChar();
+        if (third != '*'.charAt(0)) {
+            reset();
+            return null;
+        }
+
+        // hit line comment
+        result.original = int2string(first) + int2string(second) + int2string(third);
+        result.comment = '';
+        for (;;) {
+            Integer next = readChar();
+            if (next == '*'.charAt(0)) {
+                mark();
+                Integer next2 = readChar();
+                if (next2 == '/'.charAt(0)) {
+                    // End of comment.
+                    mark();
+                    result.original = result.original + result.comment;
+                    return result;
+                }
+                reset();
+            }
+
+            mark();
+            result.comment = result.comment + int2string(next);
+        }
+
+        return result;
     }
 
     // COMMENT
     //     :   '/*' .*? '*/' -> channel(COMMENT_CHANNEL)
     //     ;
-    private WhitespaceToken parseCOMMENT() {
+    private CommentToken parseCOMMENT() {
         return null;
     }
 
