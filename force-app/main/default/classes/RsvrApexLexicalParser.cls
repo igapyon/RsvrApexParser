@@ -384,6 +384,7 @@ public class RsvrApexLexicalParser {
     }
 
     public class KeywordToken extends LexicalToken {
+        public String keyword {get; set;}
     }
 
     public class LiteralToken extends LexicalToken {
@@ -419,8 +420,17 @@ public class RsvrApexLexicalParser {
         return apexClassText.charAt(currentPos);
     }
 
-    private void mark() {
+    private Integer mark() {
         markPos = currentPos;
+        return markPos;
+    }
+
+    private void move(Integer pos) {
+        currentPos = pos;
+    }
+
+    private Integer pos() {
+        return currentPos;
     }
 
     private void reset() {
@@ -434,6 +444,13 @@ public class RsvrApexLexicalParser {
         markPos = -1;
 
         for (;;) {
+            {
+                KeywordToken tok = parseKEYWORD();
+                if (tok != null) {
+                    tokenList.add(tok);
+                    continue;
+                }
+            }
             {
                 WhitespaceToken tok = parseWS();
                 if (tok != null) {
@@ -457,11 +474,40 @@ public class RsvrApexLexicalParser {
                 reset();
             }
 
-            System.debug('Panic. Process stopped.' + apexClassText.substring(currentPos));
+            System.debug('Panic. Unexpected error. Process stopped.' + apexClassText.substring(currentPos));
             break;
         }
         
         return tokenList;
+    }
+
+    ///////////////////////////////////////
+    // Parse
+
+    private KeywordToken parseKEYWORD() {
+        KeywordToken result = new KeywordToken();
+        result.type = 'KEYWORD';
+
+        mark();
+        result.keyword = '';
+        boolean isExist = false;
+        for (;;) {
+            Integer next = readChar();
+            if (isJavaLetter(next) == false) {
+                if (isKeyword(result.keyword)) {
+                    // Hit
+                    mark();
+                    return result;
+                } else {
+                    reset();
+                    return null;
+                }
+            }
+            result.keyword = result.keyword + int2string(next);
+        }
+
+        // Never
+        return null;
     }
 
     // 
@@ -646,6 +692,38 @@ public class RsvrApexLexicalParser {
     //     |   // covers UTF-16 surrogate pairs encodings for U+10000 to U+10FFFF
     //         [\uD800-\uDBFF] [\uDC00-\uDFFF]
     //     ;
+    private static boolean isJavaLetter(Integer val) {
+        // [a-zA-Z$_] // these are the "java letters" below 0xFF
+        if ('a'.charAt(0) <= val && val <= 'z'.charAt(0)) {
+            return true;
+        }
+        if ('A'.charAt(0) <= val && val <= 'Z'.charAt(0)) {
+            return true;
+        }
+        if ('$'.charAt(0) <= val) {
+            return true;
+        }
+        if ('_'.charAt(0) <= val) {
+            return true;
+        }
+        // ~[\u0000-\u00FF\uD800-\uDBFF]
+        if ('\u0000'.charAt(0) <= val && val <= '\u00FF'.charAt(0)) {
+            return false;
+        }
+        if ('\uD800'.charAt(0) <= val && val <= '\uDBFF'.charAt(0)) {
+            return false;
+        }
+        return true;
+    }
+
+    private boolean isKeyword(String val) {
+        for (String look : KEYWORDS) {
+            if (look.toLowerCase() == val.toLowerCase()) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     // fragment
     // JavaLetterOrDigit
