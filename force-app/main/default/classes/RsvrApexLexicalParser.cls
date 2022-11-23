@@ -673,7 +673,7 @@ public class RsvrApexLexicalParser {
         }
 
         // hit line comment
-        String original = String.valueOf(first) + String.valueOf(second);
+        String original = int2string(first) + int2string(second);
         String comment = '';
         for (;;) {
             Integer next = readChar();
@@ -687,10 +687,16 @@ public class RsvrApexLexicalParser {
                 return tok;
             }
             mark();
-            original += String.valueOf(next);
-            comment += String.valueOf(next);
+            original += int2string(next);
+            comment += int2string(next);
         }
 
         return null;
+    }
+
+    public static String int2string(Integer val) {
+        List<Integer> nextOne = new List<Integer>();
+        nextOne.add(val);
+        return String.fromCharArray(nextOne);
     }
 }
