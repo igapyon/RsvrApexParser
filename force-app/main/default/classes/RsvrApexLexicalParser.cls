@@ -49,6 +49,10 @@ public class RsvrApexLexicalParser {
         public String identifier {get; set;}
     }
 
+    public class AtsignToken extends LexicalToken {
+        public String atsign {get; set;}
+    }
+
     public class PanicToken extends LexicalToken {
         public String message {get; set;}
         public String remainingtext {get; set;}
@@ -96,11 +100,12 @@ public class RsvrApexLexicalParser {
         markPos = -1;
 
         for (;;) {
+            if (IS_DEBUG) System.debug('TRACE: Current remaining text: ' + getRemainingtext(true));
             {
                 // Check End of file.
                 mark();
                 if (readChar() == -1) {
-                    if (IS_DEBUG) System.debug('TRACE: check EOF: ' + getRemainingtext(true));
+                    if (IS_DEBUG) System.debug('TRACE: check EOF: ');
                     // End of file
                     break;
                 }
@@ -108,7 +113,7 @@ public class RsvrApexLexicalParser {
             }
 
             {
-                if (IS_DEBUG) System.debug('TRACE: parseKeyword: ' + getRemainingtext(true));
+                if (IS_DEBUG) System.debug('TRACE: parseKeyword: ');
                 KeywordToken tok = parseKeyword();
                 if (tok != null) {
                     tokenList.add(tok);
@@ -116,7 +121,7 @@ public class RsvrApexLexicalParser {
                 }
             }
             {
-                if (IS_DEBUG) System.debug('TRACE: parseIdentifier: ' + getRemainingtext(true));
+                if (IS_DEBUG) System.debug('TRACE: parseIdentifier: ');
                 IdentifierToken tok = parseIdentifier();
                 if (tok != null) {
                     tokenList.add(tok);
@@ -124,7 +129,7 @@ public class RsvrApexLexicalParser {
                 }
             }
             {
-                if (IS_DEBUG) System.debug('TRACE: parseSeparator: ' + getRemainingtext(true));
+                if (IS_DEBUG) System.debug('TRACE: parseSeparator: ');
                 SeparatorToken tok = parseSeparator();
                 if (tok != null) {
                     tokenList.add(tok);
@@ -132,8 +137,16 @@ public class RsvrApexLexicalParser {
                 }
             }
             {
-                if (IS_DEBUG) System.debug('TRACE: parseOperator: ' + getRemainingtext(true));
+                if (IS_DEBUG) System.debug('TRACE: parseOperator: ');
                 OperatorToken tok = parseOperator();
+                if (tok != null) {
+                    tokenList.add(tok);
+                    continue;
+                }
+            }
+            {
+                if (IS_DEBUG) System.debug('TRACE: parseAtsign: ');
+                AtsignToken tok = parseAtsign();
                 if (tok != null) {
                     tokenList.add(tok);
                     continue;
@@ -144,7 +157,7 @@ public class RsvrApexLexicalParser {
             // Literals
 
             {
-                if (IS_DEBUG) System.debug('TRACE: parseStringLiteral: ' + getRemainingtext(true));
+                if (IS_DEBUG) System.debug('TRACE: parseStringLiteral: ');
                 LiteralToken tok = parseStringLiteral();
                 if (tok != null) {
                     tokenList.add(tok);
@@ -156,7 +169,7 @@ public class RsvrApexLexicalParser {
             // Whitespace and comments.
 
             {
-                if (IS_DEBUG) System.debug('TRACE: parseWS: ' + getRemainingtext(true));
+                if (IS_DEBUG) System.debug('TRACE: parseWS: ');
                 WhitespaceToken tok = parseWS();
                 if (tok != null) {
                     tokenList.add(tok);
@@ -164,7 +177,7 @@ public class RsvrApexLexicalParser {
                 }
             }
             {
-                if (IS_DEBUG) System.debug('TRACE: parseDOC_COMMENT: ' + getRemainingtext(true));
+                if (IS_DEBUG) System.debug('TRACE: parseDOC_COMMENT: ');
                 CommentToken tok = parseDOC_COMMENT();
                 if (tok != null) {
                     tokenList.add(tok);
@@ -172,7 +185,7 @@ public class RsvrApexLexicalParser {
                 }
             }
             {
-                if (IS_DEBUG) System.debug('TRACE: parseCOMMENT: ' + getRemainingtext(true));
+                if (IS_DEBUG) System.debug('TRACE: parseCOMMENT: ');
                 CommentToken tok = parseCOMMENT();
                 if (tok != null) {
                     tokenList.add(tok);
@@ -180,7 +193,7 @@ public class RsvrApexLexicalParser {
                 }
             }
             {
-                if (IS_DEBUG) System.debug('TRACE: parseLINE_COMMENT: ' + getRemainingtext(true));
+                if (IS_DEBUG) System.debug('TRACE: parseLINE_COMMENT: ');
                 CommentToken tok = parseLINE_COMMENT();
                 if (tok != null) {
                     tokenList.add(tok);
@@ -497,7 +510,23 @@ public class RsvrApexLexicalParser {
     //
 
     // ATSIGN : '@';
+    private AtsignToken parseAtsign() {
+        AtsignToken result = new AtsignToken();
+        result.type = 'ATSIGN';
 
+        mark();
+        result.atsign = '';
+
+        Integer next = readChar();
+        if (next == '@'.charAt(0)) {
+            result.atsign = int2string(next);
+            result.original = result.atsign;
+            return result;
+        }
+
+        reset();
+        return null;
+    }
 
     // // §3.8 Identifiers (must appear after all keywords in the grammar)
 
@@ -716,7 +745,43 @@ public class RsvrApexLexicalParser {
     //     :   '/*' .*? '*/' -> channel(COMMENT_CHANNEL)
     //     ;
     private CommentToken parseCOMMENT() {
-        return null;
+        CommentToken result = new CommentToken();
+        result.type = 'DOC_COMMENT';
+
+        mark();
+        Integer first = readChar();
+        if (first != '/'.charAt(0)) {
+            reset();
+            return null;
+        }
+        Integer second = readChar();
+        if (second != '*'.charAt(0)) {
+            reset();
+            return null;
+        }
+
+        // hit line comment
+        result.original = int2string(first) + int2string(second);
+        result.comment = '';
+        for (;;) {
+            Integer next = readChar();
+            if (next == '*'.charAt(0)) {
+                mark();
+                Integer next2 = readChar();
+                if (next2 == '/'.charAt(0)) {
+                    // End of comment.
+                    mark();
+                    result.original = result.original + result.comment;
+                    return result;
+                }
+                reset();
+            }
+
+            mark();
+            result.comment = result.comment + int2string(next);
+        }
+
+        return result;
     }
 
     // LINE_COMMENT
