@@ -122,6 +122,14 @@ public class RsvrApexLexicalParser {
                 }
             }
             {
+                if (IS_DEBUG) System.debug('TRACE: parseOperator: ' + apexClassText.substring(currentPos + 1));
+                OperatorToken tok = parseOperator();
+                if (tok != null) {
+                    tokenList.add(tok);
+                    continue;
+                }
+            }
+            {
                 if (IS_DEBUG) System.debug('TRACE: parseWS: ' + apexClassText.substring(currentPos + 1));
                 WhitespaceToken tok = parseWS();
                 if (tok != null) {
@@ -305,6 +313,15 @@ public class RsvrApexLexicalParser {
     //     :   NULL
     //     ;
 
+    private static Boolean isSeparator(String val) {
+        for (String look : RsvrApexConstants.SEPARATORS) {
+            if (look.toLowerCase() == val.toLowerCase()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * Parse separator.
      * 
@@ -333,6 +350,72 @@ public class RsvrApexLexicalParser {
 
     // // §3.12 Operators
 
+    private static Boolean isOperator(String val) {
+        for (String look : RsvrApexConstants.OPERATORS) {
+            if (look.toLowerCase() == val.toLowerCase()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static Boolean isOperatorLetter(Integer val) {
+        if ('='.charAt(0) == val
+        || '>'.charAt(0) == val
+        || '<'.charAt(0) == val
+        || '~'.charAt(0) == val
+        || '?'.charAt(0) == val
+        || '.'.charAt(0) == val
+        || ':'.charAt(0) == val
+        || '='.charAt(0) == val
+        || '!'.charAt(0) == val
+        || '&'.charAt(0) == val
+        || '|'.charAt(0) == val
+        || '+'.charAt(0) == val
+        || '-'.charAt(0) == val
+        || '*'.charAt(0) == val
+        || '/'.charAt(0) == val
+        || '&'.charAt(0) == val
+        || '^'.charAt(0) == val) {
+                return true;
+        }
+        return false;
+    }
+
+    private OperatorToken parseOperator() {
+        OperatorToken result = new OperatorToken();
+        result.type = 'OPERATOR';
+
+        mark();
+        result.operator = '';
+        Boolean isExist = false;
+        for (;;) {
+            Integer next = readChar();
+            if (isOperatorLetter(next)) {
+                isExist = true;
+                result.operator = result.operator + int2string(next);
+                continue;
+            } else {
+                if (isExist == false) {
+                    reset();
+                    return null;
+                }
+
+                move(pos() - 1);
+                if (isOperator(result.operator)) {
+                    // Hit
+                    mark();
+                    result.original = result.operator;
+                    return result;
+                } else {
+                    break;
+                }
+            }
+        }
+
+        reset();
+        return null;
+    }
 
     //
     // Additional symbols not defined in the lexical specification
@@ -456,14 +539,6 @@ public class RsvrApexLexicalParser {
         return false;
     }
 
-    private static Boolean isSeparator(String val) {
-        for (String look : RsvrApexConstants.SEPARATORS) {
-            if (look.toLowerCase() == val.toLowerCase()) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     // //
     // // Whitespace and comments
