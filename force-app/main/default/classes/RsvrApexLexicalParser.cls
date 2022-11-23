@@ -408,6 +408,7 @@ public class RsvrApexLexicalParser {
     }
 
     public class PanicToken extends LexicalToken {
+        public String message {get; set;}
         public String remainingtext {get; set;}
     }
 
@@ -455,8 +456,8 @@ public class RsvrApexLexicalParser {
 
         for (;;) {
             {
-                if (IS_DEBUG) System.debug('TRACE: parseKEYWORD: ' + apexClassText.substring(currentPos + 1));
-                KeywordToken tok = parseKEYWORD();
+                if (IS_DEBUG) System.debug('TRACE: parseKeyword: ' + apexClassText.substring(currentPos + 1));
+                KeywordToken tok = parseKeyword();
                 if (tok != null) {
                     tokenList.add(tok);
                     continue;
@@ -498,7 +499,9 @@ public class RsvrApexLexicalParser {
             // Can't here.
             {
                 PanicToken tok = new PanicToken();
-                tok.remainingtext = 'PANIC. Unexpected error. Process stopped.' + apexClassText.substring(currentPos);
+                tok.type = 'PANIC';
+                tok.message = 'Unexpected error. Process stopped.';
+                tok.remainingtext = apexClassText.substring(currentPos);
                 tokenList.add(tok);
                 break;
             }        
@@ -510,7 +513,7 @@ public class RsvrApexLexicalParser {
     ///////////////////////////////////////
     // Parse
 
-    private KeywordToken parseKEYWORD() {
+    private KeywordToken parseKeyword() {
         KeywordToken result = new KeywordToken();
         result.type = 'KEYWORD';
 
@@ -533,6 +536,7 @@ public class RsvrApexLexicalParser {
                 if (isKeyword(result.keyword)) {
                     // Hit
                     mark();
+                    result.original = result.keyword;
                     return result;
                 } else {
                     break;
@@ -738,6 +742,7 @@ public class RsvrApexLexicalParser {
 
                 // Hit
                 mark();
+                result.original = result.identifier;
                 return result;
             }
         }
