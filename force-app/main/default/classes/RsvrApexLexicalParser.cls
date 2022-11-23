@@ -376,5 +376,218 @@ public class RsvrApexLexicalParser {
         'division',
         'returning',
         'listview'
-   };
+    };
+
+    // 
+    // channels {
+    // WHITESPACE_CHANNEL,
+    // COMMENT_CHANNEL
+    // }
+
+    // SOQL Date literal
+    // DateLiteral: Digit Digit Digit Digit '-' Digit Digit '-' Digit Digit;
+    // DateTimeLiteral: DateLiteral 't' Digit Digit ':' Digit Digit ':' Digit Digit ('z' | (('+' | '-') Digit+ ( ':' Digit+)? ));
+
+    // SOQL Currency literal
+    // (NOTE: this is also a valid Identifier)
+    // IntegralCurrencyLiteral: [a-z] [a-z] [a-z] Digit+;
+
+
+    // FindLiteral
+    // :   '[' WS? 'find' WS '\'' FindCharacters? '\''
+    // ;
+
+    // fragment
+    // FindCharacters
+    //     :   FindCharacter+
+    //     ;
+
+    // fragment
+    // FindCharacter
+    //     :   ~['\\]
+    //     |   FindEscapeSequence
+    //     ;
+    // FindLiteralAlt
+    //     :   '[' WS? 'find' WS '{' FindCharactersAlt? '}'
+    //     ;
+    // fragment
+    // FindCharactersAlt
+    //     :   FindCharacterAlt+
+    //     ;
+    // fragment
+    // FindCharacterAlt
+    //     :   ~[}\\]
+    //     |   FindEscapeSequence
+    //     ;
+    // fragment
+    // FindEscapeSequence
+    //     :   '\\' [+\-&|!(){}^"~*?:'\\]
+    //     ;
+
+    // // §3.10.1 Integer Literals
+    // 
+    // IntegerLiteral
+    //     :   Digit Digit*
+    //     ;
+    // 
+
+    // LongLiteral
+    //     : Digit Digit* [lL]
+    //     ;
+
+    // NumberLiteral
+    //     :   Digit* '.' Digit Digit* [dD]?
+    //     ;
+
+    // fragment
+    // HexCharacter
+    //     :   Digit | 'a' | 'b' | 'c' | 'd' | 'e' | 'f'
+    //     ;
+
+    // fragment
+    // Digit
+    //     :   [0-9]
+    //     ;
+
+    // // §3.10.3 Boolean Literals
+
+    // BooleanLiteral
+    //     :   'true'
+    //     |   'false'
+    //     ;
+
+    // // §3.10.5 String Literals
+
+    // StringLiteral
+    //     :   '\'' StringCharacters? '\''
+    //     ;
+
+    // fragment
+    // StringCharacters
+    //     :   StringCharacter+
+    //     ;
+
+    // fragment
+    // StringCharacter
+    //     :   ~['\\]
+    //     |   EscapeSequence
+    //     ;
+    // // §3.10.6 Escape Sequences for Character and String Literals
+    // fragment
+    // EscapeSequence
+    //     :   '\\' [btnfr"'\\]
+    //     |   '\\u' HexCharacter HexCharacter HexCharacter HexCharacter
+    //     ;
+
+    // // §3.10.7 The Null Literal
+
+    // NullLiteral
+    //     :   NULL
+    //     ;
+
+
+    // §3.11 Separators
+
+    // LPAREN          : '(';
+    // RPAREN          : ')';
+    // LBRACE          : '{';
+    // RBRACE          : '}';
+    // LBRACK          : '[';
+    // RBRACK          : ']';
+    // SEMI            : ';';
+    // COMMA           : ',';
+    // DOT             : '.';
+
+    // // §3.12 Operators
+
+    // ASSIGN          : '=';
+    // GT              : '>';
+    // LT              : '<';
+    // BANG            : '!';
+    // TILDE           : '~';
+    // QUESTIONDOT     : '?.';
+    // QUESTION        : '?';
+    // COLON           : ':';
+    // EQUAL           : '==';
+    // TRIPLEEQUAL     : '===';
+    // NOTEQUAL        : '!=';
+    // LESSANDGREATER  : '<>';
+    // TRIPLENOTEQUAL  : '!==';
+    // AND             : '&&';
+    // OR              : '||';
+    // INC             : '++';
+    // DEC             : '--';
+    // ADD             : '+';
+    // SUB             : '-';
+    // MUL             : '*';
+    // DIV             : '/';
+    // BITAND          : '&';
+    // BITOR           : '|';
+    // CARET           : '^';
+    // MAPTO           : '=>';
+
+    // ADD_ASSIGN      : '+=';
+    // SUB_ASSIGN      : '-=';
+    // MUL_ASSIGN      : '*=';
+    // DIV_ASSIGN      : '/=';
+    // AND_ASSIGN      : '&=';
+    // OR_ASSIGN       : '|=';
+    // XOR_ASSIGN      : '^=';
+    // LSHIFT_ASSIGN   : '<<=';
+    // RSHIFT_ASSIGN   : '>>=';
+    // URSHIFT_ASSIGN  : '>>>=';
+
+    //
+    // Additional symbols not defined in the lexical specification
+    //
+
+    // ATSIGN : '@';
+
+
+    // // §3.8 Identifiers (must appear after all keywords in the grammar)
+
+    // Identifier
+    //     :   JavaLetter JavaLetterOrDigit*
+    //     ;
+
+    // // Apex identifiers don't support non-ascii but we maintain Java rules here and post-validate
+    // // so we can give better error messages
+    // fragment
+    // JavaLetter
+    //     :   [a-zA-Z$_] // these are the "java letters" below 0xFF
+    //     |   // covers all characters above 0xFF which are not a surrogate
+    //         ~[\u0000-\u00FF\uD800-\uDBFF]
+    //     |   // covers UTF-16 surrogate pairs encodings for U+10000 to U+10FFFF
+    //         [\uD800-\uDBFF] [\uDC00-\uDFFF]
+    //     ;
+
+    // fragment
+    // JavaLetterOrDigit
+    //     :   [a-zA-Z0-9$_] // these are the "java letters or digits" below 0xFF
+    //     |   // covers all characters above 0xFF which are not a surrogate
+    //         ~[\u0000-\u00FF\uD800-\uDBFF]
+    //     |   // covers UTF-16 surrogate pairs encodings for U+10000 to U+10FFFF
+    //         [\uD800-\uDBFF] [\uDC00-\uDFFF]
+    //     ;
+
+    // //
+    // // Whitespace and comments
+    // //
+
+    // WS  :  [ \t\r\n\u000C]+ -> channel(WHITESPACE_CHANNEL)
+    //     ;
+
+    // DOC_COMMENT
+    //     :   '/**' .*? '*/' -> channel(COMMENT_CHANNEL)
+    //     ;
+
+    // COMMENT
+    //     :   '/*' .*? '*/' -> channel(COMMENT_CHANNEL)
+    //     ;
+
+    // LINE_COMMENT
+    //     :   '//' ~[\r\n]* -> channel(COMMENT_CHANNEL)
+    //     ;
+
+
 }
