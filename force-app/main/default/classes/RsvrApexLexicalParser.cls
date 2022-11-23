@@ -221,7 +221,7 @@ public class RsvrApexLexicalParser {
         Boolean isExist = false;
         for (;;) {
             Integer next = readChar();
-            if (isJavaLetter(next)) {
+            if (RsvrApexLexicalParserUtil.isJavaLetter(next)) {
                 isExist = true;
                 result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
                 continue;
@@ -232,7 +232,7 @@ public class RsvrApexLexicalParser {
                 }
 
                 move(pos() - 1);
-                if (isKeyword(result.target)) {
+                if (RsvrApexLexicalParserUtil.isKeyword(result.target)) {
                     // Hit
                     mark();
                     result.original = result.target;
@@ -396,15 +396,6 @@ public class RsvrApexLexicalParser {
     //     :   NULL
     //     ;
 
-    private static Boolean isSeparator(String val) {
-        for (String look : RsvrApexConstants.SEPARATORS) {
-            if (look.toLowerCase() == val.toLowerCase()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     /**
      * Parse separator.
      * 
@@ -418,7 +409,7 @@ public class RsvrApexLexicalParser {
         result.target = '';
         for (;;) {
             Integer next = readChar();
-            if (isSeparator(RsvrApexLexicalParserUtil.int2string(next))) {
+            if (RsvrApexLexicalParserUtil.isSeparator(RsvrApexLexicalParserUtil.int2string(next))) {
                 result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
                 result.original = result.target;
                 return result;
@@ -433,38 +424,6 @@ public class RsvrApexLexicalParser {
 
     // // §3.12 Operators
 
-    private static Boolean isOperator(String val) {
-        for (String look : RsvrApexConstants.OPERATORS) {
-            if (look.toLowerCase() == val.toLowerCase()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public static Boolean isOperatorLetter(Integer val) {
-        if ('='.charAt(0) == val
-        || '>'.charAt(0) == val
-        || '<'.charAt(0) == val
-        || '~'.charAt(0) == val
-        || '?'.charAt(0) == val
-        || '.'.charAt(0) == val
-        || ':'.charAt(0) == val
-        || '='.charAt(0) == val
-        || '!'.charAt(0) == val
-        || '&'.charAt(0) == val
-        || '|'.charAt(0) == val
-        || '+'.charAt(0) == val
-        || '-'.charAt(0) == val
-        || '*'.charAt(0) == val
-        || '/'.charAt(0) == val
-        || '&'.charAt(0) == val
-        || '^'.charAt(0) == val) {
-                return true;
-        }
-        return false;
-    }
-
     private OperatorToken parseOperator() {
         OperatorToken result = new OperatorToken();
         result.type = 'Operator';
@@ -474,7 +433,7 @@ public class RsvrApexLexicalParser {
         Boolean isExist = false;
         for (;;) {
             Integer next = readChar();
-            if (isOperatorLetter(next)) {
+            if (RsvrApexLexicalParserUtil.isOperatorLetter(next)) {
                 isExist = true;
                 result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
                 continue;
@@ -485,7 +444,7 @@ public class RsvrApexLexicalParser {
                 }
 
                 move(pos() - 1);
-                if (isOperator(result.target)) {
+                if (RsvrApexLexicalParserUtil.isOperator(result.target)) {
                     // Hit
                     mark();
                     result.original = result.target;
@@ -537,7 +496,7 @@ public class RsvrApexLexicalParser {
         Boolean isExist = false;
         for (;;) {
             Integer next = readChar();
-            if (isJavaLetterOrDigit(next)) {
+            if (RsvrApexLexicalParserUtil.isJavaLetterOrDigit(next)) {
                 isExist = true;
                 result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
                 continue;
@@ -559,85 +518,6 @@ public class RsvrApexLexicalParser {
         reset();
         return null;
     }
-
-    // // Apex identifiers don't support non-ascii but we maintain Java rules here and post-validate
-    // // so we can give better error messages
-    // fragment
-    // JavaLetter
-    //     :   [a-zA-Z$_] // these are the "java letters" below 0xFF
-    //     |   // covers all characters above 0xFF which are not a surrogate
-    //         ~[\u0000-\u00FF\uD800-\uDBFF]
-    //     |   // covers UTF-16 surrogate pairs encodings for U+10000 to U+10FFFF
-    //         [\uD800-\uDBFF] [\uDC00-\uDFFF]
-    //     ;
-    private static Boolean isJavaLetter(Integer val) {
-        // [a-zA-Z$_] // these are the "java letters" below 0xFF
-        if ('a'.charAt(0) <= val && val <= 'z'.charAt(0)) {
-            return true;
-        }
-        if ('A'.charAt(0) <= val && val <= 'Z'.charAt(0)) {
-            return true;
-        }
-        if ('$'.charAt(0) == val) {
-            return true;
-        }
-        if ('_'.charAt(0) == val) {
-            return true;
-        }
-        // ~[\u0000-\u00FF\uD800-\uDBFF]
-        if ('\u0000'.charAt(0) <= val && val <= '\u00FF'.charAt(0)) {
-            return false;
-        }
-        if ('\uD800'.charAt(0) <= val && val <= '\uDBFF'.charAt(0)) {
-            return false;
-        }
-        return true;
-    }
-
-    // fragment
-    // JavaLetterOrDigit
-    //     :   [a-zA-Z0-9$_] // these are the "java letters or digits" below 0xFF
-    //     |   // covers all characters above 0xFF which are not a surrogate
-    //         ~[\u0000-\u00FF\uD800-\uDBFF]
-    //     |   // covers UTF-16 surrogate pairs encodings for U+10000 to U+10FFFF
-    //         [\uD800-\uDBFF] [\uDC00-\uDFFF]
-    //     ;
-    private static Boolean isJavaLetterOrDigit(Integer val) {
-        // [a-zA-Z$_] // these are the "java letters" below 0xFF
-        if ('a'.charAt(0) <= val && val <= 'z'.charAt(0)) {
-            return true;
-        }
-        if ('A'.charAt(0) <= val && val <= 'Z'.charAt(0)) {
-            return true;
-        }
-        if ('0'.charAt(0) <= val && val <= '9'.charAt(0)) {
-            return true;
-        }
-        if ('$'.charAt(0) == val) {
-            return true;
-        }
-        if ('_'.charAt(0) == val) {
-            return true;
-        }
-        // ~[\u0000-\u00FF\uD800-\uDBFF]
-        if ('\u0000'.charAt(0) <= val && val <= '\u00FF'.charAt(0)) {
-            return false;
-        }
-        if ('\uD800'.charAt(0) <= val && val <= '\uDBFF'.charAt(0)) {
-            return false;
-        }
-        return true;
-    }
-
-    private static Boolean isKeyword(String val) {
-        for (String look : RsvrApexConstants.KEYWORDS) {
-            if (look.toLowerCase() == val.toLowerCase()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
 
     // //
     // // Whitespace and comments

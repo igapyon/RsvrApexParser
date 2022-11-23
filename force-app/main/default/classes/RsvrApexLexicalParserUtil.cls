@@ -20,9 +20,128 @@ public class RsvrApexLexicalParserUtil {
         return String.fromCharArray(nextOne);
     }
 
+    // // Apex identifiers don't support non-ascii but we maintain Java rules here and post-validate
+    // // so we can give better error messages
+    // fragment
+    // JavaLetter
+    //     :   [a-zA-Z$_] // these are the "java letters" below 0xFF
+    //     |   // covers all characters above 0xFF which are not a surrogate
+    //         ~[\u0000-\u00FF\uD800-\uDBFF]
+    //     |   // covers UTF-16 surrogate pairs encodings for U+10000 to U+10FFFF
+    //         [\uD800-\uDBFF] [\uDC00-\uDFFF]
+    //     ;
+    public static Boolean isJavaLetter(Integer val) {
+        // [a-zA-Z$_] // these are the "java letters" below 0xFF
+        if ('a'.charAt(0) <= val && val <= 'z'.charAt(0)) {
+            return true;
+        }
+        if ('A'.charAt(0) <= val && val <= 'Z'.charAt(0)) {
+            return true;
+        }
+        if ('$'.charAt(0) == val) {
+            return true;
+        }
+        if ('_'.charAt(0) == val) {
+            return true;
+        }
+        // ~[\u0000-\u00FF\uD800-\uDBFF]
+        if ('\u0000'.charAt(0) <= val && val <= '\u00FF'.charAt(0)) {
+            return false;
+        }
+        if ('\uD800'.charAt(0) <= val && val <= '\uDBFF'.charAt(0)) {
+            return false;
+        }
+        return true;
+    }
+
+    // fragment
+    // JavaLetterOrDigit
+    //     :   [a-zA-Z0-9$_] // these are the "java letters or digits" below 0xFF
+    //     |   // covers all characters above 0xFF which are not a surrogate
+    //         ~[\u0000-\u00FF\uD800-\uDBFF]
+    //     |   // covers UTF-16 surrogate pairs encodings for U+10000 to U+10FFFF
+    //         [\uD800-\uDBFF] [\uDC00-\uDFFF]
+    //     ;
+    public static Boolean isJavaLetterOrDigit(Integer val) {
+        // [a-zA-Z$_] // these are the "java letters" below 0xFF
+        if ('a'.charAt(0) <= val && val <= 'z'.charAt(0)) {
+            return true;
+        }
+        if ('A'.charAt(0) <= val && val <= 'Z'.charAt(0)) {
+            return true;
+        }
+        if ('0'.charAt(0) <= val && val <= '9'.charAt(0)) {
+            return true;
+        }
+        if ('$'.charAt(0) == val) {
+            return true;
+        }
+        if ('_'.charAt(0) == val) {
+            return true;
+        }
+        // ~[\u0000-\u00FF\uD800-\uDBFF]
+        if ('\u0000'.charAt(0) <= val && val <= '\u00FF'.charAt(0)) {
+            return false;
+        }
+        if ('\uD800'.charAt(0) <= val && val <= '\uDBFF'.charAt(0)) {
+            return false;
+        }
+        return true;
+    }
+
+    public static Boolean isKeyword(String val) {
+        for (String look : RsvrApexConstants.KEYWORDS) {
+            if (look.toLowerCase() == val.toLowerCase()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static Boolean isSeparator(String val) {
+        for (String look : RsvrApexConstants.SEPARATORS) {
+            if (look.toLowerCase() == val.toLowerCase()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static Boolean isOperator(String val) {
+        for (String look : RsvrApexConstants.OPERATORS) {
+            if (look.toLowerCase() == val.toLowerCase()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static Boolean isOperatorLetter(Integer val) {
+        if ('='.charAt(0) == val
+        || '>'.charAt(0) == val
+        || '<'.charAt(0) == val
+        || '~'.charAt(0) == val
+        || '?'.charAt(0) == val
+        || '.'.charAt(0) == val
+        || ':'.charAt(0) == val
+        || '='.charAt(0) == val
+        || '!'.charAt(0) == val
+        || '&'.charAt(0) == val
+        || '|'.charAt(0) == val
+        || '+'.charAt(0) == val
+        || '-'.charAt(0) == val
+        || '*'.charAt(0) == val
+        || '/'.charAt(0) == val
+        || '&'.charAt(0) == val
+        || '^'.charAt(0) == val) {
+                return true;
+        }
+        return false;
+    }
 
 
-
+    //////////////////////////////////////
+    //
 
     public static String readApexClassBody(String apexClassName) {
         ApexClass apc = [SELECT Name, Body, NamespacePrefix
