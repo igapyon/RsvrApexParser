@@ -14,6 +14,29 @@
  * limitations under the License.
  */
 public class RsvrApexLexicalParser {
+    public abstract class LexicalToken {
+    }
+
+    public class KeywordToken extends LexicalToken {
+    }
+
+    public class LiteralToken extends LexicalToken {
+    }
+
+    public class SeparatorToken extends LexicalToken {
+    }
+
+    public class WhitespaceToken extends LexicalToken {
+    }
+
+    public class CommentToken extends LexicalToken {
+    }
+
+    public class IdentifierToken extends LexicalToken {
+    }
+
+
+
     public static final Integer KEY_ABSTRACT = 0;
     public static final Integer KEY_AFTER = 1;
     public static final Integer KEY_BEFORE = 2;
