@@ -379,6 +379,8 @@ public class RsvrApexLexicalParser {
     };
 
     public abstract class LexicalToken {
+        public String original {get; set;}
+        public String type {get; set;}
     }
 
     public class KeywordToken extends LexicalToken {
@@ -394,6 +396,7 @@ public class RsvrApexLexicalParser {
     }
 
     public class CommentToken extends LexicalToken {
+        public String comment {get; set;}
     }
 
     public class IdentifierToken extends LexicalToken {
@@ -429,6 +432,10 @@ public class RsvrApexLexicalParser {
         currentPos = -1;
         markPos = -1;
 
+        CommentToken tok = parseLINE_COMMENT();
+        if (tok != null) {
+            tokenList.add(tok);
+        }
         
         return tokenList;
     }
@@ -631,18 +638,59 @@ public class RsvrApexLexicalParser {
 
     // WS  :  [ \t\r\n\u000C]+ -> channel(WHITESPACE_CHANNEL)
     //     ;
+    private WhitespaceToken parseWS() {
+        return null;
+    }
 
     // DOC_COMMENT
     //     :   '/**' .*? '*/' -> channel(COMMENT_CHANNEL)
     //     ;
+    private WhitespaceToken parseDOC_COMMENT() {
+        return null;
+    }
 
     // COMMENT
     //     :   '/*' .*? '*/' -> channel(COMMENT_CHANNEL)
     //     ;
+    private WhitespaceToken parseCOMMENT() {
+        return null;
+    }
 
     // LINE_COMMENT
     //     :   '//' ~[\r\n]* -> channel(COMMENT_CHANNEL)
     //     ;
+    private CommentToken parseLINE_COMMENT() {
+        mark();
+        Integer first = readChar();
+        if (first != '/'.charAt(0)) {
+            reset();
+            return null;
+        }
+        Integer second = readChar();
+        if (second != '/'.charAt(0)) {
+            reset();
+            return null;
+        }
 
+        // hit line comment
+        String original = String.valueOf(first) + String.valueOf(second);
+        String comment = '';
+        for (;;) {
+            Integer next = readChar();
+            if (next == '\r'.charAt(0)
+            || next == '\n'.charAt(0)
+            || next < 0) {
+                reset();
+                CommentToken tok = new CommentToken();
+                tok.original = original;
+                tok.comment = comment;
+                return tok;
+            }
+            mark();
+            original += String.valueOf(next);
+            comment += String.valueOf(next);
+        }
 
+        return null;
+    }
 }
