@@ -340,6 +340,7 @@ public class RsvrApexLexicalParser {
         }
 
         // start string literal.
+        result.original = int2string(first);
         result.target = '';
         for (;;) {
             Integer next = readChar();
@@ -352,6 +353,7 @@ public class RsvrApexLexicalParser {
             if (next == '\''.charAt(0)) {
                 // end of string literal.
                 mark();
+                result.original = result.original + result.target + int2string(next);
                 return result;
             }
 
@@ -655,11 +657,7 @@ public class RsvrApexLexicalParser {
             if (next == -1) {
                 // end of file.
                 mark();
-                if (isExist) {
-                    return result;
-                }else {
-                    return null;
-                }
+                break;
             }
 
             if (next == ' '.charAt(0)
@@ -721,7 +719,7 @@ public class RsvrApexLexicalParser {
                 if (next2 == '/'.charAt(0)) {
                     // End of comment.
                     mark();
-                    result.original = result.original + result.target;
+                    result.original = result.original + result.target + int2string(next) + int2string(next2);
                     return result;
                 }
                 reset();
@@ -764,7 +762,7 @@ public class RsvrApexLexicalParser {
                 if (next2 == '/'.charAt(0)) {
                     // End of comment.
                     mark();
-                    result.original = result.original + result.target;
+                    result.original = result.original + result.target + int2string(next) + int2string(next2);
                     return result;
                 }
                 reset();
