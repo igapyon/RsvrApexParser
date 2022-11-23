@@ -399,14 +399,35 @@ public class RsvrApexLexicalParser {
     public class IdentifierToken extends LexicalToken {
     }
 
+    private String apexClassText;
     private List<LexicalToken> tokenList = new List<LexicalToken>();
-    private Integer currentPos = 0;
-    private Integer markPos = 0;
+    private Integer currentPos = -1;
+    private Integer markPos = -1;
+
+    private Integer readChar() {
+        currentPos++;
+        if (apexClassText.length() <= currentPos) {
+            // end of string.
+            currentPos--;
+            return -1;
+        }
+
+        return apexClassText.charAt(currentPos);
+    }
+
+    private void mark() {
+        markPos = currentPos;
+    }
+
+    private void reset() {
+        currentPos = markPos;
+    }
 
     public List<LexicalToken> parse(String apexClassText) {
+        this.apexClassText = apexClassText;
         tokenList = new List<LexicalToken>();
-        currentPos = 0;
-        markPos = 0;
+        currentPos = -1;
+        markPos = -1;
 
         
         return tokenList;
