@@ -13,6 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+/**
+ * Input parser for Lexical parse.
+ */
 public class RsvrApexLexicalParserInput {
     private List<Integer> apexClassCharList;
     private Integer currentPos = -1;

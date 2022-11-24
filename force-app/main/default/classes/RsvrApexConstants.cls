@@ -13,6 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+/**
+ * Constants class for Apex Language.
+ */
 public class RsvrApexConstants {
     public static final Integer KEY_ABSTRACT = 0;
     public static final Integer KEY_AFTER = 1;

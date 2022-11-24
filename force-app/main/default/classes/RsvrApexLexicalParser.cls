@@ -13,6 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+/**
+ * Lexical Parser for Apex Language.
+ */
 public class RsvrApexLexicalParser {
     private static final Boolean IS_DEBUG = false;
 

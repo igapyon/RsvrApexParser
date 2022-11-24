@@ -31,6 +31,5 @@ public class RsvrApexLexicalParserTest {
         System.assertEquals(13, '\r'.charAt(0));
         System.assertEquals(34, '"'.charAt(0));
         System.assertEquals(12, '\u000C'.charAt(0));
-        
     }
 }
