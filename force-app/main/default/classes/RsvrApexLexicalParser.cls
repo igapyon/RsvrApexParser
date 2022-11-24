@@ -1185,8 +1185,6 @@ public class RsvrApexLexicalParser {
     private CommentToken parseLineComment() {
         input.mark();
 
-        List<Integer> targetList = new List<Integer>();
-
         Integer first = input.readChar();
         if (first != 47 /* [/] */) {
             input.reset();
@@ -1197,6 +1195,8 @@ public class RsvrApexLexicalParser {
             input.reset();
             return null;
         }
+
+        List<Integer> targetList = new List<Integer>();
 
         // hit line comment
         for (;;) {
