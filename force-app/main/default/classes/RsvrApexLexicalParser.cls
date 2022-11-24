@@ -119,6 +119,30 @@ public class RsvrApexLexicalParser {
                 continue;
             }
 
+            
+            // NumberのパースはLongより先に実施。
+            if (IS_DEBUG) System.debug('TRACE: parseNumberLiteral: ');
+            tok = parseNumberLiteral();
+            if (tok != null) {
+                tokenList.add(tok);
+                continue;
+            }
+
+            // LongのパースはIntegerより先に実施。
+            if (IS_DEBUG) System.debug('TRACE: parseLongLiteral: ');
+            tok = parseLongLiteral();
+            if (tok != null) {
+                tokenList.add(tok);
+                continue;
+            }
+
+            if (IS_DEBUG) System.debug('TRACE: parseIntegerLiteral: ');
+            tok = parseIntegerLiteral();
+            if (tok != null) {
+                tokenList.add(tok);
+                continue;
+            }
+
             ////////////////////////
             // Whitespace and comments.
 
@@ -217,10 +241,13 @@ public class RsvrApexLexicalParser {
     // DateLiteral: Digit Digit Digit Digit '-' Digit Digit '-' Digit Digit;
     // DateTimeLiteral: DateLiteral 't' Digit Digit ':' Digit Digit ':' Digit Digit ('z' | (('+' | '-') Digit+ ( ':' Digit+)? ));
 
+    // TODO SOQL Currency literal は一旦未着手のまま放置。
+
     // SOQL Currency literal
     // (NOTE: this is also a valid Identifier)
     // IntegralCurrencyLiteral: [a-z] [a-z] [a-z] Digit+;
 
+    // TODO FIND 系は一旦未着手のまま放置。
 
     // FindLiteral
     // :   '[' WS? 'find' WS '\'' FindCharacters? '\''
@@ -260,13 +287,116 @@ public class RsvrApexLexicalParser {
     //     ;
     // 
 
+    private LiteralToken parseIntegerLiteral() {
+        input.mark();
+
+        LiteralToken result = new LiteralToken();
+        result.type = 'IntegerLiteral';
+
+        result.target = '';
+        Boolean isExist = false;
+        for (;;) {
+            Integer next = input.readChar();
+            if (RsvrApexLexicalParserUtil.isDigit(next)) {
+                isExist = true;
+                result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
+                continue;
+            } else {
+                if (isExist == false) {
+                    input.reset();
+                    return null;
+                }
+
+                input.move(input.pos() - 1);
+
+                // Hit
+                input.mark();
+                result.original = result.target;
+                return result;
+            }
+        }
+
+        input.reset();
+        return null;
+    }
+
     // LongLiteral
     //     : Digit Digit* [lL]
     //     ;
 
+    private LiteralToken parseLongLiteral() {
+        input.mark();
+
+        LiteralToken result = new LiteralToken();
+        result.type = 'LongLiteral';
+
+        result.target = '';
+        Boolean isFirst = true;
+        for (;;) {
+            Integer next = input.readChar();
+            if (RsvrApexLexicalParserUtil.isDigit(next)) {
+                isFirst = false;
+                result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
+                continue;
+            }
+            if (isFirst == false && (next == 'l'.charAt(0) || next == 'L'.charAt(0))) {
+                result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
+
+                // Hit
+                input.mark();
+                result.original = result.target;
+                return result;
+            }
+            input.reset();
+            return null;
+        }
+
+        input.reset();
+        return null;
+    }
+
     // NumberLiteral
     //     :   Digit* '.' Digit Digit* [dD]?
     //     ;
+    private LiteralToken parseNumberLiteral() {
+        input.mark();
+
+        LiteralToken result = new LiteralToken();
+        result.type = 'NumberLiteral';
+
+        result.target = '';
+        Boolean isFirst = true;
+        Boolean isExist = false;
+        Boolean isDotExist = false;
+        for (;;) {
+            Integer next = input.readChar();
+            if (RsvrApexLexicalParserUtil.isDigit(next)) {
+                isFirst = false;
+                isExist = true;
+                result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
+                continue;
+            }
+            if (isFirst == false && isDotExist == false && next == '.'.charAt(0)) {
+                isDotExist = true;
+                result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
+                continue;
+            }
+            if (isExist == false || isDotExist == false) {
+                input.reset();
+                return null;
+            }
+
+            input.move(input.pos() - 1);
+
+            // Hit
+            input.mark();
+            result.original = result.target;
+            return result;
+        }
+
+        input.reset();
+        return null;
+    }
 
     // // §3.10.3 Boolean Literals
 
@@ -481,6 +611,17 @@ public class RsvrApexLexicalParser {
                     result.original = result.target;
                     return result;
                 } else {
+                    if (result.target.charAt(0) == 62 /* [>] */) {
+                        // 特殊処理
+                        input.reset();
+                        Integer retry = input.readChar();
+                        result.target = RsvrApexLexicalParserUtil.int2string(retry);
+                        result.original = result.target;
+                        input.mark();
+                        return result;
+                    }
+
+                    // in case // or /* pass here.
                     break;
                 }
             }
@@ -527,25 +668,35 @@ public class RsvrApexLexicalParser {
 
         result.target = '';
         Boolean isExist = false;
+        Boolean isFirst = true;
         for (;;) {
             Integer next = input.readChar();
-            if (RsvrApexLexicalParserUtil.isJavaLetterOrDigit(next)) {
-                isExist = true;
-                result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
-                continue;
-            } else {
-                if (isExist == false) {
-                    input.reset();
-                    return null;
+            if (isFirst) {
+                isFirst = false;
+                if (RsvrApexLexicalParserUtil.isJavaLetter(next)) {
+                    isExist = true;
+                    result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
+                    continue;
                 }
-
-                input.move(input.pos() - 1);
-
-                // Hit
-                input.mark();
-                result.original = result.target;
-                return result;
+            } else {
+                if (RsvrApexLexicalParserUtil.isJavaLetterOrDigit(next)) {
+                    isExist = true;
+                    result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
+                    continue;
+                }
             }
+            if (isExist == false) {
+                input.reset();
+                return null;
+            }
+
+            // 読み過ぎた部分を廃棄。
+            input.move(input.pos() - 1);
+
+            // Hit
+            input.mark();
+            result.original = result.target;
+            return result;
         }
 
         input.reset();

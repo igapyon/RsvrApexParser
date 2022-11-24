@@ -54,4 +54,14 @@ private class RsvrApexLexicalParserTest02 {
     static void test08() {
         RsvrApexLexicalParserUtil.validateLexicalParser('RsvrApexSyntaxParserTest', false);
     }
+
+    @isTest(SeeAllData=false)
+    static void test11() {
+        RsvrApexLexicalParserUtil.validateLexicalParser('RsvrApexLexicalParserTest11', false);
+    }
+
+    @isTest(SeeAllData=false)
+    static void test12() {
+        RsvrApexLexicalParserUtil.validateLexicalParser('RsvrApexLexicalParserTest12', false);
+    }
 }
