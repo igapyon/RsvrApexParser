@@ -23,7 +23,19 @@ public class RsvrApexLexicalParserInput {
     private Integer markPos = -1;
 
     public RsvrApexLexicalParserInput(String apexClassText) {
-        this.apexClassCharList = apexClassText.getChars();
+        // これだとバックスラッシュが消失する。
+        // this.apexClassCharList = apexClassText.getChars();
+
+        // これだとCPUタイムで圧倒的に不利。
+        //List<Integer> result = new List<Integer>();
+        //Integer len = apexClassText.length();
+        //for (Integer i = 0; i < len; i++) {
+        //    result.add(apexClassText.charAt(i));
+        //}
+        //this.apexClassCharList = result;
+
+        // ワークアラウンド。バックスラッシュは増やしてしまえば良い。（自信はないがぱっとみ動作する）
+        this.apexClassCharList = apexClassText.replace('\\','\\\\').getChars();
     }
 
     public Integer readChar() {

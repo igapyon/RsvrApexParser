@@ -34,4 +34,10 @@ private class RsvrApexLexicalParserTest12 {
         String val3 = 'A\\C';
         String val4 = 'A\nC';
     }
+
+    @isTest(SeeAllData=false)
+    static void test03() {
+        String val1 = 'A\'C';
+        List<Integer> myList = val1.getChars();
+    }
 }

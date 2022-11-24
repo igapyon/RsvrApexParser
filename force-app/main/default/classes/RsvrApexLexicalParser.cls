@@ -81,68 +81,6 @@ public class RsvrApexLexicalParser {
             LexicalToken tok = null;
 
             ////////////////////////
-            // Literals
-
-            // parseDateLiteral より先にparseDateTimeLiteralを実施。
-            if (IS_DEBUG) System.debug('TRACE: parseDateTimeLiteral: ');
-            tok = parseDateTimeLiteral();
-            if (tok != null) {
-                tokenList.add(tok);
-                continue;
-            }
-
-            if (IS_DEBUG) System.debug('TRACE: parseDateLiteral: ');
-            tok = parseDateLiteral();
-            if (tok != null) {
-                tokenList.add(tok);
-                continue;
-            }            
-
-            if (IS_DEBUG) System.debug('TRACE: parseStringLiteral: ');
-            tok = parseStringLiteral();
-            if (tok != null) {
-                tokenList.add(tok);
-                continue;
-            }
-
-            // NumberのパースはLongより先に実施。
-            if (IS_DEBUG) System.debug('TRACE: parseNumberLiteral: ');
-            tok = parseNumberLiteral();
-            if (tok != null) {
-                tokenList.add(tok);
-                continue;
-            }
-
-            // LongのパースはIntegerより先に実施。
-            if (IS_DEBUG) System.debug('TRACE: parseLongLiteral: ');
-            tok = parseLongLiteral();
-            if (tok != null) {
-                tokenList.add(tok);
-                continue;
-            }
-
-            if (IS_DEBUG) System.debug('TRACE: parseIntegerLiteral: ');
-            tok = parseIntegerLiteral();
-            if (tok != null) {
-                tokenList.add(tok);
-                continue;
-            }
-
-            if (IS_DEBUG) System.debug('TRACE: parseBooleanLiteral: ');
-            tok = parseBooleanLiteral();
-            if (tok != null) {
-                tokenList.add(tok);
-                continue;
-            }
-            
-            if (IS_DEBUG) System.debug('TRACE: parseNullLiteral: ');
-            tok = parseNullLiteral();
-            if (tok != null) {
-                tokenList.add(tok);
-                continue;
-            }
-
-            ////////////////////////
             // Whitespace and comments.
 
             if (IS_DEBUG) System.debug('TRACE: parseWS: ');
@@ -210,6 +148,68 @@ public class RsvrApexLexicalParser {
                 continue;
             }
 
+            ////////////////////////
+            // Literals
+
+            // parseDateLiteral より先にparseDateTimeLiteralを実施。
+            if (IS_DEBUG) System.debug('TRACE: parseDateTimeLiteral: ');
+            tok = parseDateTimeLiteral();
+            if (tok != null) {
+                tokenList.add(tok);
+                continue;
+            }
+
+            if (IS_DEBUG) System.debug('TRACE: parseDateLiteral: ');
+            tok = parseDateLiteral();
+            if (tok != null) {
+                tokenList.add(tok);
+                continue;
+            }            
+
+            if (IS_DEBUG) System.debug('TRACE: parseStringLiteral: ');
+            tok = parseStringLiteral();
+            if (tok != null) {
+                tokenList.add(tok);
+                continue;
+            }
+
+            // NumberのパースはLongより先に実施。
+            if (IS_DEBUG) System.debug('TRACE: parseNumberLiteral: ');
+            tok = parseNumberLiteral();
+            if (tok != null) {
+                tokenList.add(tok);
+                continue;
+            }
+
+            // LongのパースはIntegerより先に実施。
+            if (IS_DEBUG) System.debug('TRACE: parseLongLiteral: ');
+            tok = parseLongLiteral();
+            if (tok != null) {
+                tokenList.add(tok);
+                continue;
+            }
+
+            if (IS_DEBUG) System.debug('TRACE: parseIntegerLiteral: ');
+            tok = parseIntegerLiteral();
+            if (tok != null) {
+                tokenList.add(tok);
+                continue;
+            }
+
+            if (IS_DEBUG) System.debug('TRACE: parseBooleanLiteral: ');
+            tok = parseBooleanLiteral();
+            if (tok != null) {
+                tokenList.add(tok);
+                continue;
+            }
+            
+            if (IS_DEBUG) System.debug('TRACE: parseNullLiteral: ');
+            tok = parseNullLiteral();
+            if (tok != null) {
+                tokenList.add(tok);
+                continue;
+            }
+                        
             // Do NOT enter here..
             {
                 System.debug('TRACE: PANIC: Unexpected error. Process stopped.: [' + input.getRemainingtext(true) + ']');
@@ -734,8 +734,9 @@ public class RsvrApexLexicalParser {
         result.original = RsvrApexLexicalParserUtil.int2string(first);
         result.target = '';
         for (;;) {
-            Integer next = input.readChar();
+            final Integer next = input.readChar();
             if (IS_LOCAL_DEBUG) System.debug('TRACE: Next char[' + RsvrApexLexicalParserUtil.int2string(next) + ']');
+            if (IS_LOCAL_DEBUG) System.debug('TRACE: Remainingtext [' + input.getRemainingtext(false) + ']');
             if (next == -1) {
                 if (IS_LOCAL_DEBUG) System.debug('TRACE: End of file.');
                 // End of file.
@@ -757,7 +758,7 @@ public class RsvrApexLexicalParser {
             if (next == 92 /* [bs] */) {
                 if (IS_LOCAL_DEBUG) System.debug('TRACE: Escape began.');
                 // Escape begin.
-                result.original = result.original + '\\' + RsvrApexLexicalParserUtil.int2string(next);
+                result.original = result.original + RsvrApexLexicalParserUtil.int2string(next);
 
                 Integer next2 = input.readChar();
                 result.original = result.original + RsvrApexLexicalParserUtil.int2string(next2);
