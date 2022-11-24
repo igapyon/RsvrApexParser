@@ -21,7 +21,7 @@ public class RsvrApexLexicalParserTest {
     }
 
     @isTest(SeeAllData=false)
-    static void test01() {
+    static void test02() {
         System.assertEquals(39, '\''.charAt(0));
         System.assertEquals(92, '\\'.charAt(0));
         System.assertEquals(8, '\b'.charAt(0));
@@ -30,5 +30,7 @@ public class RsvrApexLexicalParserTest {
         System.assertEquals(12, '\f'.charAt(0));
         System.assertEquals(13, '\r'.charAt(0));
         System.assertEquals(34, '"'.charAt(0));
+        System.assertEquals(12, '\u000C'.charAt(0));
+        
     }
 }

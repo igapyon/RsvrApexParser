@@ -323,10 +323,10 @@ public class RsvrApexLexicalParser {
                 if (IS_LOCAL_DEBUG) System.debug('TRACE: End of file.');
                 // End of file.
                 // Unexpected.
-                input.reset();
+                input.mark();
                 return result;
             }
-            if (next == 39 /* ['] */) {
+            if (next == 39 /* [Camma] */) {
                 if (IS_LOCAL_DEBUG) System.debug('TRACE: End of string literal.');
 
                 // end of string literal.
@@ -336,8 +336,8 @@ public class RsvrApexLexicalParser {
                 return result;
             }
 
-            //     :   '\\' [btnfr"'\\]
-            if (next == 92 /* [\] */) {
+            //     :   bs [btnfr"cammabs]
+            if (next == 92 /* [bs] */) {
                 if (IS_LOCAL_DEBUG) System.debug('TRACE: Escape began.');
                 // Escape begin.
                 result.original = result.original + '\\' + RsvrApexLexicalParserUtil.int2string(next);
@@ -346,37 +346,37 @@ public class RsvrApexLexicalParser {
                 result.original = result.original + RsvrApexLexicalParserUtil.int2string(next2);
                 if (next2 == 'b'.charAt(0)) {
                     if (IS_LOCAL_DEBUG) System.debug('TRACE: Escape + b');
-                    result.target = result.target + 8 /* [\b] */;
+                    result.target = result.target + 8 /* [b] */;
                     continue;
                 }
                 if (next2 == 't'.charAt(0)) {
                     if (IS_LOCAL_DEBUG) System.debug('TRACE: Escape + t');
-                    result.target = result.target + '\t';
+                    result.target = result.target + 9 /* [t] */;
                     continue;
                 }
                 if (next2 == 'n'.charAt(0)) {
                     if (IS_LOCAL_DEBUG) System.debug('TRACE: Escape + n');
-                    result.target = result.target + '\n';
+                    result.target = result.target + 10 /* [n] */;
                     continue;
                 }
                 if (next2 == 'f'.charAt(0)) {
                     if (IS_LOCAL_DEBUG) System.debug('TRACE: Escape + f');
-                    result.target = result.target + '\f';
+                    result.target = result.target + 12 /* [f] */;
                     continue;
                 }
                 if (next2 == 'r'.charAt(0)) {
                     if (IS_LOCAL_DEBUG) System.debug('TRACE: Escape + r');
-                    result.target = result.target + '\r';
+                    result.target = result.target + 13 /* [r] */;
                     continue;
                 }
-                if (next2 == '"'.charAt(0)
-                || next2 == '\''.charAt(0)
-                || next2 == '\\'.charAt(0)) {
+                if (next2 == 34 /* ["] */
+                || next2 == 39 /* [Camma] */
+                || next2 == 92 /* [backslash] */) {
                     if (IS_LOCAL_DEBUG) System.debug('TRACE: Escape + double/kanma,backslash');
                     result.target = result.target + RsvrApexLexicalParserUtil.int2string(next2);
                     continue;
                 }
-                // '\\u' HexCharacter HexCharacter HexCharacter HexCharacter
+                // 'u' HexCharacter HexCharacter HexCharacter HexCharacter
                 if (next2 == 'u'.charAt(0)) {
                     if (IS_LOCAL_DEBUG) System.debug('TRACE: Escape + u');
                     Integer hex1 = input.readChar();
@@ -556,7 +556,7 @@ public class RsvrApexLexicalParser {
     // // Whitespace and comments
     // //
 
-    // WS  :  [ \t\r\n\u000C]+ -> channel(WHITESPACE_CHANNEL)
+    // WS  :  [ trnu000C]+ -> channel(WHITESPACE_CHANNEL)
     //     ;
     private WhitespaceToken parseWS() {
         input.mark();
@@ -575,10 +575,10 @@ public class RsvrApexLexicalParser {
             }
 
             if (next == ' '.charAt(0)
-            || next == '\t'.charAt(0)
-            || next == '\r'.charAt(0)
-            || next == '\n'.charAt(0)
-            || next == '\u000C'.charAt(0)) {
+            || next == 9 /* [t] */
+            || next == 12 /* [r] */
+            || next == 10 /* [n] */
+            || next == 12 /* [u000C] */) {
                 isExist = true;
                 input.mark();
                 result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
@@ -599,7 +599,7 @@ public class RsvrApexLexicalParser {
     }
 
     // DOC_COMMENT
-    //     :   '/**' .*? '*/' -> channel(COMMENT_CHANNEL)
+    //     :   /** .*? */ -> channel(COMMENT_CHANNEL)
     //     ;
     private CommentToken parseDocComment() {
         input.mark();
@@ -691,7 +691,7 @@ public class RsvrApexLexicalParser {
     }
 
     // LINE_COMMENT
-    //     :   '//' ~[\r\n]* -> channel(COMMENT_CHANNEL)
+    //     :   // ~[rn]* -> channel(COMMENT_CHANNEL)
     //     ;
     private CommentToken parseLineComment() {
         input.mark();
@@ -715,8 +715,8 @@ public class RsvrApexLexicalParser {
         result.target = '';
         for (;;) {
             Integer next = input.readChar();
-            if (next == '\r'.charAt(0)
-            || next == '\n'.charAt(0)
+            if (next == 13 /* [r] */
+            || next == 10 /* [n] */
             || next == -1) {
                 input.reset();
                 result.original = result.original + result.target;
