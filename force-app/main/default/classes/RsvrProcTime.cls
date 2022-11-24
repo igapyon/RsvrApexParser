@@ -21,10 +21,13 @@
     private final Map<String,Integer> procCountMap = new Map<String,Integer>();
     private final Map<String,Long> procTimeMap = new Map<String,Long>();
 
+    private String procTimeName = 'Noname';
     private String currentProcName = 'Noname';
     private Long currentProcEnterTime = Datetime.now().getTime();
+    private Integer callCounter = 0;
 
-    public RsvrProcTime() {
+    public RsvrProcTime(String procTimeName) {
+        this.procTimeName = procTimeName;
         enter('Noname');
     }
 
@@ -42,15 +45,16 @@
         // 与えられた新しい処理名を記憶
         currentProcName = procName;
         currentProcEnterTime = enterTime;
+
+        if (Math.mod(++callCounter,10000) == 0) {
+            dump();
+        }
     }
 
     private void cal(Long enterTime) {
         // 処理中だった時刻計測を実施
         procCountMap.put(currentProcName, procCountMap.get(currentProcName) + 1);
-        Long oldEnterTime = procTimeMap.get(currentProcName);
-        Long procCostTime = enterTime - currentProcEnterTime;
-        procTimeMap.put(currentProcName, oldEnterTime + procCostTime);
-        System.debug('RsvrProcTime: ' + currentProcName + ': count:' + procCountMap.get(currentProcName) + ', time:' + procCostTime + ', totaltime: ' + procTimeMap.get(currentProcName));
+        procTimeMap.put(currentProcName, procTimeMap.get(currentProcName) + (enterTime - currentProcEnterTime));
     }
 
     public void close() {
@@ -62,10 +66,17 @@
     }
 
     public void dump() {
-        String message = '\n\nRsvrProcTime:\n';
+        String message = '\n\n' + procTimeName + ':\n';
+        Long allCount = 0;
+        Long allTime = 0;
         for (String key : procCountMap.keySet()) {
-            message += ('    ' + key + ': count:' + procCountMap.get(key) + ', totaltime: ' + procTimeMap.get(key) + '\n');
+            allCount += procCountMap.get(key);
+            allTime += procTimeMap.get(key);
+            message += ('    ' + key + ': count:' + procCountMap.get(key) + ', time: ' + procTimeMap.get(key) + '\n');
         }
+        message += ('    -----------------------------------------------\n');
+        message += ('    total count: ' + allCount + '\n');
+        message += ('    total time : ' + allTime + ' ms\n');
         message += '\n';
         System.debug(message);
     }
