@@ -18,44 +18,41 @@
  * Input parser for Lexical parse.
  */
 public class RsvrApexLexicalParserInput {
-    private List<Integer> apexClassCharList;
+    private String originalApexClassText;
+    private Map<Integer,Integer> apexClassCharMap = new Map<Integer,Integer>();
+    private Integer apexClassCharListSize = -1;
     private Integer currentPos = -1;
     private Integer markPos = -1;
 
     public RsvrApexLexicalParserInput(String apexClassText) {
+        originalApexClassText = apexClassText;
+        apexClassCharListSize = apexClassText.length();
+
         // これだとバックスラッシュが消失する。
-        // this.apexClassCharList = apexClassText.getChars();
+        //this.apexClassCharList = apexClassText.getChars();
 
-        if (true) {
-            // 有利/不利があるのだろうか。
-            Long startMS = Datetime.now().millisecond();
-            List<Integer> result = new List<Integer>();
-            Integer len = apexClassText.length();
-            for (Integer i = 0; i < len; i++) {
-                result.add(apexClassText.charAt(i));
-            }
-            this.apexClassCharList = result;
-            Long endMS = Datetime.now().millisecond();
-            System.debug('TRACE: loop + add: ' + (endMS - startMS));
+        // 有利/不利があるのだろうか。
+        Long startMS = Datetime.now().millisecond();
+        List<Integer> result = new List<Integer>();
+        Integer len = apexClassText.length();
+        for (Integer i = 0; i < len; i++) {
+            apexClassCharMap.put(i, apexClassText.charAt(i));
         }
+        Long endMS = Datetime.now().millisecond();
+        System.debug('TRACE: loop + add: ' + (endMS - startMS));
 
-        if (false) {
-            // ワークアラウンド。バックスラッシュは増やしてしまえば良い。（自信はないがぱっと見は動作する）
-            Long startMS = Datetime.now().millisecond();
-            this.apexClassCharList = apexClassText.replace('\\','\\\\').getChars();
-            Long endMS = Datetime.now().millisecond();
-            System.debug('TRACE: replace + getChars: ' + (endMS - startMS));
-        }
+        // ワークアラウンド。バックスラッシュは増やしてしまえば良い。（自信はないがぱっと見は動作する）
+        //this.apexClassCharList = apexClassText.replace('\\','\\\\').getChars();
     }
 
     public Integer readChar() {
         currentPos++;
-        if (apexClassCharList.size() <= currentPos) {
+        if (apexClassCharListSize <= currentPos) {
             // end of string.
             return -1;
         }
 
-        return apexClassCharList.get(currentPos);
+        return apexClassCharMap.get(currentPos);
     }
 
     public Integer mark() {
@@ -83,10 +80,9 @@ public class RsvrApexLexicalParserInput {
         if (pos < 0) {
             pos = 0;
         }
-        if (apexClassCharList.size() <= (pos)) {
+        if (apexClassCharListSize <= (pos)) {
             return '';
         }
-        final String apexClassText = String.fromCharArray(apexClassCharList);
-        return apexClassText.substring(pos);
+        return originalApexClassText.substring(pos);
     }
 }
