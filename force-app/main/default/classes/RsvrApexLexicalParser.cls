@@ -20,6 +20,8 @@
 public class RsvrApexLexicalParser {
     private static final Boolean IS_DEBUG = false;
 
+    private static final RsvrProcTime procTime = new RsvrProcTime('RsvrApexLexicalParser');
+
     public abstract class LexicalToken {
         public String type {get; set;}
         public String target {get; set;}
@@ -62,8 +64,6 @@ public class RsvrApexLexicalParser {
     // Mail process loop.
 
     public List<LexicalToken> parse(String apexClassText) {
-        Long startMS = Datetime.now().getTime();
-
         input = new RsvrApexLexicalParserInput(apexClassText);
 
         for (;;) {
@@ -224,9 +224,7 @@ public class RsvrApexLexicalParser {
             }        
         }
 
-        Long endMS = Datetime.now().getTime();
-        System.debug('TRACE: RsvrApexLexicalParser.parse: ' + (endMS - startMS) + ' ms');
-
+        procTime.close();
         return tokenList;
     }
 
@@ -237,6 +235,8 @@ public class RsvrApexLexicalParser {
     // Parse
 
     private KeywordToken parseKeyword() {
+        procTime.enter('parseKeyword');
+
         input.mark();
 
         List<Integer> targetList = null;
@@ -287,6 +287,7 @@ public class RsvrApexLexicalParser {
     // SOQL Date literal
     // DateLiteral: Digit Digit Digit Digit '-' Digit Digit '-' Digit Digit;
     private LiteralToken parseDateLiteral() {
+        procTime.enter('parseDateLiteral');
         input.mark();
 
         Integer val1 = input.readChar();
@@ -354,6 +355,7 @@ public class RsvrApexLexicalParser {
 
     // DateTimeLiteral: DateLiteral 't' Digit Digit ':' Digit Digit ':' Digit Digit ('z' | (('+' | '-') Digit+ ( ':' Digit+)? ));
     private LiteralToken parseDateTimeLiteral() {
+        procTime.enter('parseDateTimeLiteral');
         input.mark();
 
         Integer val1 = input.readChar();
@@ -549,6 +551,7 @@ public class RsvrApexLexicalParser {
     // 
 
     private LiteralToken parseIntegerLiteral() {
+        procTime.enter('parseIntegerLiteral');
         input.mark();
 
         LiteralToken result = new LiteralToken();
@@ -586,6 +589,7 @@ public class RsvrApexLexicalParser {
     //     ;
 
     private LiteralToken parseLongLiteral() {
+        procTime.enter('parseLongLiteral');
         input.mark();
 
         LiteralToken result = new LiteralToken();
@@ -620,6 +624,7 @@ public class RsvrApexLexicalParser {
     //     :   Digit* '.' Digit Digit* [dD]?
     //     ;
     private LiteralToken parseNumberLiteral() {
+        procTime.enter('parseNumberLiteral');
         input.mark();
 
         LiteralToken result = new LiteralToken();
@@ -666,6 +671,7 @@ public class RsvrApexLexicalParser {
     //     |   'false'
     //     ;
     private LiteralToken parseBooleanLiteral() {
+        procTime.enter('parseBooleanLiteral');
         input.mark();
 
         LiteralToken result = new LiteralToken();
@@ -726,6 +732,8 @@ public class RsvrApexLexicalParser {
     //     ;
 
     private LiteralToken parseStringLiteral() {
+        procTime.enter('parseStringLiteral');
+
         input.mark();
         final Boolean IS_LOCAL_DEBUG = false;
 
@@ -853,6 +861,8 @@ public class RsvrApexLexicalParser {
     //     :   NULL
     //     ;
     private LiteralToken parseNullLiteral() {
+        procTime.enter('parseNullLiteral');
+
         input.mark();
 
         LiteralToken result = new LiteralToken();
@@ -894,6 +904,8 @@ public class RsvrApexLexicalParser {
      * Must be one char.
      */
     private SeparatorToken parseSeparator() {
+        procTime.enter('parseSeparator');
+
         input.mark();
 
         for (;;) {
@@ -916,6 +928,8 @@ public class RsvrApexLexicalParser {
     // // §3.12 Operators
 
     private OperatorToken parseOperator() {
+        procTime.enter('parseOperator');
+
         input.mark();
 
         List<Integer> targetList = null;
@@ -976,6 +990,8 @@ public class RsvrApexLexicalParser {
 
     // ATSIGN : '@';
     private AtsignToken parseAtsign() {
+        procTime.enter('parseAtsign');
+
         input.mark();
 
         AtsignToken result = new AtsignToken();
@@ -1000,6 +1016,8 @@ public class RsvrApexLexicalParser {
     //     :   JavaLetter JavaLetterOrDigit*
     //     ;
     private IdentifierToken parseIdentifier() {
+        procTime.enter('parseIdentifier');
+
         input.mark();
 
         List<Integer> targetList = null;
@@ -1057,6 +1075,8 @@ public class RsvrApexLexicalParser {
     // WS  :  [ trnu000C]+ -> channel(WHITESPACE_CHANNEL)
     //     ;
     private WhitespaceToken parseWS() {
+        procTime.enter('parseWS');
+
         input.mark();
 
         List<Integer> targetList = null;
@@ -1105,6 +1125,8 @@ public class RsvrApexLexicalParser {
     //     :   /** .*? */ -> channel(COMMENT_CHANNEL)
     //     ;
     private CommentToken parseDocComment() {
+        procTime.enter('parseDocComment');
+
         input.mark();
 
         Integer first = input.readChar();
@@ -1159,6 +1181,8 @@ public class RsvrApexLexicalParser {
     //     :   '/*' .*? '*/' -> channel(COMMENT_CHANNEL)
     //     ;
     private CommentToken parseComment() {
+        procTime.enter('parseComment');
+
         input.mark();
         Integer first = input.readChar();
         if (first != 47 /* [/] */) {
@@ -1207,6 +1231,8 @@ public class RsvrApexLexicalParser {
     //     :   // ~[rn]* -> channel(COMMENT_CHANNEL)
     //     ;
     private CommentToken parseLineComment() {
+        procTime.enter('parseLineComment');
+
         input.mark();
 
         Integer first = input.readChar();
