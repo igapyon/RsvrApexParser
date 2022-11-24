@@ -109,6 +109,20 @@ public class RsvrApexLexicalParser {
                 continue;
             }
 
+            if (IS_DEBUG) System.debug('TRACE: parseBooleanLiteral: ');
+            tok = parseBooleanLiteral();
+            if (tok != null) {
+                tokenList.add(tok);
+                continue;
+            }
+            
+            if (IS_DEBUG) System.debug('TRACE: parseNullLiteral: ');
+            tok = parseNullLiteral();
+            if (tok != null) {
+                tokenList.add(tok);
+                continue;
+            }
+
             ////////////////////////
             // Whitespace and comments.
 
@@ -407,6 +421,42 @@ public class RsvrApexLexicalParser {
     //     :   'true'
     //     |   'false'
     //     ;
+    private LiteralToken parseBooleanLiteral() {
+        input.mark();
+
+        LiteralToken result = new LiteralToken();
+        result.type = 'BooleanLiteral';
+
+        result.target = '';
+        Boolean isExist = false;
+        for (;;) {
+            Integer next = input.readChar();
+            if (RsvrApexLexicalParserUtil.isJavaLetter(next)) {
+                isExist = true;
+                result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
+                continue;
+            } else {
+                if (isExist == false) {
+                    input.reset();
+                    return null;
+                }
+
+                input.move(input.pos() - 1);
+
+                if ('true' == result.target.toLowerCase()
+                || 'false' == result.target.toLowerCase()) {
+                    // Hit
+                    input.mark();
+                    result.original = result.target;
+                    return result;
+                }
+                break;
+            }
+        }
+
+        input.reset();
+        return null;
+    }
 
     // // §3.10.5 String Literals
 
@@ -557,6 +607,41 @@ public class RsvrApexLexicalParser {
     // NullLiteral
     //     :   NULL
     //     ;
+    private LiteralToken parseNullLiteral() {
+        input.mark();
+
+        LiteralToken result = new LiteralToken();
+        result.type = 'NullLiteral';
+
+        result.target = '';
+        Boolean isExist = false;
+        for (;;) {
+            Integer next = input.readChar();
+            if (RsvrApexLexicalParserUtil.isJavaLetter(next)) {
+                isExist = true;
+                result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
+                continue;
+            } else {
+                if (isExist == false) {
+                    input.reset();
+                    return null;
+                }
+
+                input.move(input.pos() - 1);
+
+                if ('null' == result.target.toLowerCase()) {
+                    // Hit
+                    input.mark();
+                    result.original = result.target;
+                    return result;
+                }
+                break;
+            }
+        }
+
+        input.reset();
+        return null;
+    }
 
     /**
      * Parse separator.
