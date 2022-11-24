@@ -79,6 +79,13 @@ public class RsvrApexLexicalParser {
             ////////////////////////
             // Literals
 
+            if (IS_DEBUG) System.debug('TRACE: parseDateTimeLiteral: ');
+            tok = parseDateTimeLiteral();
+            if (tok != null) {
+                tokenList.add(tok);
+                continue;
+            }
+
             if (IS_DEBUG) System.debug('TRACE: parseStringLiteral: ');
             tok = parseStringLiteral();
             if (tok != null) {
@@ -256,7 +263,155 @@ public class RsvrApexLexicalParser {
 
     // SOQL Date literal
     // DateLiteral: Digit Digit Digit Digit '-' Digit Digit '-' Digit Digit;
+
     // DateTimeLiteral: DateLiteral 't' Digit Digit ':' Digit Digit ':' Digit Digit ('z' | (('+' | '-') Digit+ ( ':' Digit+)? ));
+    private LiteralToken parseDateTimeLiteral() {
+        input.mark();
+
+        LiteralToken result = new LiteralToken();
+        result.type = 'DateTimeLiteral';
+
+        result.target = '';
+
+        Integer val1 = input.readChar();
+        if (RsvrApexLexicalParserUtil.isDigit(val1) == false) {
+            input.reset();
+            return null;
+        }
+        Integer val2 = input.readChar();
+        if (RsvrApexLexicalParserUtil.isDigit(val2) == false) {
+            input.reset();
+            return null;
+        }
+        Integer val3 = input.readChar();
+        if (RsvrApexLexicalParserUtil.isDigit(val3) == false) {
+            input.reset();
+            return null;
+        }
+        Integer val4 = input.readChar();
+        if (RsvrApexLexicalParserUtil.isDigit(val4) == false) {
+            input.reset();
+            return null;
+        }
+        Integer val5 = input.readChar();
+        if (val5 != '-'.charAt(0)) {
+            input.reset();
+            return null;
+        }
+        Integer val6 = input.readChar();
+        if (RsvrApexLexicalParserUtil.isDigit(val6) == false) {
+            input.reset();
+            return null;
+        }
+        Integer val7 = input.readChar();
+        if (RsvrApexLexicalParserUtil.isDigit(val7) == false) {
+            input.reset();
+            return null;
+        }
+        Integer val8 = input.readChar();
+        if (val8 != '-'.charAt(0)) {
+            input.reset();
+            return null;
+        }
+        Integer val9 = input.readChar();
+        if (RsvrApexLexicalParserUtil.isDigit(val9) == false) {
+            input.reset();
+            return null;
+        }
+        Integer val10 = input.readChar();
+        if (RsvrApexLexicalParserUtil.isDigit(val10) == false) {
+            input.reset();
+            return null;
+        }
+
+        // t
+        Integer val11 = input.readChar();
+        if (val11 != 't'.charAt(0) && val11 != 'T'.charAt(0)) {
+            input.reset();
+            return null;
+        }
+
+        // Digit Digit ':' Digit Digit ':' Digit Digit
+        Integer val12 = input.readChar();
+        if (RsvrApexLexicalParserUtil.isDigit(val12) == false) {
+            input.reset();
+            return null;
+        }
+        Integer val13 = input.readChar();
+        if (RsvrApexLexicalParserUtil.isDigit(val13) == false) {
+            input.reset();
+            return null;
+        }
+        Integer val14 = input.readChar();
+        if (val14 != ':'.charAt(0)) {
+            input.reset();
+            return null;
+        }
+        Integer val15 = input.readChar();
+        if (RsvrApexLexicalParserUtil.isDigit(val15) == false) {
+            input.reset();
+            return null;
+        }
+        Integer val16 = input.readChar();
+        if (RsvrApexLexicalParserUtil.isDigit(val16) == false) {
+            input.reset();
+            return null;
+        }
+        Integer val17 = input.readChar();
+        if (val17 != ':'.charAt(0)) {
+            input.reset();
+            return null;
+        }
+        Integer val18 = input.readChar();
+        if (RsvrApexLexicalParserUtil.isDigit(val18) == false) {
+            input.reset();
+            return null;
+        }
+        Integer val19 = input.readChar();
+        if (RsvrApexLexicalParserUtil.isDigit(val19) == false) {
+            input.reset();
+            return null;
+        }
+
+        // ('z' | (('+' | '-') Digit+ ( ':' Digit+)? ))
+        Integer val20 = input.readChar();
+        if (val20 == 'z'.charAt(0) || val20 == 'Z'.charAt(0)) {
+            // hit
+            result.target = RsvrApexLexicalParserUtil.int2string(val1) + RsvrApexLexicalParserUtil.int2string(val2) + RsvrApexLexicalParserUtil.int2string(val3) + RsvrApexLexicalParserUtil.int2string(val4) + RsvrApexLexicalParserUtil.int2string(val5) + RsvrApexLexicalParserUtil.int2string(val6) + RsvrApexLexicalParserUtil.int2string(val7) + RsvrApexLexicalParserUtil.int2string(val8) + RsvrApexLexicalParserUtil.int2string(val9) + RsvrApexLexicalParserUtil.int2string(val10)
+                + RsvrApexLexicalParserUtil.int2string(val11) + RsvrApexLexicalParserUtil.int2string(val12) + RsvrApexLexicalParserUtil.int2string(val13) + RsvrApexLexicalParserUtil.int2string(val14) + RsvrApexLexicalParserUtil.int2string(val15) + RsvrApexLexicalParserUtil.int2string(val16) + RsvrApexLexicalParserUtil.int2string(val17) + RsvrApexLexicalParserUtil.int2string(val18) + RsvrApexLexicalParserUtil.int2string(val19) + RsvrApexLexicalParserUtil.int2string(val20);
+            result.original = result.target;
+            input.mark();
+            return result;
+        }
+        if (val20 != '+'.charAt(0) && val20 != '-'.charAt(0)) {
+            input.reset();
+            return null;
+        }
+        Integer val21 = input.readChar();
+        if (RsvrApexLexicalParserUtil.isDigit(val21) == false) {
+            input.reset();
+            return null;
+        }
+        // この時点でDateTimeリテラル確定。
+        result.target = RsvrApexLexicalParserUtil.int2string(val1) + RsvrApexLexicalParserUtil.int2string(val2) + RsvrApexLexicalParserUtil.int2string(val3) + RsvrApexLexicalParserUtil.int2string(val4) + RsvrApexLexicalParserUtil.int2string(val5) + RsvrApexLexicalParserUtil.int2string(val6) + RsvrApexLexicalParserUtil.int2string(val7) + RsvrApexLexicalParserUtil.int2string(val8) + RsvrApexLexicalParserUtil.int2string(val9) + RsvrApexLexicalParserUtil.int2string(val10)
+            + RsvrApexLexicalParserUtil.int2string(val11) + RsvrApexLexicalParserUtil.int2string(val12) + RsvrApexLexicalParserUtil.int2string(val13) + RsvrApexLexicalParserUtil.int2string(val14) + RsvrApexLexicalParserUtil.int2string(val15) + RsvrApexLexicalParserUtil.int2string(val16) + RsvrApexLexicalParserUtil.int2string(val17) + RsvrApexLexicalParserUtil.int2string(val18) + RsvrApexLexicalParserUtil.int2string(val19) + RsvrApexLexicalParserUtil.int2string(val20)
+            + RsvrApexLexicalParserUtil.int2string(val21);
+        input.mark();
+
+        // Digit+ ( ':' Digit+)? )
+        for (;;) {
+            Integer valX = input.readChar();
+            if (RsvrApexLexicalParserUtil.isDigit(valX) || ':'.charAt(0) == valX) {
+                result.target = result.target + RsvrApexLexicalParserUtil.int2string(valX);
+                input.mark();
+                continue;
+            }
+            input.reset();
+            break;
+        }
+        input.reset();
+        return result;
+    }
 
     // TODO SOQL Currency literal は一旦未着手のまま放置。
 

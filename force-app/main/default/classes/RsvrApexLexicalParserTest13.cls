@@ -18,7 +18,7 @@ private class RsvrApexLexicalParserTest13 {
     // DATETIME 比較
     @isTest(SeeAllData=false)
     static void test01() {
-        List<Account> aa = [SELECT Id, Name FROM Account WHERE Name = 'Acme' AND CreatedDate < 1999-01-01T23:01:01+01:00];
+        List<Account> aa = [SELECT Id, Name FROM Account WHERE Name = 'Acme' AND CreatedDate < 1999-01-23T12:34:56+01:00];
     }
 
     @isTest(SeeAllData=false)
