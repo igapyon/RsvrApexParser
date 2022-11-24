@@ -119,6 +119,15 @@ public class RsvrApexLexicalParser {
                 continue;
             }
 
+            
+            // NumberのパースはLongより先に実施。
+            if (IS_DEBUG) System.debug('TRACE: parseNumberLiteral: ');
+            tok = parseNumberLiteral();
+            if (tok != null) {
+                tokenList.add(tok);
+                continue;
+            }
+
             // LongのパースはIntegerより先に実施。
             if (IS_DEBUG) System.debug('TRACE: parseLongLiteral: ');
             tok = parseLongLiteral();
@@ -349,6 +358,45 @@ public class RsvrApexLexicalParser {
     // NumberLiteral
     //     :   Digit* '.' Digit Digit* [dD]?
     //     ;
+    private LiteralToken parseNumberLiteral() {
+        input.mark();
+
+        LiteralToken result = new LiteralToken();
+        result.type = 'NumberLiteral';
+
+        result.target = '';
+        Boolean isFirst = true;
+        Boolean isExist = false;
+        Boolean isDotExist = false;
+        for (;;) {
+            Integer next = input.readChar();
+            if (RsvrApexLexicalParserUtil.isDigit(next)) {
+                isFirst = false;
+                isExist = true;
+                result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
+                continue;
+            }
+            if (isFirst == false && isDotExist == false && next == '.'.charAt(0)) {
+                isDotExist = true;
+                result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
+                continue;
+            }
+            if (isExist == false || isDotExist == false) {
+                input.reset();
+                return null;
+            }
+
+            input.move(input.pos() - 1);
+
+            // Hit
+            input.mark();
+            result.original = result.target;
+            return result;
+        }
+
+        input.reset();
+        return null;
+    }
 
     // // §3.10.3 Boolean Literals
 
