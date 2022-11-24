@@ -73,41 +73,8 @@ public class RsvrApexLexicalParser {
             }
             input.reset();
 
-            if (IS_DEBUG) System.debug('TRACE: parseKeyword: ');
+            // Parse.
             LexicalToken tok = null;
-            tok = parseKeyword();
-            if (tok != null) {
-                tokenList.add(tok);
-                continue;
-            }
-
-            if (IS_DEBUG) System.debug('TRACE: parseIdentifier: ');
-            tok = parseIdentifier();
-            if (tok != null) {
-                tokenList.add(tok);
-                continue;
-            }
-
-            if (IS_DEBUG) System.debug('TRACE: parseSeparator: ');
-            tok = parseSeparator();
-            if (tok != null) {
-                tokenList.add(tok);
-                continue;
-            }
-
-            if (IS_DEBUG) System.debug('TRACE: parseOperator: ');
-            tok = parseOperator();
-            if (tok != null) {
-                tokenList.add(tok);
-                continue;
-            }
-
-            if (IS_DEBUG) System.debug('TRACE: parseAtsign: ');
-            tok = parseAtsign();
-            if (tok != null) {
-                tokenList.add(tok);
-                continue;
-            }
 
             ////////////////////////
             // Literals
@@ -119,7 +86,6 @@ public class RsvrApexLexicalParser {
                 continue;
             }
 
-            
             // NumberのパースはLongより先に実施。
             if (IS_DEBUG) System.debug('TRACE: parseNumberLiteral: ');
             tok = parseNumberLiteral();
@@ -169,6 +135,43 @@ public class RsvrApexLexicalParser {
 
             if (IS_DEBUG) System.debug('TRACE: parseLineComment: ');
             tok = parseLineComment();
+            if (tok != null) {
+                tokenList.add(tok);
+                continue;
+            }
+
+            //////////////////////////////////////////////////////////
+
+            if (IS_DEBUG) System.debug('TRACE: parseKeyword: ');
+            tok = parseKeyword();
+            if (tok != null) {
+                tokenList.add(tok);
+                continue;
+            }
+
+            if (IS_DEBUG) System.debug('TRACE: parseIdentifier: ');
+            tok = parseIdentifier();
+            if (tok != null) {
+                tokenList.add(tok);
+                continue;
+            }
+
+            if (IS_DEBUG) System.debug('TRACE: parseSeparator: ');
+            tok = parseSeparator();
+            if (tok != null) {
+                tokenList.add(tok);
+                continue;
+            }
+
+            if (IS_DEBUG) System.debug('TRACE: parseOperator: ');
+            tok = parseOperator();
+            if (tok != null) {
+                tokenList.add(tok);
+                continue;
+            }
+
+            if (IS_DEBUG) System.debug('TRACE: parseAtsign: ');
+            tok = parseAtsign();
             if (tok != null) {
                 tokenList.add(tok);
                 continue;
