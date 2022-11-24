@@ -481,6 +481,17 @@ public class RsvrApexLexicalParser {
                     result.original = result.target;
                     return result;
                 } else {
+                    if (result.target.charAt(0) == 62 /* [>] */) {
+                        // 特殊処理
+                        input.reset();
+                        Integer retry = input.readChar();
+                        result.target = RsvrApexLexicalParserUtil.int2string(retry);
+                        result.original = result.target;
+                        input.mark();
+                        return result;
+                    }
+
+                    // in case // or /* pass here.
                     break;
                 }
             }
