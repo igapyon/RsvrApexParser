@@ -79,12 +79,20 @@ public class RsvrApexLexicalParser {
             ////////////////////////
             // Literals
 
+            // parseDateLiteral より先にparseDateTimeLiteralを実施。
             if (IS_DEBUG) System.debug('TRACE: parseDateTimeLiteral: ');
             tok = parseDateTimeLiteral();
             if (tok != null) {
                 tokenList.add(tok);
                 continue;
             }
+
+            if (IS_DEBUG) System.debug('TRACE: parseDateLiteral: ');
+            tok = parseDateLiteral();
+            if (tok != null) {
+                tokenList.add(tok);
+                continue;
+            }            
 
             if (IS_DEBUG) System.debug('TRACE: parseStringLiteral: ');
             tok = parseStringLiteral();
@@ -263,6 +271,72 @@ public class RsvrApexLexicalParser {
 
     // SOQL Date literal
     // DateLiteral: Digit Digit Digit Digit '-' Digit Digit '-' Digit Digit;
+    private LiteralToken parseDateLiteral() {
+        input.mark();
+
+        LiteralToken result = new LiteralToken();
+        result.type = 'DateLiteral';
+
+        result.target = '';
+
+        Integer val1 = input.readChar();
+        if (RsvrApexLexicalParserUtil.isDigit(val1) == false) {
+            input.reset();
+            return null;
+        }
+        Integer val2 = input.readChar();
+        if (RsvrApexLexicalParserUtil.isDigit(val2) == false) {
+            input.reset();
+            return null;
+        }
+        Integer val3 = input.readChar();
+        if (RsvrApexLexicalParserUtil.isDigit(val3) == false) {
+            input.reset();
+            return null;
+        }
+        Integer val4 = input.readChar();
+        if (RsvrApexLexicalParserUtil.isDigit(val4) == false) {
+            input.reset();
+            return null;
+        }
+        Integer val5 = input.readChar();
+        if (val5 != '-'.charAt(0)) {
+            input.reset();
+            return null;
+        }
+        Integer val6 = input.readChar();
+        if (RsvrApexLexicalParserUtil.isDigit(val6) == false) {
+            input.reset();
+            return null;
+        }
+        Integer val7 = input.readChar();
+        if (RsvrApexLexicalParserUtil.isDigit(val7) == false) {
+            input.reset();
+            return null;
+        }
+        Integer val8 = input.readChar();
+        if (val8 != '-'.charAt(0)) {
+            input.reset();
+            return null;
+        }
+        Integer val9 = input.readChar();
+        if (RsvrApexLexicalParserUtil.isDigit(val9) == false) {
+            input.reset();
+            return null;
+        }
+        Integer val10 = input.readChar();
+        if (RsvrApexLexicalParserUtil.isDigit(val10) == false) {
+            input.reset();
+            return null;
+        }
+
+        // この時点でDateリテラルとする。
+        result.target = RsvrApexLexicalParserUtil.int2string(val1) + RsvrApexLexicalParserUtil.int2string(val2) + RsvrApexLexicalParserUtil.int2string(val3) + RsvrApexLexicalParserUtil.int2string(val4) + RsvrApexLexicalParserUtil.int2string(val5) + RsvrApexLexicalParserUtil.int2string(val6) + RsvrApexLexicalParserUtil.int2string(val7) + RsvrApexLexicalParserUtil.int2string(val8) + RsvrApexLexicalParserUtil.int2string(val9) + RsvrApexLexicalParserUtil.int2string(val10);
+        result.original = result.target;
+        input.mark();
+
+        return result;
+    }    
 
     // DateTimeLiteral: DateLiteral 't' Digit Digit ':' Digit Digit ':' Digit Digit ('z' | (('+' | '-') Digit+ ( ':' Digit+)? ));
     private LiteralToken parseDateTimeLiteral() {
@@ -409,6 +483,7 @@ public class RsvrApexLexicalParser {
             input.reset();
             break;
         }
+        result.original = result.target;
         input.reset();
         return result;
     }

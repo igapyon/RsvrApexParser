@@ -30,4 +30,9 @@ private class RsvrApexLexicalParserTest13 {
     static void test03() {
         List<Account> aa = [SELECT Id, Name FROM Account WHERE Name = 'Acme' AND CreatedDate < 1999-01-01T23:01:01Z];
     }
+
+    @isTest(SeeAllData=false)
+    static void test04() {
+        List<Contact> aa = [SELECT Id, Name FROM Contact WHERE Birthdate < 1999-12-23];
+    }
 }
