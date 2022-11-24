@@ -1176,8 +1176,7 @@ public class RsvrApexLexicalParser {
     private CommentToken parseLineComment() {
         input.mark();
 
-        CommentToken result = new CommentToken();
-        result.type = 'LineComment';
+        List<Integer> targetList = new List<Integer>();
 
         Integer first = input.readChar();
         if (first != 47 /* [/] */) {
@@ -1191,22 +1190,23 @@ public class RsvrApexLexicalParser {
         }
 
         // hit line comment
-        result.original = RsvrApexLexicalParserUtil.int2string(first) + RsvrApexLexicalParserUtil.int2string(second);
-        result.target = '';
         for (;;) {
             Integer next = input.readChar();
             if (next == 13 /* [r] */
             || next == 10 /* [n] */
             || next == -1) {
                 input.reset();
-                result.original = result.original + result.target;
                 break;
             }
 
             input.mark();
-            result.target += RsvrApexLexicalParserUtil.int2string(next);
+            targetList.add(next);
         }
 
+        CommentToken result = new CommentToken();
+        result.type = 'LineComment';
+        result.target = String.fromCharArray(targetList);
+        result.original = '//' + result.target;
         return result;
     }
 }
