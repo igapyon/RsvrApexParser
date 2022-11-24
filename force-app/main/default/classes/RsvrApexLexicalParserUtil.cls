@@ -204,8 +204,6 @@ public class RsvrApexLexicalParserUtil {
         for (RsvrApexLexicalParser.LexicalToken look : result) {
             parsedInput += look.original;
         }
-        // Fukugen check.
-        System.assertEquals(apexClassBody, parsedInput);
 
         if (isDumpMode) {
             String dump = '';
@@ -214,5 +212,8 @@ public class RsvrApexLexicalParserUtil {
             }
             System.debug('Dump:\n' + dump+ '\n\n');
         }
+
+        // Fukugen check.
+        System.assertEquals(apexClassBody, parsedInput);
     }
 }
