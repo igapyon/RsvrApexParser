@@ -19,4 +19,18 @@ public class RsvrApexLexicalParserTest {
     static void test01() {
         RsvrApexLexicalParserUtil.validateLexicalParser('RsvrApexLexicalParserTest', false);
     }
+
+    @isTest(SeeAllData=false)
+    static void test02() {
+        System.assertEquals(39, '\''.charAt(0));
+        System.assertEquals(92, '\\'.charAt(0));
+        System.assertEquals(8, '\b'.charAt(0));
+        System.assertEquals(9, '\t'.charAt(0));
+        System.assertEquals(10, '\n'.charAt(0));
+        System.assertEquals(12, '\f'.charAt(0));
+        System.assertEquals(13, '\r'.charAt(0));
+        System.assertEquals(34, '"'.charAt(0));
+        System.assertEquals(12, '\u000C'.charAt(0));
+        
+    }
 }

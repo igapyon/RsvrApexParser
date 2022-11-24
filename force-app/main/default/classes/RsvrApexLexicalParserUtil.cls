@@ -197,6 +197,7 @@ public class RsvrApexLexicalParserUtil {
 
     public static void validateLexicalParser(String apexClassNameWithoutExt, Boolean isDumpMode) {
         String apexClassBody = RsvrApexLexicalParserUtil.readApexClassBody(apexClassNameWithoutExt);
+        // System.debug('TRACE: body[' + apexClassBody + ']');
         RsvrApexLexicalParser parser = new RsvrApexLexicalParser();
         List<RsvrApexLexicalParser.LexicalToken> result = parser.parse(apexClassBody);
 
