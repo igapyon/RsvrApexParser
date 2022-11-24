@@ -24,7 +24,7 @@ public class RsvrApexLexicalParserInput {
 
     public RsvrApexLexicalParserInput(String apexClassText) {
         // これだとバックスラッシュが消失する。
-        // this.apexClassCharList = apexClassText.getChars();
+        //this.apexClassCharList = apexClassText.getChars();
 
         if (true) {
             // 有利/不利があるのだろうか。

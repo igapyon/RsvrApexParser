@@ -18,10 +18,15 @@
  * Apex Lexical Parser util.
  */
 public class RsvrApexLexicalParserUtil {
+    private static final Map<Integer, String> int2stringMap = new Map<Integer, String>();
     public static String int2string(Integer val) {
-        List<Integer> nextOne = new List<Integer>();
-        nextOne.add(val);
-        return String.fromCharArray(nextOne);
+        if (int2stringMap.get(val) == null) {
+            List<Integer> nextOne = new List<Integer>();
+            nextOne.add(val);
+            String strVal = String.fromCharArray(nextOne);
+            int2stringMap.put(val, strVal);
+        }
+        return int2stringMap.get(val);
     }
 
     // // Apex identifiers don't support non-ascii but we maintain Java rules here and post-validate
