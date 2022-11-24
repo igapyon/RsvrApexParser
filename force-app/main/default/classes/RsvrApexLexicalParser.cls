@@ -1035,10 +1035,8 @@ public class RsvrApexLexicalParser {
     private WhitespaceToken parseWS() {
         input.mark();
 
-        WhitespaceToken result = new WhitespaceToken();
-        result.type = 'Whitespace';
+        List<Integer> targetList = new List<Integer>();
 
-        result.target = '';
         Boolean isExist = false;
         for (;;) {
             Integer next = input.readChar();
@@ -1055,7 +1053,7 @@ public class RsvrApexLexicalParser {
             || next == 12 /* [u000C] */) {
                 isExist = true;
                 input.mark();
-                result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
+                targetList.add(next);
                 continue;
             }
             // Other.
@@ -1068,6 +1066,9 @@ public class RsvrApexLexicalParser {
             return null;
         }
 
+        WhitespaceToken result = new WhitespaceToken();
+        result.type = 'Whitespace';
+        result.target = String.fromCharArray(targetList);
         result.original = result.target;
         return result;
     }
@@ -1151,14 +1152,14 @@ public class RsvrApexLexicalParser {
                 if (next2 == 47 /* [/] */) {
                     // End of comment.
                     input.mark();
-                    result.original = result.original + result.target + RsvrApexLexicalParserUtil.int2string(next) + RsvrApexLexicalParserUtil.int2string(next2);
+                    result.original += (result.target + RsvrApexLexicalParserUtil.int2string(next) + RsvrApexLexicalParserUtil.int2string(next2));
                     return result;
                 }
                 input.reset();
             }
 
             input.mark();
-            result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
+            result.target += RsvrApexLexicalParserUtil.int2string(next);
         }
 
         return result;
@@ -1198,7 +1199,7 @@ public class RsvrApexLexicalParser {
             }
 
             input.mark();
-            result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
+            result.target += RsvrApexLexicalParserUtil.int2string(next);
         }
 
         return result;
