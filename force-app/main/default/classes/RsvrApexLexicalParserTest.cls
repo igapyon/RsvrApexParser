@@ -14,10 +14,14 @@
  * limitations under the License.
  */
 @isTest(SeeAllData=false)
-private class RsvrApexLexicalParserTest {
+public class RsvrApexLexicalParserTest {
     @isTest(SeeAllData=false)
     static void test01() {
-        String apexClassBody = RsvrApexLexicalParserUtil.readApexClassBody('RsvrApexLexicalParserTest');
+        validateLexicalParser('RsvrApexLexicalParserTest');
+    }
+
+    public static void validateLexicalParser(String apexClassNameWithoutExt) {
+        String apexClassBody = RsvrApexLexicalParserUtil.readApexClassBody(apexClassNameWithoutExt);
         RsvrApexLexicalParser parser = new RsvrApexLexicalParser();
         List<RsvrApexLexicalParser.LexicalToken> result = parser.parse(apexClassBody);
 
@@ -28,8 +32,8 @@ private class RsvrApexLexicalParserTest {
         // Fukugen check.
         System.assertEquals(apexClassBody, parsedInput);
 
-        for (RsvrApexLexicalParser.LexicalToken look : result) {
-            System.debug(look.toString());
-        }
+        // for (RsvrApexLexicalParser.LexicalToken look : result) {
+        //     System.debug(look.toString());
+        // }
     }
 }
