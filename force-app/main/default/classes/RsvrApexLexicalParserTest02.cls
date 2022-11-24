@@ -17,41 +17,41 @@
 private class RsvrApexLexicalParserTest02 {
     @isTest(SeeAllData=false)
     static void test01() {
-        RsvrApexLexicalParserTest.validateLexicalParser('RsvrApexLexicalParser');
+        RsvrApexLexicalParserUtil.validateLexicalParser('RsvrApexLexicalParser', false);
     }
 
     @isTest(SeeAllData=false)
     static void test02() {
-        RsvrApexLexicalParserTest.validateLexicalParser('RsvrApexLexicalParserTest');
+        RsvrApexLexicalParserUtil.validateLexicalParser('RsvrApexLexicalParserTest', false);
     }
 
     @isTest(SeeAllData=false)
     static void test03() {
-        RsvrApexLexicalParserTest.validateLexicalParser('RsvrApexLexicalParserInput');
+        RsvrApexLexicalParserUtil.validateLexicalParser('RsvrApexLexicalParserInput', false);
     }
 
     @isTest(SeeAllData=false)
     static void test04() {
-        RsvrApexLexicalParserTest.validateLexicalParser('RsvrApexLexicalParserInputTest');
+        RsvrApexLexicalParserUtil.validateLexicalParser('RsvrApexLexicalParserInputTest', false);
     }
 
     @isTest(SeeAllData=false)
     static void test05() {
-        RsvrApexLexicalParserTest.validateLexicalParser('RsvrApexLexicalParserUtil');
+        RsvrApexLexicalParserUtil.validateLexicalParser('RsvrApexLexicalParserUtil', false);
     }
 
     @isTest(SeeAllData=false)
     static void test06() {
-        RsvrApexLexicalParserTest.validateLexicalParser('RsvrApexLexicalParserUtilTest');
+        RsvrApexLexicalParserUtil.validateLexicalParser('RsvrApexLexicalParserUtilTest', false);
     }
 
     @isTest(SeeAllData=false)
     static void test07() {
-        RsvrApexLexicalParserTest.validateLexicalParser('RsvrApexSyntaxParser');
+        RsvrApexLexicalParserUtil.validateLexicalParser('RsvrApexSyntaxParser', false);
     }
 
     @isTest(SeeAllData=false)
     static void test08() {
-        RsvrApexLexicalParserTest.validateLexicalParser('RsvrApexSyntaxParserTest');
+        RsvrApexLexicalParserUtil.validateLexicalParser('RsvrApexSyntaxParserTest', false);
     }
 }
