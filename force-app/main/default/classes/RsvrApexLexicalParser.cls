@@ -896,14 +896,12 @@ public class RsvrApexLexicalParser {
     private SeparatorToken parseSeparator() {
         input.mark();
 
-        SeparatorToken result = new SeparatorToken();
-        result.type = 'Separator';
-
-        result.target = '';
         for (;;) {
             Integer next = input.readChar();
             if (RsvrApexLexicalParserUtil.isSeparator(RsvrApexLexicalParserUtil.int2string(next))) {
-                result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
+                SeparatorToken result = new SeparatorToken();
+                result.type = 'Separator';
+                result.target = RsvrApexLexicalParserUtil.int2string(next);
                 result.original = result.target;
                 return result;
             } else {
@@ -920,16 +918,17 @@ public class RsvrApexLexicalParser {
     private OperatorToken parseOperator() {
         input.mark();
 
-        OperatorToken result = new OperatorToken();
-        result.type = 'Operator';
+        List<Integer> targetList = null;
 
-        result.target = '';
         Boolean isExist = false;
         for (;;) {
             Integer next = input.readChar();
             if (RsvrApexLexicalParserUtil.isOperatorLetter(next)) {
                 isExist = true;
-                result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
+                if (targetList == null) {
+                    targetList = new List<Integer>();
+                }
+                targetList.add(next);
                 continue;
             } else {
                 if (isExist == false) {
@@ -938,16 +937,23 @@ public class RsvrApexLexicalParser {
                 }
 
                 input.move(input.pos() - 1);
-                if (RsvrApexLexicalParserUtil.isOperator(result.target)) {
+                String target = String.fromCharArray(targetList);
+                if (RsvrApexLexicalParserUtil.isOperator(target)) {
                     // Hit
                     input.mark();
+                    OperatorToken result = new OperatorToken();
+                    result.type = 'Operator';
+                    result.target = target;
                     result.original = result.target;
                     return result;
                 } else {
-                    if (result.target.charAt(0) == 62 /* [>] */) {
+                    if (targetList.get(0) == 62 /* [>] */) {
                         // 特殊処理
                         input.reset();
                         Integer retry = input.readChar();
+
+                        OperatorToken result = new OperatorToken();
+                        result.type = 'Operator';
                         result.target = RsvrApexLexicalParserUtil.int2string(retry);
                         result.original = result.target;
                         input.mark();
@@ -996,10 +1002,8 @@ public class RsvrApexLexicalParser {
     private IdentifierToken parseIdentifier() {
         input.mark();
 
-        IdentifierToken result = new IdentifierToken();
-        result.type = 'Identifier';
+        List<Integer> targetList = null;
 
-        result.target = '';
         Boolean isExist = false;
         Boolean isFirst = true;
         for (;;) {
@@ -1008,13 +1012,19 @@ public class RsvrApexLexicalParser {
                 isFirst = false;
                 if (RsvrApexLexicalParserUtil.isJavaLetter(next)) {
                     isExist = true;
-                    result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
+                    if (targetList == null) {
+                        targetList = new List<Integer>();
+                    }
+                    targetList.add(next);
                     continue;
                 }
             } else {
                 if (RsvrApexLexicalParserUtil.isJavaLetterOrDigit(next)) {
                     isExist = true;
-                    result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
+                    if (targetList == null) {
+                        targetList = new List<Integer>();
+                    }
+                    targetList.add(next);
                     continue;
                 }
             }
@@ -1028,6 +1038,10 @@ public class RsvrApexLexicalParser {
 
             // Hit
             input.mark();
+
+            IdentifierToken result = new IdentifierToken();
+            result.type = 'Identifier';
+            result.target = String.fromCharArray(targetList);
             result.original = result.target;
             return result;
         }
