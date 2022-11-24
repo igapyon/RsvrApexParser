@@ -32,13 +32,13 @@ public class RsvrApexLexicalParserInput {
         //this.apexClassCharList = apexClassText.getChars();
 
         // 有利/不利があるのだろうか。
-        Long startMS = Datetime.now().millisecond();
+        Long startMS = Datetime.now().getTime();
         List<Integer> result = new List<Integer>();
         Integer len = apexClassText.length();
         for (Integer i = 0; i < len; i++) {
             apexClassCharMap.put(i, apexClassText.charAt(i));
         }
-        Long endMS = Datetime.now().millisecond();
+        Long endMS = Datetime.now().getTime();
         System.debug('TRACE: loop + add: ' + (endMS - startMS));
 
         // ワークアラウンド。バックスラッシュは増やしてしまえば良い。（自信はないがぱっと見は動作する）
