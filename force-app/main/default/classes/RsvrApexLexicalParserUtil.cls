@@ -13,6 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+/**
+ * Apex Lexical Parser util.
+ */
 public class RsvrApexLexicalParserUtil {
     public static String int2string(Integer val) {
         List<Integer> nextOne = new List<Integer>();
@@ -168,12 +172,12 @@ public class RsvrApexLexicalParserUtil {
         if (isDigit(val)) {
             return true;
         }
-        if ('a'.charAt(0) == val
-        || 'b'.charAt(0) == val
-        || 'c'.charAt(0) == val
-        || 'd'.charAt(0) == val
-        || 'e'.charAt(0) == val
-        || 'f'.charAt(0) == val) {
+        if ('a'.charAt(0) == val || 'A'.charAt(0) == val
+        || 'b'.charAt(0) == val || 'B'.charAt(0) == val
+        || 'c'.charAt(0) == val || 'C'.charAt(0) == val
+        || 'd'.charAt(0) == val || 'D'.charAt(0) == val
+        || 'e'.charAt(0) == val || 'E'.charAt(0) == val
+        || 'f'.charAt(0) == val || 'F'.charAt(0) == val) {
             return true;
         }
         return false;

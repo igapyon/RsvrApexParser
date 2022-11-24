@@ -15,9 +15,11 @@
  */
 @isTest(SeeAllData=false)
 public class RsvrApexLexicalParserTest {
+    private static final Boolean IS_APEXCLASS_OBJECTREAD = false;
+
     @isTest(SeeAllData=false)
     static void test01() {
-        RsvrApexLexicalParserUtil.validateLexicalParser('RsvrApexLexicalParserTest', false);
+        if (IS_APEXCLASS_OBJECTREAD) RsvrApexLexicalParserUtil.validateLexicalParser('RsvrApexLexicalParserTest', false);
     }
 
     @isTest(SeeAllData=false)
@@ -31,6 +33,5 @@ public class RsvrApexLexicalParserTest {
         System.assertEquals(13, '\r'.charAt(0));
         System.assertEquals(34, '"'.charAt(0));
         System.assertEquals(12, '\u000C'.charAt(0));
-        
     }
 }
