@@ -217,10 +217,13 @@ public class RsvrApexLexicalParser {
     // DateLiteral: Digit Digit Digit Digit '-' Digit Digit '-' Digit Digit;
     // DateTimeLiteral: DateLiteral 't' Digit Digit ':' Digit Digit ':' Digit Digit ('z' | (('+' | '-') Digit+ ( ':' Digit+)? ));
 
+    // TODO SOQL Currency literal は一旦未着手のまま放置。
+
     // SOQL Currency literal
     // (NOTE: this is also a valid Identifier)
     // IntegralCurrencyLiteral: [a-z] [a-z] [a-z] Digit+;
 
+    // TODO FIND 系は一旦未着手のまま放置。
 
     // FindLiteral
     // :   '[' WS? 'find' WS '\'' FindCharacters? '\''
@@ -538,25 +541,35 @@ public class RsvrApexLexicalParser {
 
         result.target = '';
         Boolean isExist = false;
+        Boolean isFirst = true;
         for (;;) {
             Integer next = input.readChar();
-            if (RsvrApexLexicalParserUtil.isJavaLetterOrDigit(next)) {
-                isExist = true;
-                result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
-                continue;
-            } else {
-                if (isExist == false) {
-                    input.reset();
-                    return null;
+            if (isFirst) {
+                isFirst = false;
+                if (RsvrApexLexicalParserUtil.isJavaLetter(next)) {
+                    isExist = true;
+                    result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
+                    continue;
                 }
-
-                input.move(input.pos() - 1);
-
-                // Hit
-                input.mark();
-                result.original = result.target;
-                return result;
+            } else {
+                if (RsvrApexLexicalParserUtil.isJavaLetterOrDigit(next)) {
+                    isExist = true;
+                    result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
+                    continue;
+                }
             }
+            if (isExist == false) {
+                input.reset();
+                return null;
+            }
+
+            // 読み過ぎた部分を廃棄。
+            input.move(input.pos() - 1);
+
+            // Hit
+            input.mark();
+            result.original = result.target;
+            return result;
         }
 
         input.reset();
