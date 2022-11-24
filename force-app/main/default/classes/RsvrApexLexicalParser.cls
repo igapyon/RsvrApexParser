@@ -73,44 +73,26 @@ public class RsvrApexLexicalParser {
             }
             input.reset();
 
-            if (IS_DEBUG) System.debug('TRACE: parseKeyword: ');
+            // Parse.
             LexicalToken tok = null;
-            tok = parseKeyword();
-            if (tok != null) {
-                tokenList.add(tok);
-                continue;
-            }
-
-            if (IS_DEBUG) System.debug('TRACE: parseIdentifier: ');
-            tok = parseIdentifier();
-            if (tok != null) {
-                tokenList.add(tok);
-                continue;
-            }
-
-            if (IS_DEBUG) System.debug('TRACE: parseSeparator: ');
-            tok = parseSeparator();
-            if (tok != null) {
-                tokenList.add(tok);
-                continue;
-            }
-
-            if (IS_DEBUG) System.debug('TRACE: parseOperator: ');
-            tok = parseOperator();
-            if (tok != null) {
-                tokenList.add(tok);
-                continue;
-            }
-
-            if (IS_DEBUG) System.debug('TRACE: parseAtsign: ');
-            tok = parseAtsign();
-            if (tok != null) {
-                tokenList.add(tok);
-                continue;
-            }
 
             ////////////////////////
             // Literals
+
+            // parseDateLiteral より先にparseDateTimeLiteralを実施。
+            if (IS_DEBUG) System.debug('TRACE: parseDateTimeLiteral: ');
+            tok = parseDateTimeLiteral();
+            if (tok != null) {
+                tokenList.add(tok);
+                continue;
+            }
+
+            if (IS_DEBUG) System.debug('TRACE: parseDateLiteral: ');
+            tok = parseDateLiteral();
+            if (tok != null) {
+                tokenList.add(tok);
+                continue;
+            }            
 
             if (IS_DEBUG) System.debug('TRACE: parseStringLiteral: ');
             tok = parseStringLiteral();
@@ -119,7 +101,6 @@ public class RsvrApexLexicalParser {
                 continue;
             }
 
-            
             // NumberのパースはLongより先に実施。
             if (IS_DEBUG) System.debug('TRACE: parseNumberLiteral: ');
             tok = parseNumberLiteral();
@@ -138,6 +119,20 @@ public class RsvrApexLexicalParser {
 
             if (IS_DEBUG) System.debug('TRACE: parseIntegerLiteral: ');
             tok = parseIntegerLiteral();
+            if (tok != null) {
+                tokenList.add(tok);
+                continue;
+            }
+
+            if (IS_DEBUG) System.debug('TRACE: parseBooleanLiteral: ');
+            tok = parseBooleanLiteral();
+            if (tok != null) {
+                tokenList.add(tok);
+                continue;
+            }
+            
+            if (IS_DEBUG) System.debug('TRACE: parseNullLiteral: ');
+            tok = parseNullLiteral();
             if (tok != null) {
                 tokenList.add(tok);
                 continue;
@@ -169,6 +164,43 @@ public class RsvrApexLexicalParser {
 
             if (IS_DEBUG) System.debug('TRACE: parseLineComment: ');
             tok = parseLineComment();
+            if (tok != null) {
+                tokenList.add(tok);
+                continue;
+            }
+
+            //////////////////////////////////////////////////////////
+
+            if (IS_DEBUG) System.debug('TRACE: parseKeyword: ');
+            tok = parseKeyword();
+            if (tok != null) {
+                tokenList.add(tok);
+                continue;
+            }
+
+            if (IS_DEBUG) System.debug('TRACE: parseIdentifier: ');
+            tok = parseIdentifier();
+            if (tok != null) {
+                tokenList.add(tok);
+                continue;
+            }
+
+            if (IS_DEBUG) System.debug('TRACE: parseSeparator: ');
+            tok = parseSeparator();
+            if (tok != null) {
+                tokenList.add(tok);
+                continue;
+            }
+
+            if (IS_DEBUG) System.debug('TRACE: parseOperator: ');
+            tok = parseOperator();
+            if (tok != null) {
+                tokenList.add(tok);
+                continue;
+            }
+
+            if (IS_DEBUG) System.debug('TRACE: parseAtsign: ');
+            tok = parseAtsign();
             if (tok != null) {
                 tokenList.add(tok);
                 continue;
@@ -239,7 +271,222 @@ public class RsvrApexLexicalParser {
 
     // SOQL Date literal
     // DateLiteral: Digit Digit Digit Digit '-' Digit Digit '-' Digit Digit;
+    private LiteralToken parseDateLiteral() {
+        input.mark();
+
+        LiteralToken result = new LiteralToken();
+        result.type = 'DateLiteral';
+
+        result.target = '';
+
+        Integer val1 = input.readChar();
+        if (RsvrApexLexicalParserUtil.isDigit(val1) == false) {
+            input.reset();
+            return null;
+        }
+        Integer val2 = input.readChar();
+        if (RsvrApexLexicalParserUtil.isDigit(val2) == false) {
+            input.reset();
+            return null;
+        }
+        Integer val3 = input.readChar();
+        if (RsvrApexLexicalParserUtil.isDigit(val3) == false) {
+            input.reset();
+            return null;
+        }
+        Integer val4 = input.readChar();
+        if (RsvrApexLexicalParserUtil.isDigit(val4) == false) {
+            input.reset();
+            return null;
+        }
+        Integer val5 = input.readChar();
+        if (val5 != '-'.charAt(0)) {
+            input.reset();
+            return null;
+        }
+        Integer val6 = input.readChar();
+        if (RsvrApexLexicalParserUtil.isDigit(val6) == false) {
+            input.reset();
+            return null;
+        }
+        Integer val7 = input.readChar();
+        if (RsvrApexLexicalParserUtil.isDigit(val7) == false) {
+            input.reset();
+            return null;
+        }
+        Integer val8 = input.readChar();
+        if (val8 != '-'.charAt(0)) {
+            input.reset();
+            return null;
+        }
+        Integer val9 = input.readChar();
+        if (RsvrApexLexicalParserUtil.isDigit(val9) == false) {
+            input.reset();
+            return null;
+        }
+        Integer val10 = input.readChar();
+        if (RsvrApexLexicalParserUtil.isDigit(val10) == false) {
+            input.reset();
+            return null;
+        }
+
+        // この時点でDateリテラルとする。
+        result.target = RsvrApexLexicalParserUtil.int2string(val1) + RsvrApexLexicalParserUtil.int2string(val2) + RsvrApexLexicalParserUtil.int2string(val3) + RsvrApexLexicalParserUtil.int2string(val4) + RsvrApexLexicalParserUtil.int2string(val5) + RsvrApexLexicalParserUtil.int2string(val6) + RsvrApexLexicalParserUtil.int2string(val7) + RsvrApexLexicalParserUtil.int2string(val8) + RsvrApexLexicalParserUtil.int2string(val9) + RsvrApexLexicalParserUtil.int2string(val10);
+        result.original = result.target;
+        input.mark();
+
+        return result;
+    }    
+
     // DateTimeLiteral: DateLiteral 't' Digit Digit ':' Digit Digit ':' Digit Digit ('z' | (('+' | '-') Digit+ ( ':' Digit+)? ));
+    private LiteralToken parseDateTimeLiteral() {
+        input.mark();
+
+        LiteralToken result = new LiteralToken();
+        result.type = 'DateTimeLiteral';
+
+        result.target = '';
+
+        Integer val1 = input.readChar();
+        if (RsvrApexLexicalParserUtil.isDigit(val1) == false) {
+            input.reset();
+            return null;
+        }
+        Integer val2 = input.readChar();
+        if (RsvrApexLexicalParserUtil.isDigit(val2) == false) {
+            input.reset();
+            return null;
+        }
+        Integer val3 = input.readChar();
+        if (RsvrApexLexicalParserUtil.isDigit(val3) == false) {
+            input.reset();
+            return null;
+        }
+        Integer val4 = input.readChar();
+        if (RsvrApexLexicalParserUtil.isDigit(val4) == false) {
+            input.reset();
+            return null;
+        }
+        Integer val5 = input.readChar();
+        if (val5 != '-'.charAt(0)) {
+            input.reset();
+            return null;
+        }
+        Integer val6 = input.readChar();
+        if (RsvrApexLexicalParserUtil.isDigit(val6) == false) {
+            input.reset();
+            return null;
+        }
+        Integer val7 = input.readChar();
+        if (RsvrApexLexicalParserUtil.isDigit(val7) == false) {
+            input.reset();
+            return null;
+        }
+        Integer val8 = input.readChar();
+        if (val8 != '-'.charAt(0)) {
+            input.reset();
+            return null;
+        }
+        Integer val9 = input.readChar();
+        if (RsvrApexLexicalParserUtil.isDigit(val9) == false) {
+            input.reset();
+            return null;
+        }
+        Integer val10 = input.readChar();
+        if (RsvrApexLexicalParserUtil.isDigit(val10) == false) {
+            input.reset();
+            return null;
+        }
+
+        // t
+        Integer val11 = input.readChar();
+        if (val11 != 't'.charAt(0) && val11 != 'T'.charAt(0)) {
+            input.reset();
+            return null;
+        }
+
+        // Digit Digit ':' Digit Digit ':' Digit Digit
+        Integer val12 = input.readChar();
+        if (RsvrApexLexicalParserUtil.isDigit(val12) == false) {
+            input.reset();
+            return null;
+        }
+        Integer val13 = input.readChar();
+        if (RsvrApexLexicalParserUtil.isDigit(val13) == false) {
+            input.reset();
+            return null;
+        }
+        Integer val14 = input.readChar();
+        if (val14 != ':'.charAt(0)) {
+            input.reset();
+            return null;
+        }
+        Integer val15 = input.readChar();
+        if (RsvrApexLexicalParserUtil.isDigit(val15) == false) {
+            input.reset();
+            return null;
+        }
+        Integer val16 = input.readChar();
+        if (RsvrApexLexicalParserUtil.isDigit(val16) == false) {
+            input.reset();
+            return null;
+        }
+        Integer val17 = input.readChar();
+        if (val17 != ':'.charAt(0)) {
+            input.reset();
+            return null;
+        }
+        Integer val18 = input.readChar();
+        if (RsvrApexLexicalParserUtil.isDigit(val18) == false) {
+            input.reset();
+            return null;
+        }
+        Integer val19 = input.readChar();
+        if (RsvrApexLexicalParserUtil.isDigit(val19) == false) {
+            input.reset();
+            return null;
+        }
+
+        // ('z' | (('+' | '-') Digit+ ( ':' Digit+)? ))
+        Integer val20 = input.readChar();
+        if (val20 == 'z'.charAt(0) || val20 == 'Z'.charAt(0)) {
+            // hit
+            result.target = RsvrApexLexicalParserUtil.int2string(val1) + RsvrApexLexicalParserUtil.int2string(val2) + RsvrApexLexicalParserUtil.int2string(val3) + RsvrApexLexicalParserUtil.int2string(val4) + RsvrApexLexicalParserUtil.int2string(val5) + RsvrApexLexicalParserUtil.int2string(val6) + RsvrApexLexicalParserUtil.int2string(val7) + RsvrApexLexicalParserUtil.int2string(val8) + RsvrApexLexicalParserUtil.int2string(val9) + RsvrApexLexicalParserUtil.int2string(val10)
+                + RsvrApexLexicalParserUtil.int2string(val11) + RsvrApexLexicalParserUtil.int2string(val12) + RsvrApexLexicalParserUtil.int2string(val13) + RsvrApexLexicalParserUtil.int2string(val14) + RsvrApexLexicalParserUtil.int2string(val15) + RsvrApexLexicalParserUtil.int2string(val16) + RsvrApexLexicalParserUtil.int2string(val17) + RsvrApexLexicalParserUtil.int2string(val18) + RsvrApexLexicalParserUtil.int2string(val19) + RsvrApexLexicalParserUtil.int2string(val20);
+            result.original = result.target;
+            input.mark();
+            return result;
+        }
+        if (val20 != '+'.charAt(0) && val20 != '-'.charAt(0)) {
+            input.reset();
+            return null;
+        }
+        Integer val21 = input.readChar();
+        if (RsvrApexLexicalParserUtil.isDigit(val21) == false) {
+            input.reset();
+            return null;
+        }
+        // この時点でDateTimeリテラル確定。
+        result.target = RsvrApexLexicalParserUtil.int2string(val1) + RsvrApexLexicalParserUtil.int2string(val2) + RsvrApexLexicalParserUtil.int2string(val3) + RsvrApexLexicalParserUtil.int2string(val4) + RsvrApexLexicalParserUtil.int2string(val5) + RsvrApexLexicalParserUtil.int2string(val6) + RsvrApexLexicalParserUtil.int2string(val7) + RsvrApexLexicalParserUtil.int2string(val8) + RsvrApexLexicalParserUtil.int2string(val9) + RsvrApexLexicalParserUtil.int2string(val10)
+            + RsvrApexLexicalParserUtil.int2string(val11) + RsvrApexLexicalParserUtil.int2string(val12) + RsvrApexLexicalParserUtil.int2string(val13) + RsvrApexLexicalParserUtil.int2string(val14) + RsvrApexLexicalParserUtil.int2string(val15) + RsvrApexLexicalParserUtil.int2string(val16) + RsvrApexLexicalParserUtil.int2string(val17) + RsvrApexLexicalParserUtil.int2string(val18) + RsvrApexLexicalParserUtil.int2string(val19) + RsvrApexLexicalParserUtil.int2string(val20)
+            + RsvrApexLexicalParserUtil.int2string(val21);
+        input.mark();
+
+        // Digit+ ( ':' Digit+)? )
+        for (;;) {
+            Integer valX = input.readChar();
+            if (RsvrApexLexicalParserUtil.isDigit(valX) || ':'.charAt(0) == valX) {
+                result.target = result.target + RsvrApexLexicalParserUtil.int2string(valX);
+                input.mark();
+                continue;
+            }
+            input.reset();
+            break;
+        }
+        result.original = result.target;
+        input.reset();
+        return result;
+    }
 
     // TODO SOQL Currency literal は一旦未着手のまま放置。
 
@@ -404,6 +651,42 @@ public class RsvrApexLexicalParser {
     //     :   'true'
     //     |   'false'
     //     ;
+    private LiteralToken parseBooleanLiteral() {
+        input.mark();
+
+        LiteralToken result = new LiteralToken();
+        result.type = 'BooleanLiteral';
+
+        result.target = '';
+        Boolean isExist = false;
+        for (;;) {
+            Integer next = input.readChar();
+            if (RsvrApexLexicalParserUtil.isJavaLetter(next)) {
+                isExist = true;
+                result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
+                continue;
+            } else {
+                if (isExist == false) {
+                    input.reset();
+                    return null;
+                }
+
+                input.move(input.pos() - 1);
+
+                if ('true' == result.target.toLowerCase()
+                || 'false' == result.target.toLowerCase()) {
+                    // Hit
+                    input.mark();
+                    result.original = result.target;
+                    return result;
+                }
+                break;
+            }
+        }
+
+        input.reset();
+        return null;
+    }
 
     // // §3.10.5 String Literals
 
@@ -554,6 +837,41 @@ public class RsvrApexLexicalParser {
     // NullLiteral
     //     :   NULL
     //     ;
+    private LiteralToken parseNullLiteral() {
+        input.mark();
+
+        LiteralToken result = new LiteralToken();
+        result.type = 'NullLiteral';
+
+        result.target = '';
+        Boolean isExist = false;
+        for (;;) {
+            Integer next = input.readChar();
+            if (RsvrApexLexicalParserUtil.isJavaLetter(next)) {
+                isExist = true;
+                result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
+                continue;
+            } else {
+                if (isExist == false) {
+                    input.reset();
+                    return null;
+                }
+
+                input.move(input.pos() - 1);
+
+                if ('null' == result.target.toLowerCase()) {
+                    // Hit
+                    input.mark();
+                    result.original = result.target;
+                    return result;
+                }
+                break;
+            }
+        }
+
+        input.reset();
+        return null;
+    }
 
     /**
      * Parse separator.
