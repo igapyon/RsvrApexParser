@@ -14,9 +14,18 @@
  * limitations under the License.
  */
 @isTest(SeeAllData=false)
-public class RsvrApexLexicalParserTest {
+private class RsvrApexLexicalParserTest03 {
     @isTest(SeeAllData=false)
     static void test01() {
-        RsvrApexLexicalParserUtil.validateLexicalParser('RsvrApexLexicalParserTest', false);
+        List<ApexClass> apcList = [SELECT Name, Body, NamespacePrefix
+            FROM ApexClass
+            WHERE Status = 'Active'
+            ORDER BY LastModifiedDate DESC
+            LIMIT 10];
+
+        for (ApexClass apc : apcList) {
+            System.debug('Check: ' + apc.Name);
+            RsvrApexLexicalParserUtil.validateLexicalParser(apc.Name, false);
+        }
     }
 }

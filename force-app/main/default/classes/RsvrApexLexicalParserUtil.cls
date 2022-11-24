@@ -194,4 +194,26 @@ public class RsvrApexLexicalParserUtil {
         }
         return apc.Body;
     }
+
+    public static void validateLexicalParser(String apexClassNameWithoutExt, Boolean isDumpMode) {
+        String apexClassBody = RsvrApexLexicalParserUtil.readApexClassBody(apexClassNameWithoutExt);
+        RsvrApexLexicalParser parser = new RsvrApexLexicalParser();
+        List<RsvrApexLexicalParser.LexicalToken> result = parser.parse(apexClassBody);
+
+        String parsedInput = '';
+        for (RsvrApexLexicalParser.LexicalToken look : result) {
+            parsedInput += look.original;
+        }
+
+        if (isDumpMode) {
+            String dump = '';
+            for (RsvrApexLexicalParser.LexicalToken look : result) {
+                dump += (look.toString() + '\n');
+            }
+            System.debug('Dump:\n' + dump+ '\n\n');
+        }
+
+        // Fukugen check.
+        System.assertEquals(apexClassBody, parsedInput);
+    }
 }
