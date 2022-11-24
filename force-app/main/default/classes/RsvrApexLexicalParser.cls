@@ -1079,8 +1079,7 @@ public class RsvrApexLexicalParser {
     private CommentToken parseDocComment() {
         input.mark();
 
-        CommentToken result = new CommentToken();
-        result.type = 'DocComment';
+        List<Integer> targetList = new List<Integer>();
 
         Integer first = input.readChar();
         if (first != 47 /* [/] */) {
@@ -1099,8 +1098,6 @@ public class RsvrApexLexicalParser {
         }
 
         // hit line comment
-        result.original = RsvrApexLexicalParserUtil.int2string(first) + RsvrApexLexicalParserUtil.int2string(second) + RsvrApexLexicalParserUtil.int2string(third);
-        result.target = '';
         for (;;) {
             Integer next = input.readChar();
             if (next == 42 /* [*] */) {
@@ -1109,15 +1106,23 @@ public class RsvrApexLexicalParser {
                 if (next2 == 47 /* [/] */) {
                     // End of comment.
                     input.mark();
-                    result.original = result.original + result.target + RsvrApexLexicalParserUtil.int2string(next) + RsvrApexLexicalParserUtil.int2string(next2);
+                    CommentToken result = new CommentToken();
+                    result.type = 'DocComment';
+                    result.target = String.fromCharArray(targetList);
+                    result.original = '/**' + result.target + '*/';
                     return result;
                 }
                 input.reset();
             }
 
             input.mark();
-            result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
+            targetList.add(next);
         }
+
+        CommentToken result = new CommentToken();
+        result.type = 'DocComment';
+        result.target = String.fromCharArray(targetList);
+        result.original = '/**' + result.target;
 
         return result;
     }
