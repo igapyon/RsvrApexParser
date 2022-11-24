@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 public class RsvrApexLexicalParserInput {
-    private String apexClassText;
+    private List<Integer> apexClassCharList;
     private Integer currentPos = -1;
     private Integer markPos = -1;
 
     public RsvrApexLexicalParserInput(String apexClassText) {
-        this.apexClassText = apexClassText;
+        this.apexClassCharList = apexClassText.getChars();
     }
 
     public Integer readChar() {
         currentPos++;
-        if (apexClassText.length() <= currentPos) {
+        if (apexClassCharList.size() <= currentPos) {
             // end of string.
             return -1;
         }
 
-        return apexClassText.charAt(currentPos);
+        return apexClassCharList.get(currentPos);
     }
 
     public Integer mark() {
@@ -57,9 +57,10 @@ public class RsvrApexLexicalParserInput {
         if (pos < 0) {
             pos = 0;
         }
-        if (apexClassText.length() <= (pos)) {
+        if (apexClassCharList.size() <= (pos)) {
             return '';
         }
+        final String apexClassText = String.fromCharArray(apexClassCharList);
         return apexClassText.substring(pos);
     }
 }
