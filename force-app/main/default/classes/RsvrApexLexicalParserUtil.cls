@@ -42,23 +42,23 @@ public class RsvrApexLexicalParserUtil {
     //     ;
     public static Boolean isJavaLetter(Integer val) {
         // [a-zA-Z$_] // these are the "java letters" below 0xFF
-        if ('a'.charAt(0) <= val && val <= 'z'.charAt(0)) {
+        if (97 /* [a] */ <= val && val <= 122 /* [z] */) {
             return true;
         }
-        if ('A'.charAt(0) <= val && val <= 'Z'.charAt(0)) {
+        if (65 /* [A] */ <= val && val <= 90 /* [Z] */) {
             return true;
         }
-        if ('$'.charAt(0) == val) {
+        if (36 /* [$] */ == val) {
             return true;
         }
-        if ('_'.charAt(0) == val) {
+        if (95 /* [_] */ == val) {
             return true;
         }
         // ~[\u0000-\u00FF\uD800-\uDBFF]
-        if ('\u0000'.charAt(0) <= val && val <= '\u00FF'.charAt(0)) {
+        if (0 /* '\u0000' */ <= val && val <= 255 /*'\u00FF'*/) {
             return false;
         }
-        if ('\uD800'.charAt(0) <= val && val <= '\uDBFF'.charAt(0)) {
+        if (55296 /*'\uD800'*/ <= val && val <= 56319 /*'\uDBFF'*/) {
             return false;
         }
         return true;
