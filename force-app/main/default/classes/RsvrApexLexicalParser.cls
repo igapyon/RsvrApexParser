@@ -62,6 +62,8 @@ public class RsvrApexLexicalParser {
     // Mail process loop.
 
     public List<LexicalToken> parse(String apexClassText) {
+        Long startMS = Datetime.now().getTime();
+
         input = new RsvrApexLexicalParserInput(apexClassText);
 
         for (;;) {
@@ -221,7 +223,10 @@ public class RsvrApexLexicalParser {
                 break;
             }        
         }
-        
+
+        Long endMS = Datetime.now().getTime();
+        System.debug('TRACE: RsvrApexLexicalParser.parse: ' + (endMS - startMS) + ' ms');
+
         return tokenList;
     }
 
@@ -234,16 +239,17 @@ public class RsvrApexLexicalParser {
     private KeywordToken parseKeyword() {
         input.mark();
 
-        KeywordToken result = new KeywordToken();
-        result.type = 'Keyword';
+        List<Integer> targetList = null;
 
-        result.target = '';
         Boolean isExist = false;
         for (;;) {
             Integer next = input.readChar();
             if (RsvrApexLexicalParserUtil.isJavaLetter(next)) {
                 isExist = true;
-                result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
+                if (targetList == null) {
+                    targetList = new List<Integer>();
+                }
+                targetList.add(next);
                 continue;
             } else {
                 if (isExist == false) {
@@ -252,9 +258,14 @@ public class RsvrApexLexicalParser {
                 }
 
                 input.move(input.pos() - 1);
-                if (RsvrApexLexicalParserUtil.isKeyword(result.target)) {
+
+                String target = String.fromCharArray(targetList);
+                if (RsvrApexLexicalParserUtil.isKeyword(target)) {
                     // Hit
                     input.mark();
+                    KeywordToken result = new KeywordToken();
+                    result.type = 'Keyword';
+                    result.target = target;
                     result.original = result.target;
                     return result;
                 } else {
@@ -277,11 +288,6 @@ public class RsvrApexLexicalParser {
     // DateLiteral: Digit Digit Digit Digit '-' Digit Digit '-' Digit Digit;
     private LiteralToken parseDateLiteral() {
         input.mark();
-
-        LiteralToken result = new LiteralToken();
-        result.type = 'DateLiteral';
-
-        result.target = '';
 
         Integer val1 = input.readChar();
         if (RsvrApexLexicalParserUtil.isDigit(val1) == false) {
@@ -334,6 +340,10 @@ public class RsvrApexLexicalParser {
             return null;
         }
 
+        LiteralToken result = new LiteralToken();
+        result.type = 'DateLiteral';
+        result.target = '';
+
         // この時点でDateリテラルとする。
         result.target = RsvrApexLexicalParserUtil.int2string(val1) + RsvrApexLexicalParserUtil.int2string(val2) + RsvrApexLexicalParserUtil.int2string(val3) + RsvrApexLexicalParserUtil.int2string(val4) + RsvrApexLexicalParserUtil.int2string(val5) + RsvrApexLexicalParserUtil.int2string(val6) + RsvrApexLexicalParserUtil.int2string(val7) + RsvrApexLexicalParserUtil.int2string(val8) + RsvrApexLexicalParserUtil.int2string(val9) + RsvrApexLexicalParserUtil.int2string(val10);
         result.original = result.target;
@@ -345,11 +355,6 @@ public class RsvrApexLexicalParser {
     // DateTimeLiteral: DateLiteral 't' Digit Digit ':' Digit Digit ':' Digit Digit ('z' | (('+' | '-') Digit+ ( ':' Digit+)? ));
     private LiteralToken parseDateTimeLiteral() {
         input.mark();
-
-        LiteralToken result = new LiteralToken();
-        result.type = 'DateTimeLiteral';
-
-        result.target = '';
 
         Integer val1 = input.readChar();
         if (RsvrApexLexicalParserUtil.isDigit(val1) == false) {
@@ -451,6 +456,10 @@ public class RsvrApexLexicalParser {
             return null;
         }
 
+        LiteralToken result = new LiteralToken();
+        result.type = 'DateTimeLiteral';
+        result.target = '';
+
         // ('z' | (('+' | '-') Digit+ ( ':' Digit+)? ))
         Integer val20 = input.readChar();
         if (val20 == 'z'.charAt(0) || val20 == 'Z'.charAt(0)) {
@@ -470,6 +479,7 @@ public class RsvrApexLexicalParser {
             input.reset();
             return null;
         }
+
         // この時点でDateTimeリテラル確定。
         result.target = RsvrApexLexicalParserUtil.int2string(val1) + RsvrApexLexicalParserUtil.int2string(val2) + RsvrApexLexicalParserUtil.int2string(val3) + RsvrApexLexicalParserUtil.int2string(val4) + RsvrApexLexicalParserUtil.int2string(val5) + RsvrApexLexicalParserUtil.int2string(val6) + RsvrApexLexicalParserUtil.int2string(val7) + RsvrApexLexicalParserUtil.int2string(val8) + RsvrApexLexicalParserUtil.int2string(val9) + RsvrApexLexicalParserUtil.int2string(val10)
             + RsvrApexLexicalParserUtil.int2string(val11) + RsvrApexLexicalParserUtil.int2string(val12) + RsvrApexLexicalParserUtil.int2string(val13) + RsvrApexLexicalParserUtil.int2string(val14) + RsvrApexLexicalParserUtil.int2string(val15) + RsvrApexLexicalParserUtil.int2string(val16) + RsvrApexLexicalParserUtil.int2string(val17) + RsvrApexLexicalParserUtil.int2string(val18) + RsvrApexLexicalParserUtil.int2string(val19) + RsvrApexLexicalParserUtil.int2string(val20)
