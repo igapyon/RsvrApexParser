@@ -26,16 +26,26 @@ public class RsvrApexLexicalParserInput {
         // これだとバックスラッシュが消失する。
         // this.apexClassCharList = apexClassText.getChars();
 
-        // これだとCPUタイムで圧倒的に不利。
-        //List<Integer> result = new List<Integer>();
-        //Integer len = apexClassText.length();
-        //for (Integer i = 0; i < len; i++) {
-        //    result.add(apexClassText.charAt(i));
-        //}
-        //this.apexClassCharList = result;
+        if (true) {
+            // 有利/不利があるのだろうか。
+            Long startMS = Datetime.now().millisecond();
+            List<Integer> result = new List<Integer>();
+            Integer len = apexClassText.length();
+            for (Integer i = 0; i < len; i++) {
+                result.add(apexClassText.charAt(i));
+            }
+            this.apexClassCharList = result;
+            Long endMS = Datetime.now().millisecond();
+            System.debug('TRACE: loop + add: ' + (endMS - startMS));
+        }
 
-        // ワークアラウンド。バックスラッシュは増やしてしまえば良い。（自信はないがぱっとみ動作する）
-        this.apexClassCharList = apexClassText.replace('\\','\\\\').getChars();
+        if (false) {
+            // ワークアラウンド。バックスラッシュは増やしてしまえば良い。（自信はないがぱっと見は動作する）
+            Long startMS = Datetime.now().millisecond();
+            this.apexClassCharList = apexClassText.replace('\\','\\\\').getChars();
+            Long endMS = Datetime.now().millisecond();
+            System.debug('TRACE: replace + getChars: ' + (endMS - startMS));
+        }
     }
 
     public Integer readChar() {

@@ -304,7 +304,7 @@ public class RsvrApexLexicalParser {
             return null;
         }
         Integer val5 = input.readChar();
-        if (val5 != '-'.charAt(0)) {
+        if (val5 != 45 /* [-] */) {
             input.reset();
             return null;
         }
@@ -319,7 +319,7 @@ public class RsvrApexLexicalParser {
             return null;
         }
         Integer val8 = input.readChar();
-        if (val8 != '-'.charAt(0)) {
+        if (val8 != 45 /* [-] */) {
             input.reset();
             return null;
         }
@@ -372,7 +372,7 @@ public class RsvrApexLexicalParser {
             return null;
         }
         Integer val5 = input.readChar();
-        if (val5 != '-'.charAt(0)) {
+        if (val5 != 45 /* [-] */) {
             input.reset();
             return null;
         }
@@ -387,7 +387,7 @@ public class RsvrApexLexicalParser {
             return null;
         }
         Integer val8 = input.readChar();
-        if (val8 != '-'.charAt(0)) {
+        if (val8 != 45 /* [-] */) {
             input.reset();
             return null;
         }
@@ -590,7 +590,7 @@ public class RsvrApexLexicalParser {
                 result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
                 continue;
             }
-            if (isFirst == false && (next == 'l'.charAt(0) || next == 'L'.charAt(0))) {
+            if (isFirst == false && (next == 105 /* [l] */ || next == 76 /* [L] */)) {
                 result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
 
                 // Hit
@@ -627,7 +627,7 @@ public class RsvrApexLexicalParser {
                 result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
                 continue;
             }
-            if (isFirst == false && isDotExist == false && next == '.'.charAt(0)) {
+            if (isFirst == false && isDotExist == false && next == 46 /* [.] */) {
                 isDotExist = true;
                 result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
                 continue;
@@ -762,27 +762,27 @@ public class RsvrApexLexicalParser {
 
                 Integer next2 = input.readChar();
                 result.original = result.original + RsvrApexLexicalParserUtil.int2string(next2);
-                if (next2 == 'b'.charAt(0)) {
+                if (next2 == 98 /* [b] */) {
                     if (IS_LOCAL_DEBUG) System.debug('TRACE: Escape + b');
                     result.target = result.target + 8 /* [b] */;
                     continue;
                 }
-                if (next2 == 't'.charAt(0)) {
+                if (next2 == 116 /* [t] */) {
                     if (IS_LOCAL_DEBUG) System.debug('TRACE: Escape + t');
                     result.target = result.target + 9 /* [t] */;
                     continue;
                 }
-                if (next2 == 'n'.charAt(0)) {
+                if (next2 == 110 /* [n] */) {
                     if (IS_LOCAL_DEBUG) System.debug('TRACE: Escape + n');
                     result.target = result.target + 10 /* [n] */;
                     continue;
                 }
-                if (next2 == 'f'.charAt(0)) {
+                if (next2 == 102 /* [f] */) {
                     if (IS_LOCAL_DEBUG) System.debug('TRACE: Escape + f');
                     result.target = result.target + 12 /* [f] */;
                     continue;
                 }
-                if (next2 == 'r'.charAt(0)) {
+                if (next2 == 114 /* [r] */) {
                     if (IS_LOCAL_DEBUG) System.debug('TRACE: Escape + r');
                     result.target = result.target + 13 /* [r] */;
                     continue;
@@ -795,7 +795,7 @@ public class RsvrApexLexicalParser {
                     continue;
                 }
                 // 'u' HexCharacter HexCharacter HexCharacter HexCharacter
-                if (next2 == 'u'.charAt(0)) {
+                if (next2 == 117 /* [u] */) {
                     if (IS_LOCAL_DEBUG) System.debug('TRACE: Escape + u');
                     Integer hex1 = input.readChar();
                     if (RsvrApexLexicalParserUtil.isHexCharacter(hex1) == false) {
@@ -968,7 +968,7 @@ public class RsvrApexLexicalParser {
         result.target = '';
 
         Integer next = input.readChar();
-        if (next == '@'.charAt(0)) {
+        if (next == 64 /* [@] */) {
             result.target = RsvrApexLexicalParserUtil.int2string(next);
             result.original = result.target;
             return result;
@@ -1048,7 +1048,7 @@ public class RsvrApexLexicalParser {
                 break;
             }
 
-            if (next == ' '.charAt(0)
+            if (next == 32 /* [' '] */
             || next == 9 /* [t] */
             || next == 12 /* [r] */
             || next == 10 /* [n] */
@@ -1082,17 +1082,17 @@ public class RsvrApexLexicalParser {
         result.type = 'DocComment';
 
         Integer first = input.readChar();
-        if (first != '/'.charAt(0)) {
+        if (first != 47 /* [/] */) {
             input.reset();
             return null;
         }
         Integer second = input.readChar();
-        if (second != '*'.charAt(0)) {
+        if (second != 42 /* [*] */) {
             input.reset();
             return null;
         }
         Integer third = input.readChar();
-        if (third != '*'.charAt(0)) {
+        if (third != 42 /* [*] */) {
             input.reset();
             return null;
         }
@@ -1102,10 +1102,10 @@ public class RsvrApexLexicalParser {
         result.target = '';
         for (;;) {
             Integer next = input.readChar();
-            if (next == '*'.charAt(0)) {
+            if (next == 42 /* [*] */) {
                 input.mark();
                 Integer next2 = input.readChar();
-                if (next2 == '/'.charAt(0)) {
+                if (next2 == 47 /* [/] */) {
                     // End of comment.
                     input.mark();
                     result.original = result.original + result.target + RsvrApexLexicalParserUtil.int2string(next) + RsvrApexLexicalParserUtil.int2string(next2);
@@ -1130,12 +1130,12 @@ public class RsvrApexLexicalParser {
 
         input.mark();
         Integer first = input.readChar();
-        if (first != '/'.charAt(0)) {
+        if (first != 47 /* [/] */) {
             input.reset();
             return null;
         }
         Integer second = input.readChar();
-        if (second != '*'.charAt(0)) {
+        if (second != 42 /* [*] */) {
             input.reset();
             return null;
         }
@@ -1145,10 +1145,10 @@ public class RsvrApexLexicalParser {
         result.target = '';
         for (;;) {
             Integer next = input.readChar();
-            if (next == '*'.charAt(0)) {
+            if (next == 42 /* [*] */) {
                 input.mark();
                 Integer next2 = input.readChar();
-                if (next2 == '/'.charAt(0)) {
+                if (next2 == 47 /* [/] */) {
                     // End of comment.
                     input.mark();
                     result.original = result.original + result.target + RsvrApexLexicalParserUtil.int2string(next) + RsvrApexLexicalParserUtil.int2string(next2);
@@ -1174,12 +1174,12 @@ public class RsvrApexLexicalParser {
         result.type = 'LineComment';
 
         Integer first = input.readChar();
-        if (first != '/'.charAt(0)) {
+        if (first != 47 /* [/] */) {
             input.reset();
             return null;
         }
         Integer second = input.readChar();
-        if (second != '/'.charAt(0)) {
+        if (second != 47 /* [/] */) {
             input.reset();
             return null;
         }
