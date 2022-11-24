@@ -22,13 +22,13 @@
     private final Map<String,Integer> procCountMap = new Map<String,Integer>();
 
     private String procTimeName = 'Noname';
-    private String currentProcName = 'Noname';
+    private String currentProcName = 'baseline';
     private Long currentProcEnterTime = Datetime.now().getTime();
     private Integer callCounter = 0;
 
     public RsvrProcTime(String procTimeName) {
         this.procTimeName = procTimeName;
-        enter('Noname');
+        enter('baseline');
     }
 
     public void enter(String procName) {
