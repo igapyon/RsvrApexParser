@@ -18,8 +18,8 @@
  * Trace Process time.
  */
  public class RsvrProcTime {
-    private final Map<String,Integer> procCountMap = new Map<String,Integer>();
     private final Map<String,Long> procTimeMap = new Map<String,Long>();
+    private final Map<String,Integer> procCountMap = new Map<String,Integer>();
 
     private String procTimeName = 'Noname';
     private String currentProcName = 'Noname';
@@ -32,11 +32,11 @@
     }
 
     public void enter(String procName) {
-        if (procCountMap.get(procName) == null) {
-            procCountMap.put(procName, 0);
-        }
         if (procTimeMap.get(procName) == null) {
             procTimeMap.put(procName, 0);
+        }
+        if (procCountMap.get(procName) == null) {
+            procCountMap.put(procName, 0);
         }
 
         Long enterTime = Datetime.now().getTime();
@@ -53,8 +53,8 @@
 
     private void cal(Long enterTime) {
         // 処理中だった時刻計測を実施
-        procCountMap.put(currentProcName, procCountMap.get(currentProcName) + 1);
         procTimeMap.put(currentProcName, procTimeMap.get(currentProcName) + (enterTime - currentProcEnterTime));
+        procCountMap.put(currentProcName, procCountMap.get(currentProcName) + 1);
     }
 
     public void close() {
@@ -72,11 +72,10 @@
         for (String key : procCountMap.keySet()) {
             allCount += procCountMap.get(key);
             allTime += procTimeMap.get(key);
-            message += ('    ' + key + ': count:' + procCountMap.get(key) + ', time: ' + procTimeMap.get(key) + '\n');
+            message += ('    ' + key + ': ' + procTimeMap.get(key) + ' ms (' + procCountMap.get(key) + ' count)\n');
         }
         message += ('    -----------------------------------------------\n');
-        message += ('    total count: ' + allCount + '\n');
-        message += ('    total time : ' + allTime + ' ms\n');
+        message += ('    total: ' + allTime + ' ms (' + allCount + ' count)\n');
         message += '\n';
         System.debug(message);
     }
