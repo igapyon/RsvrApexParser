@@ -1035,7 +1035,7 @@ public class RsvrApexLexicalParser {
     private WhitespaceToken parseWS() {
         input.mark();
 
-        List<Integer> targetList = new List<Integer>();
+        List<Integer> targetList = null;
 
         Boolean isExist = false;
         for (;;) {
@@ -1053,6 +1053,10 @@ public class RsvrApexLexicalParser {
             || next == 12 /* [u000C] */) {
                 isExist = true;
                 input.mark();
+                if (targetList == null) {
+                    targetList = new List<Integer>();
+                }
+
                 targetList.add(next);
                 continue;
             }
@@ -1079,8 +1083,6 @@ public class RsvrApexLexicalParser {
     private CommentToken parseDocComment() {
         input.mark();
 
-        List<Integer> targetList = new List<Integer>();
-
         Integer first = input.readChar();
         if (first != 47 /* [/] */) {
             input.reset();
@@ -1096,6 +1098,8 @@ public class RsvrApexLexicalParser {
             input.reset();
             return null;
         }
+
+        List<Integer> targetList = new List<Integer>();
 
         // hit line comment
         for (;;) {
@@ -1200,11 +1204,11 @@ public class RsvrApexLexicalParser {
             if (next == 13 /* [r] */
             || next == 10 /* [n] */
             || next == -1) {
-                input.reset();
+                input.move(input.pos() - 1);
+                input.mark();
                 break;
             }
 
-            input.mark();
             targetList.add(next);
         }
 
