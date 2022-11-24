@@ -13,6 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+/**
+ * Apex Lexical Parser util.
+ */
 public class RsvrApexLexicalParserUtil {
     public static String int2string(Integer val) {
         List<Integer> nextOne = new List<Integer>();

@@ -15,6 +15,8 @@
  */
 @isTest(SeeAllData=false)
 private class RsvrApexLexicalParserTest03 {
+    private static final Boolean IS_APEXCLASS_OBJECTREAD = false;
+
     @isTest(SeeAllData=false)
     static void test01() {
         List<ApexClass> apcList = [SELECT Name, Body, NamespacePrefix
@@ -25,7 +27,7 @@ private class RsvrApexLexicalParserTest03 {
 
         for (ApexClass apc : apcList) {
             System.debug('Check: ' + apc.Name);
-            RsvrApexLexicalParserUtil.validateLexicalParser(apc.Name, false);
+            if (IS_APEXCLASS_OBJECTREAD) RsvrApexLexicalParserUtil.validateLexicalParser(apc.Name, false);
         }
     }
 }
