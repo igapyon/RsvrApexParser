@@ -119,6 +119,21 @@ public class RsvrApexLexicalParser {
                 continue;
             }
 
+            // LongのパースはIntegerより先に実施。
+            if (IS_DEBUG) System.debug('TRACE: parseLongLiteral: ');
+            tok = parseLongLiteral();
+            if (tok != null) {
+                tokenList.add(tok);
+                continue;
+            }
+
+            if (IS_DEBUG) System.debug('TRACE: parseIntegerLiteral: ');
+            tok = parseIntegerLiteral();
+            if (tok != null) {
+                tokenList.add(tok);
+                continue;
+            }
+
             ////////////////////////
             // Whitespace and comments.
 
@@ -263,9 +278,73 @@ public class RsvrApexLexicalParser {
     //     ;
     // 
 
+    private LiteralToken parseIntegerLiteral() {
+        input.mark();
+
+        LiteralToken result = new LiteralToken();
+        result.type = 'IntegerLiteral';
+
+        result.target = '';
+        Boolean isExist = false;
+        for (;;) {
+            Integer next = input.readChar();
+            if (RsvrApexLexicalParserUtil.isDigit(next)) {
+                isExist = true;
+                result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
+                continue;
+            } else {
+                if (isExist == false) {
+                    input.reset();
+                    return null;
+                }
+
+                input.move(input.pos() - 1);
+
+                // Hit
+                input.mark();
+                result.original = result.target;
+                return result;
+            }
+        }
+
+        input.reset();
+        return null;
+    }
+
     // LongLiteral
     //     : Digit Digit* [lL]
     //     ;
+
+    private LiteralToken parseLongLiteral() {
+        input.mark();
+
+        LiteralToken result = new LiteralToken();
+        result.type = 'LongLiteral';
+
+        result.target = '';
+        Boolean isFirst = true;
+        for (;;) {
+            Integer next = input.readChar();
+            if (RsvrApexLexicalParserUtil.isDigit(next)) {
+                isFirst = false;
+                result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
+                continue;
+            }
+            if (isFirst == false && (next == 'l'.charAt(0) || next == 'L'.charAt(0))) {
+                result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
+
+                // Hit
+                input.mark();
+                result.original = result.target;
+                return result;
+            }
+            input.reset();
+            return null;
+        }
+
+        input.reset();
+        return null;
+    }
 
     // NumberLiteral
     //     :   Digit* '.' Digit Digit* [dD]?
