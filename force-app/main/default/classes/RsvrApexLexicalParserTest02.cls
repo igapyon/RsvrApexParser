@@ -66,4 +66,9 @@ private class RsvrApexLexicalParserTest02 {
     static void test12() {
         if (IS_APEXCLASS_OBJECTREAD) RsvrApexLexicalParserUtil.validateLexicalParser('RsvrApexLexicalParserTest12', false);
     }
+
+    @isTest(SeeAllData=false)
+    static void test13() {
+        if (IS_APEXCLASS_OBJECTREAD) RsvrApexLexicalParserUtil.validateLexicalParser('RsvrApexLexicalParserTest13', false);
+    }
 }

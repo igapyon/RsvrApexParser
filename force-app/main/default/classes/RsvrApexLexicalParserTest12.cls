@@ -26,4 +26,12 @@ private class RsvrApexLexicalParserTest12 {
         Boolean val5 = false;
         String val6 = null;
     }
+
+    @isTest(SeeAllData=false)
+    static void test02() {
+        String val1 = 'ABC';
+        String val2 = 'A\'C';
+        String val3 = 'A\\C';
+        String val4 = 'A\nC';
+    }
 }
