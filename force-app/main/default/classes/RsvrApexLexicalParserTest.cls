@@ -203,6 +203,51 @@ public class RsvrApexLexicalParserTest {
         System.assertEquals(1, tokenList.size());
     }
 
+    @isTest(SeeAllData=false)
+    static void test10() {
+        final String apexClassText = '// COMMENT';
+        final RsvrApexLexicalParser parser = new RsvrApexLexicalParser();
+        List<RsvrApexLexicalParser.LexicalToken> tokenList = parser.parse(apexClassText);
+
+        Integer index = 0;
+        RsvrApexLexicalParser.LexicalToken current = tokenList.get(index++);
+        System.assertEquals('LineComment', current.type);
+        System.assertEquals(' COMMENT', current.target);
+        System.assertEquals('// COMMENT', current.original);
+
+        System.assertEquals(1, tokenList.size());
+    }
+
+    @isTest(SeeAllData=false)
+    static void test11() {
+        final String apexClassText = '/* COMMENT*COM */';
+        final RsvrApexLexicalParser parser = new RsvrApexLexicalParser();
+        List<RsvrApexLexicalParser.LexicalToken> tokenList = parser.parse(apexClassText);
+
+        Integer index = 0;
+        RsvrApexLexicalParser.LexicalToken current = tokenList.get(index++);
+        System.assertEquals('Comment', current.type);
+        System.assertEquals(' COMMENT*COM ', current.target);
+        System.assertEquals('/* COMMENT*COM */', current.original);
+
+        System.assertEquals(1, tokenList.size());
+    }
+
+    @isTest(SeeAllData=false)
+    static void test12() {
+        final String apexClassText = '/** COMMENT*COM */';
+        final RsvrApexLexicalParser parser = new RsvrApexLexicalParser();
+        List<RsvrApexLexicalParser.LexicalToken> tokenList = parser.parse(apexClassText);
+
+        Integer index = 0;
+        RsvrApexLexicalParser.LexicalToken current = tokenList.get(index++);
+        System.assertEquals('DocComment', current.type);
+        System.assertEquals(' COMMENT*COM ', current.target);
+        System.assertEquals('/** COMMENT*COM */', current.original);
+
+        System.assertEquals(1, tokenList.size());
+    }
+
     //////////////////////////////
     // memo
     // RsvrApexLexicalParserUtil.validateLexicalParser('RsvrApexLexicalParser', false);

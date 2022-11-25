@@ -102,13 +102,6 @@ public class RsvrApexLexicalParser {
                 continue;
             }
 
-            if (IS_DEBUG) System.debug('TRACE: parseDocComment: ');
-            tok = parseDocComment();
-            if (tok != null) {
-                tokenList.add(tok);
-                continue;
-            }
-
             if (IS_DEBUG) System.debug('TRACE: parseComment: ');
             tok = parseComment();
             if (tok != null) {
@@ -1034,58 +1027,6 @@ public class RsvrApexLexicalParser {
     // DOC_COMMENT
     //     :   /** .*? */ -> channel(COMMENT_CHANNEL)
     //     ;
-    private CommentToken parseDocComment() {
-        procTime.enter('parseDocComment');
-
-        input.mark();
-
-        Integer first = input.readChar();
-        if (first != 47 /* [/] */) {
-            input.reset();
-            return null;
-        }
-        Integer second = input.readChar();
-        if (second != 42 /* [*] */) {
-            input.reset();
-            return null;
-        }
-        Integer third = input.readChar();
-        if (third != 42 /* [*] */) {
-            input.reset();
-            return null;
-        }
-
-        List<Integer> targetList = new List<Integer>();
-
-        // hit line comment
-        for (;;) {
-            Integer next = input.readChar();
-            if (next == 42 /* [*] */) {
-                input.mark();
-                Integer next2 = input.readChar();
-                if (next2 == 47 /* [/] */) {
-                    // End of comment.
-                    input.mark();
-                    CommentToken result = new CommentToken();
-                    result.type = 'DocComment';
-                    result.target = String.fromCharArray(targetList);
-                    result.original = '/**' + result.target + '*/';
-                    return result;
-                }
-                input.reset();
-            }
-
-            input.mark();
-            targetList.add(next);
-        }
-
-        CommentToken result = new CommentToken();
-        result.type = 'DocComment';
-        result.target = String.fromCharArray(targetList);
-        result.original = '/**' + result.target;
-
-        return result;
-    }
 
     // COMMENT
     //     :   '/*' .*? '*/' -> channel(COMMENT_CHANNEL)
@@ -1095,46 +1036,67 @@ public class RsvrApexLexicalParser {
 
         input.mark();
         Integer first = input.readChar();
-        if (first != 47 /* [/] */) {
+        if (first != RsvrUnicodeConstants.LETTER_Slash) {
             input.reset();
             return null;
         }
         Integer second = input.readChar();
-        if (second != 42 /* [*] */) {
+        if (second != RsvrUnicodeConstants.LETTER_Asterisk) {
             input.reset();
             return null;
         }
 
+        ////////////////////////////
+        // コメント確定
+
         List<Integer> targetList = new List<Integer>();
+        List<Integer> targetOriginalList = new List<Integer>();
+        targetOriginalList.add(first);
+        targetOriginalList.add(second);
+
+        input.mark();
+        Boolean isDocComment = false;
+        Integer third = input.readChar();
+        targetOriginalList.add(third);
+        if (third == RsvrUnicodeConstants.LETTER_Asterisk) {
+            isDocComment = true;
+        } else {
+            targetList.add(third);
+        }
 
         // hit line comment
+        Boolean isPastAsterisk = false;
         for (;;) {
             Integer next = input.readChar();
-            if (next == 42 /* [*] */) {
-                input.mark();
-                Integer next2 = input.readChar();
-                if (next2 == 47 /* [/] */) {
+            targetOriginalList.add(next);
+            if (next == RsvrUnicodeConstants.LETTER_Asterisk) {
+                isPastAsterisk = true;
+            } else {
+                if (next == RsvrUnicodeConstants.LETTER_Slash
+                || next == -1) {
                     // End of comment.
                     input.mark();
 
                     CommentToken result = new CommentToken();
-                    result.type = 'Comment';
+                    if (isDocComment) {
+                        result.type = 'DocComment';
+                    } else {
+                        result.type = 'Comment';
+                    }
                     result.target = String.fromCharArray(targetList);
-                    result.original = '/*' + result.target + '*/';
+                    result.original = String.fromCharArray(targetOriginalList);
                     return result;
                 }
-                input.reset();
+                if (isPastAsterisk) {
+                    isPastAsterisk = false;
+                    targetList.add(RsvrUnicodeConstants.LETTER_Asterisk);
+                }
+                targetList.add(next);
             }
-
-            input.mark();
-            targetList.add(next);
         }
 
-        CommentToken result = new CommentToken();
-        result.type = 'Comment';
-        result.target = String.fromCharArray(targetList);
-        result.original = '/*' + result.target;
-        return result;
+        input.reset();
+        return null;
     }
 
     // LINE_COMMENT
