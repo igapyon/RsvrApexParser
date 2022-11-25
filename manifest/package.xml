@@ -3,9 +3,20 @@
 	<types>
 		<members>RsvrApexConstants</members>
 		<members>RsvrApexLexicalParser</members>
+		<members>RsvrApexLexicalParserTest</members>
+		<members>RsvrApexLexicalParserTest02</members>
+		<members>RsvrApexLexicalParserTest03</members>
+		<members>RsvrApexLexicalParserTest11</members>
+		<members>RsvrApexLexicalParserTest12</members>
+		<members>RsvrApexLexicalParserTest13</members>
 		<members>RsvrApexLexicalParserInput</members>
+		<members>RsvrApexLexicalParserInputTest</members>
 		<members>RsvrApexLexicalParserUtil</members>
+		<members>RsvrApexLexicalParserUtilTest</members>
+		<members>RsvrApexSyntaxParser</members>
+		<members>RsvrApexSyntaxParserTest</members>
 		<members>RsvrProcTime</members>
+		<members>RsvrProcTimeTest</members>
 		<members>RsvrUnicodeConstants</members>
 		<name>ApexClass</name>
 	</types>
