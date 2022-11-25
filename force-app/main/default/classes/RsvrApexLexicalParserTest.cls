@@ -323,6 +323,21 @@ public class RsvrApexLexicalParserTest {
         System.assertEquals(1, tokenList.size());
     }
 
+    @isTest(SeeAllData=false)
+    static void test17() {
+        final String apexClassText = '00PANIC';
+        final RsvrApexLexicalParser parser = new RsvrApexLexicalParser();
+        List<RsvrApexLexicalParser.LexicalToken> tokenList = parser.parse(apexClassText);
+
+        Integer index = 0;
+        RsvrApexLexicalParser.LexicalToken current = tokenList.get(index++);
+        System.assertEquals('PANIC', current.type);
+        System.assertEquals(null, current.target);
+        System.assertEquals(null, current.original);
+
+        System.assertEquals(1, tokenList.size());
+    }
+
     //////////////////////////////
     // memo
     // RsvrApexLexicalParserUtil.validateLexicalParser('RsvrApexLexicalParser', false);
