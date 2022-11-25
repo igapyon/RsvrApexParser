@@ -40,6 +40,70 @@ public class RsvrApexLexicalParserTest {
 
     @isTest(SeeAllData=false)
     static void test02() {
+        final String apexClassText = 'public class Sample01 {\n'
+        + '    public void sample() {\n'
+        + '        Boolean val1 = true;\n'
+        + '        Boolean val2 = false;\n'
+        + '        Integer val3 = 123;\n'
+        + '        Long val4 = 123L;\n'
+        + '        String val5 = \'ABC\'123\';\n'
+        + '    }';
+
+        final RsvrApexLexicalParser parser = new RsvrApexLexicalParser();
+        List<RsvrApexLexicalParser.LexicalToken> tokenList = parser.parse(apexClassText);
+        System.assertEquals(63, tokenList.size());
+    }
+
+    @isTest(SeeAllData=false)
+    static void test03() {
+        final String apexClassText = 'List<Account> aa = [SELECT Id, Name FROM Account WHERE Name = \'Acme\' AND CreatedDate < 1999-01-01T23:01:01-01:00];\n';
+
+        final RsvrApexLexicalParser parser = new RsvrApexLexicalParser();
+        List<RsvrApexLexicalParser.LexicalToken> tokenList = parser.parse(apexClassText);
+    }
+
+    @isTest(SeeAllData=false)
+    static void test04() {
+        final String apexClassText = 'List<Account> aa = [SELECT Id, Name FROM Account WHERE Name = \'Acme\' AND CreatedDate < 1999-01-01T23:01:01Z];\n';
+
+        final RsvrApexLexicalParser parser = new RsvrApexLexicalParser();
+        List<RsvrApexLexicalParser.LexicalToken> tokenList = parser.parse(apexClassText);
+    }
+
+    @isTest(SeeAllData=false)
+    static void test05() {
+        final String apexClassText = '1999-01-01';
+
+        final RsvrApexLexicalParser parser = new RsvrApexLexicalParser();
+        List<RsvrApexLexicalParser.LexicalToken> tokenList = parser.parse(apexClassText);
+    }
+
+    @isTest(SeeAllData=false)
+    static void test06() {
+        final String apexClassText = '// ABC123';
+
+        final RsvrApexLexicalParser parser = new RsvrApexLexicalParser();
+        List<RsvrApexLexicalParser.LexicalToken> tokenList = parser.parse(apexClassText);
+    }
+
+    @isTest(SeeAllData=false)
+    static void test07() {
+        final String apexClassText = '/** ABC */ /* DEF */';
+
+        final RsvrApexLexicalParser parser = new RsvrApexLexicalParser();
+        List<RsvrApexLexicalParser.LexicalToken> tokenList = parser.parse(apexClassText);
+    }
+
+    @isTest(SeeAllData=false)
+    static void test08() {
+        final String apexClassText = 'Boolean look1 = true;';
+
+        final RsvrApexLexicalParser parser = new RsvrApexLexicalParser();
+        List<RsvrApexLexicalParser.LexicalToken> tokenList = parser.parse(apexClassText);
+    }
+
+    @isTest(SeeAllData=false)
+    static void test90() {
         System.assertEquals(39, '\''.charAt(0));
         System.assertEquals(92, '\\'.charAt(0));
         System.assertEquals(8, '\b'.charAt(0));
