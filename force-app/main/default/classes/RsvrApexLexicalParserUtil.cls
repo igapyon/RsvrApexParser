@@ -123,13 +123,16 @@ public class RsvrApexLexicalParserUtil {
         return (separatorMap.get(val) != null);
     }
 
+    private static Map<String,String> operatorMap = null;
+
     public static Boolean isOperator(final String val) {
-        for (String look : RsvrApexConstants.OPERATORS) {
-            if (look.toLowerCase() == val.toLowerCase()) {
-                return true;
+        if (operatorMap == null) {
+            operatorMap = new Map<String,String>();
+            for (String look : RsvrApexConstants.OPERATORS) {
+                operatorMap.put(look.toLowerCase(),look);
             }
         }
-        return false;
+        return (operatorMap.get(val.toLowerCase())) != null;
     }
 
     public static Boolean isOperatorLetter(final Integer val) {
@@ -158,18 +161,17 @@ public class RsvrApexLexicalParserUtil {
     // Digit
     //     :   [0-9]
     //     ;
-
     public static Boolean isDigit(Integer val) {
-        if ('0'.charAt(0) == val
-        || '1'.charAt(0) == val
-        || '2'.charAt(0) == val
-        || '3'.charAt(0) == val
-        || '4'.charAt(0) == val
-        || '5'.charAt(0) == val
-        || '6'.charAt(0) == val
-        || '7'.charAt(0) == val
-        || '8'.charAt(0) == val
-        || '9'.charAt(0) == val) {
+        if (val == RsvrUnicodeConstants.LETTER_Digit_Zero
+        || val == RsvrUnicodeConstants.LETTER_Digit_One
+        || val == RsvrUnicodeConstants.LETTER_Digit_Two
+        || val == RsvrUnicodeConstants.LETTER_Digit_Three
+        || val == RsvrUnicodeConstants.LETTER_Digit_Four
+        || val == RsvrUnicodeConstants.LETTER_Digit_Five
+        || val == RsvrUnicodeConstants.LETTER_Digit_Six
+        || val == RsvrUnicodeConstants.LETTER_Digit_Seven
+        || val == RsvrUnicodeConstants.LETTER_Digit_Eight
+        || val == RsvrUnicodeConstants.LETTER_Digit_Nine) {
             return true;
         }
         return false;
