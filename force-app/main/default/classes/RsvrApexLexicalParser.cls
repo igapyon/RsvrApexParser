@@ -207,20 +207,6 @@ public class RsvrApexLexicalParser {
                 tokenList.add(tok);
                 continue;
             }
-
-            if (IS_DEBUG) System.debug('TRACE: parseBooleanLiteral: ');
-            tok = parseBooleanLiteral();
-            if (tok != null) {
-                tokenList.add(tok);
-                continue;
-            }
-            
-            if (IS_DEBUG) System.debug('TRACE: parseNullLiteral: ');
-            tok = parseNullLiteral();
-            if (tok != null) {
-                tokenList.add(tok);
-                continue;
-            }
                         
             // Do NOT enter here..
             {
@@ -244,7 +230,7 @@ public class RsvrApexLexicalParser {
     ///////////////////////////////////////
     // Parse
 
-    private KeywordToken parseKeyword() {
+    private LexicalToken parseKeyword() {
         procTime.enter('parseKeyword');
 
         input.mark();
@@ -270,6 +256,15 @@ public class RsvrApexLexicalParser {
                 input.move(input.pos() - 1);
 
                 String target = String.fromCharArray(targetList);
+                if (target.toLowerCase() == 'null') {
+                    // Hit
+                    input.mark();
+                    LiteralToken result = new LiteralToken();
+                    result.type = 'NullLiteral';
+                    result.target = target;
+                    result.original = result.target;
+                    return result;
+                }
                 if (RsvrApexLexicalParserUtil.isKeyword(target)) {
                     // Hit
                     input.mark();
@@ -581,6 +576,12 @@ public class RsvrApexLexicalParser {
                     return null;
                 }
 
+                // アルファベットなら違うもの。
+                if (RsvrApexLexicalParserUtil.isJavaLetter(next)) {
+                    input.reset();
+                    return null;
+                }
+
                 input.move(input.pos() - 1);
 
                 // Hit
@@ -662,6 +663,12 @@ public class RsvrApexLexicalParser {
                 return null;
             }
 
+            // アルファベットなら違うもの。
+            if (RsvrApexLexicalParserUtil.isJavaLetter(next)) {
+                input.reset();
+                return null;
+            }
+            
             input.move(input.pos() - 1);
 
             // Hit
@@ -680,43 +687,6 @@ public class RsvrApexLexicalParser {
     //     :   'true'
     //     |   'false'
     //     ;
-    private LiteralToken parseBooleanLiteral() {
-        procTime.enter('parseBooleanLiteral');
-        input.mark();
-
-        LiteralToken result = new LiteralToken();
-        result.type = 'BooleanLiteral';
-
-        result.target = '';
-        Boolean isExist = false;
-        for (;;) {
-            Integer next = input.readChar();
-            if (RsvrApexLexicalParserUtil.isJavaLetter(next)) {
-                isExist = true;
-                result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
-                continue;
-            } else {
-                if (isExist == false) {
-                    input.reset();
-                    return null;
-                }
-
-                input.move(input.pos() - 1);
-
-                if ('true' == result.target.toLowerCase()
-                || 'false' == result.target.toLowerCase()) {
-                    // Hit
-                    input.mark();
-                    result.original = result.target;
-                    return result;
-                }
-                break;
-            }
-        }
-
-        input.reset();
-        return null;
-    }
 
     // // §3.10.5 String Literals
 
@@ -870,43 +840,6 @@ public class RsvrApexLexicalParser {
     // NullLiteral
     //     :   NULL
     //     ;
-    private LiteralToken parseNullLiteral() {
-        procTime.enter('parseNullLiteral');
-
-        input.mark();
-
-        LiteralToken result = new LiteralToken();
-        result.type = 'NullLiteral';
-
-        result.target = '';
-        Boolean isExist = false;
-        for (;;) {
-            Integer next = input.readChar();
-            if (RsvrApexLexicalParserUtil.isJavaLetter(next)) {
-                isExist = true;
-                result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
-                continue;
-            } else {
-                if (isExist == false) {
-                    input.reset();
-                    return null;
-                }
-
-                input.move(input.pos() - 1);
-
-                if ('null' == result.target.toLowerCase()) {
-                    // Hit
-                    input.mark();
-                    result.original = result.target;
-                    return result;
-                }
-                break;
-            }
-        }
-
-        input.reset();
-        return null;
-    }
 
     /**
      * Parse separator.
@@ -1024,7 +957,7 @@ public class RsvrApexLexicalParser {
     // Identifier
     //     :   JavaLetter JavaLetterOrDigit*
     //     ;
-    private IdentifierToken parseIdentifier() {
+    private LexicalToken parseIdentifier() {
         procTime.enter('parseIdentifier');
 
         input.mark();
@@ -1066,9 +999,20 @@ public class RsvrApexLexicalParser {
             // Hit
             input.mark();
 
+            final String target = String.fromCharArray(targetList);
+
+            if (target.toLowerCase() == 'true'
+            || target.toLowerCase() == 'false') {
+                LiteralToken result = new LiteralToken();
+                result.type = 'BooleanLiteral';
+                result.target = target;
+                result.original = result.target;
+                return result;
+            }
+
             IdentifierToken result = new IdentifierToken();
             result.type = 'Identifier';
-            result.target = String.fromCharArray(targetList);
+            result.target = target;
             result.original = result.target;
             return result;
         }
