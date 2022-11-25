@@ -22,4 +22,6 @@
  * @since 2022-11-23
  */
 public class RsvrApexSyntaxParser {
+    public void parse() {
+    }
 }

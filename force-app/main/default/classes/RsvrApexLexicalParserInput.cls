@@ -31,6 +31,11 @@ public class RsvrApexLexicalParserInput {
     private Integer currentPos = -1;
     private Integer markPos = -1;
 
+    /**
+     * コンストラクタ。
+     * 
+     * @param apexClassText 解析対象の Apex Class のテキスト。
+     */
     public RsvrApexLexicalParserInput(String apexClassText) {
         final RsvrProcTime procTime = new RsvrProcTime('RsvrApexLexicalParserInput');
         procTime.enter('RsvrApexLexicalParserInput');

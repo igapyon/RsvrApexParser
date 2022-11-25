@@ -25,5 +25,7 @@
 private class RsvrApexSyntaxParserTest {
     @isTest(SeeAllData=false)
     static void test01() {
+        RsvrApexSyntaxParser parser = new RsvrApexSyntaxParser();
+        parser.parse();
     }
 }

@@ -204,16 +204,19 @@ public class RsvrApexLexicalParserUtil {
     //
 
     public static String readApexClassBody(String apexClassName) {
-        ApexClass apc = [SELECT Name, Body, NamespacePrefix
-            FROM ApexClass
-            WHERE Status = 'Active'
-            AND Name = :apexClassName
-            LIMIT 1];
-
-        if (apc == null) {
+        try {
+            ApexClass apc = [SELECT Name, Body, NamespacePrefix
+                FROM ApexClass
+                WHERE Status = 'Active'
+                AND Name = :apexClassName
+                LIMIT 1];
+            if (apc == null) {
+                return null;
+            }
+            return apc.Body;
+        } catch (System.QueryException ex) {
             return null;
         }
-        return apc.Body;
     }
 
     public static void validateLexicalParser(String apexClassNameWithoutExt, Boolean isDumpMode) {
