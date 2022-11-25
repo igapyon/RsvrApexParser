@@ -168,6 +168,7 @@ public class RsvrApexLexicalParserTest {
         RsvrApexLexicalParser.LexicalToken current = tokenList.get(index++);
         System.assertEquals('NumberLiteral', current.type);
         System.assertEquals('123.456', current.target);
+        System.assertEquals('123.456', current.original);
 
         System.assertEquals(1, tokenList.size());
     }
@@ -181,14 +182,15 @@ public class RsvrApexLexicalParserTest {
         Integer index = 0;
         RsvrApexLexicalParser.LexicalToken current = tokenList.get(index++);
         System.assertEquals('LongLiteral', current.type);
-        System.assertEquals('123L', current.target);
+        System.assertEquals('123', current.target);
+        System.assertEquals('123L', current.original);
 
         System.assertEquals(1, tokenList.size());
     }
 
     @isTest(SeeAllData=false)
     static void test09() {
-        final String apexClassText = '123;';
+        final String apexClassText = '123';
         final RsvrApexLexicalParser parser = new RsvrApexLexicalParser();
         List<RsvrApexLexicalParser.LexicalToken> tokenList = parser.parse(apexClassText);
 
@@ -196,7 +198,12 @@ public class RsvrApexLexicalParserTest {
         RsvrApexLexicalParser.LexicalToken current = tokenList.get(index++);
         System.assertEquals('IntegerLiteral', current.type);
         System.assertEquals('123', current.target);
+        System.assertEquals('123', current.original);
 
-        System.assertEquals(2, tokenList.size());
+        System.assertEquals(1, tokenList.size());
     }
+
+    //////////////////////////////
+    // memo
+    // RsvrApexLexicalParserUtil.validateLexicalParser('RsvrApexLexicalParser', false);
 }

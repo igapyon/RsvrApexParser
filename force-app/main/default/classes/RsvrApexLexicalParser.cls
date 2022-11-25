@@ -192,14 +192,6 @@ public class RsvrApexLexicalParser {
                 tokenList.add(tok);
                 continue;
             }
-
-            // LongのパースはIntegerより先に実施。
-            if (IS_DEBUG) System.debug('TRACE: parseLongLiteral: ');
-            tok = parseLongLiteral();
-            if (tok != null) {
-                tokenList.add(tok);
-                continue;
-            }
                         
             // Do NOT enter here..
             {
@@ -552,43 +544,6 @@ public class RsvrApexLexicalParser {
     //     : Digit Digit* [lL]
     //     ;
 
-    private LiteralToken parseLongLiteral() {
-        procTime.enter('parseLongLiteral');
-        input.mark();
-
-        LiteralToken result = new LiteralToken();
-        result.type = 'LongLiteral';
-
-        result.target = '';
-        Boolean isFirst = true;
-        for (;;) {
-            Integer next = input.readChar();
-            // アルファベットなら違うもの。
-            if (isFirst && RsvrApexLexicalParserUtil.isJavaLetter(next)) {
-                input.reset();
-                return null;
-            }
-            if (RsvrApexLexicalParserUtil.isDigit(next)) {
-                isFirst = false;
-                result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
-                continue;
-            }
-            if (isFirst == false && (next == 105 /* [l] */ || next == 76 /* [L] */)) {
-                result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
-
-                // Hit
-                input.mark();
-                result.original = result.target;
-                return result;
-            }
-            input.reset();
-            return null;
-        }
-
-        input.reset();
-        return null;
-    }
-
     // NumberLiteral
     //     :   Digit* '.' Digit Digit* [dD]?
     //     ;
@@ -596,61 +551,81 @@ public class RsvrApexLexicalParser {
         procTime.enter('parseNumberLiteral');
         input.mark();
 
-        LiteralToken result = new LiteralToken();
-        result.type = 'NumberLiteral';
+        Integer first = input.readChar();
+        if (RsvrApexLexicalParserUtil.isDigit(first) == false) {
+            input.reset();
+            return null;
+        }
 
-        result.target = '';
-        Boolean isFirst = true;
-        Boolean isExist = false;
+        // 数字が確定
+        final List<Integer> targetList = new List<Integer>();
+        final List<Integer> targetOriginalList = new List<Integer>();
+
+        targetList.add(first);
+        targetOriginalList.add(first);
+
         Boolean isDotExist = false;
         for (;;) {
             Integer next = input.readChar();
             System.debug('next: ' + RsvrApexLexicalParserUtil.int2string(next));
-            // アルファベットなら違うもの。
-            if (isFirst && RsvrApexLexicalParserUtil.isJavaLetter(next)) {
-                input.reset();
-                return null;
-            }
-            if (RsvrApexLexicalParserUtil.isDigit(next)) {
-                isFirst = false;
-                isExist = true;
-                result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
-                continue;
-            }
-            if (isFirst == false && isDotExist == false && next == 46 /* [.] */) {
-                isDotExist = true;
-                result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
-                continue;
+            if (next == -1) {
+                // end of file.
+                input.mark();
+                break;
             }
 
             if (next == RsvrUnicodeConstants.LETTER_Latin_Capital_Letter_D
-            || next == RsvrUnicodeConstants.LETTER_Latin_Small_Letter_D) {
+              || next == RsvrUnicodeConstants.LETTER_Latin_Small_Letter_D) {
+                // dD
+                input.mark();
+                targetOriginalList.add(next);
+                LiteralToken result = new LiteralToken();
+                result.type = 'NumberLiteral';
+                result.target = String.fromCharArray(targetList);
+                result.original = String.fromCharArray(targetOriginalList);
+                return result;
+            }
+            if (next == RsvrUnicodeConstants.LETTER_Latin_Capital_Letter_L
+              || next == RsvrUnicodeConstants.LETTER_Latin_Small_Letter_L) {
+                // lL
+                input.mark();
+                targetOriginalList.add(next);
+                LiteralToken result = new LiteralToken();
+                result.type = 'LongLiteral';
+                result.target = String.fromCharArray(targetList);
+                result.original = String.fromCharArray(targetOriginalList);
+                return result;
+            }
+            if (RsvrApexLexicalParserUtil.isDigit(next)) {
+                targetOriginalList.add(next);
+                targetList.add(next);
+                continue;
+            }
+            if (next == RsvrUnicodeConstants.LETTER_Full_Stop) {
                 isDotExist = true;
-                result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
-            } else {
-                // アルファベットなら違うもの。
-                if (RsvrApexLexicalParserUtil.isJavaLetter(next)) {
-                    input.reset();
-                    return null;
-                }
-
-                input.move(input.pos() - 1);
+                targetOriginalList.add(next);
+                targetList.add(next);
+                continue;
             }
-            // Hit
-            input.mark();
 
-            if (isDotExist == false) {
-                result.type = 'IntegerLiteral';
-                result.original = result.target;
-                return result;
-            } else {
-                result.original = result.target;
-                return result;
-            }
+            // 廃棄
+            input.move(input.pos() - 1);
+
+            break;
         }
 
-        input.reset();
-        return null;
+        // ここまできたら値確定
+        input.mark();
+        LiteralToken result = new LiteralToken();
+        result.target = String.fromCharArray(targetList);
+        result.original = String.fromCharArray(targetOriginalList);
+        if (isDotExist) {
+            result.type = 'NumberLiteral';
+            return result;
+        } else {
+            result.type = 'IntegerLiteral';
+            return result;
+        }
     }
 
     // // §3.10.3 Boolean Literals
