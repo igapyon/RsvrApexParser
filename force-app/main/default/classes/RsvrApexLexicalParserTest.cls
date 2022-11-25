@@ -204,6 +204,21 @@ public class RsvrApexLexicalParserTest {
     }
 
     @isTest(SeeAllData=false)
+    static void test09b() {
+        final String apexClassText = '123D';
+        final RsvrApexLexicalParser parser = new RsvrApexLexicalParser();
+        List<RsvrApexLexicalParser.LexicalToken> tokenList = parser.parse(apexClassText);
+
+        Integer index = 0;
+        RsvrApexLexicalParser.LexicalToken current = tokenList.get(index++);
+        System.assertEquals('NumberLiteral', current.type);
+        System.assertEquals('123', current.target);
+        System.assertEquals('123D', current.original);
+
+        System.assertEquals(1, tokenList.size());
+    }
+
+    @isTest(SeeAllData=false)
     static void test10() {
         final String apexClassText = '// COMMENT';
         final RsvrApexLexicalParser parser = new RsvrApexLexicalParser();
@@ -289,6 +304,21 @@ public class RsvrApexLexicalParserTest {
         System.assertEquals('BooleanLiteral', current.type);
         System.assertEquals('false', current.target);
         System.assertEquals('false', current.original);
+
+        System.assertEquals(1, tokenList.size());
+    }
+
+    @isTest(SeeAllData=false)
+    static void test16() {
+        final String apexClassText = 'public';
+        final RsvrApexLexicalParser parser = new RsvrApexLexicalParser();
+        List<RsvrApexLexicalParser.LexicalToken> tokenList = parser.parse(apexClassText);
+
+        Integer index = 0;
+        RsvrApexLexicalParser.LexicalToken current = tokenList.get(index++);
+        System.assertEquals('Keyword', current.type);
+        System.assertEquals('public', current.target);
+        System.assertEquals('public', current.original);
 
         System.assertEquals(1, tokenList.size());
     }
