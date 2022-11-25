@@ -15,7 +15,11 @@
  */
 
 /**
- * Lexical Parser for Apex Language.
+ * Reservoir Apex Language Parser.
+ * 
+ * This class provide Lexical Parser for Apex Language.
+ * 
+ * @since 2022-11-23
  */
 public class RsvrApexLexicalParser {
     private static final Boolean IS_DEBUG = false;

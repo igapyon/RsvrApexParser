@@ -15,7 +15,7 @@
  */
 
 /**
- * Unicode Constants.
+ * Unicode Constants for Apex.
  */
 public class RsvrUnicodeConstants {
     public static final Integer NUL = 0; // Null character [U+0000]

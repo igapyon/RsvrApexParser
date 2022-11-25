@@ -15,7 +15,11 @@
  */
 
 /**
- * Constants class for Apex Language.
+ * Reservoir Apex Language Parser.
+ * 
+ * This class provide Constants of Apex Language.
+ * 
+ * @since 2022-11-23
  */
 public class RsvrApexConstants {
     public static final Integer KEY_ABSTRACT = 0;

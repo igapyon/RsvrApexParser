@@ -15,7 +15,11 @@
  */
 
 /**
- * Trace Process time.
+ * Measure Process Time.
+ * 
+ * This class provide Apex test.
+ * 
+ * @since 2022-11-23
  */
- public class RsvrProcTimeTest {
- }
+public class RsvrProcTimeTest {
+}

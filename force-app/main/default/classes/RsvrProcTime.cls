@@ -15,14 +15,16 @@
  */
 
 /**
- * Trace Process time.
+ * Measure Process Time.
  * 
  * 処理時間を計測するためのクラス。
  * 
  * `System.LimitException: Apex CPU time limit exceeded` の調査・解消などの作業にて役立ちます。
+ * 
  * @version v1.0.20221125a
+ * @since 2022-11-23
  */
- public class RsvrProcTime {
+public class RsvrProcTime {
     private final Map<String,Long> procTimeMap = new Map<String,Long>();
     private final Map<String,Integer> procCountMap = new Map<String,Integer>();
 
