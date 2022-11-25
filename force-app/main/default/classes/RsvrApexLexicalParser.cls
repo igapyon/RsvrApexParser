@@ -607,6 +607,12 @@ public class RsvrApexLexicalParser {
             // 廃棄
             input.move(input.pos() - 1);
 
+            if (RsvrApexLexicalParserUtil.isJavaLetter(next)) {
+                // DONT.
+                input.reset();
+                return null;
+            }
+
             break;
         }
 
