@@ -111,13 +111,16 @@ public class RsvrApexLexicalParserUtil {
         return (keywordMap.get(val.toLowerCase()) != null);
     }
 
-    public static Boolean isSeparator(final String val) {
-        for (String look : RsvrApexConstants.SEPARATORS) {
-            if (look.toLowerCase() == val.toLowerCase()) {
-                return true;
+    private static Map<Integer,String> separatorMap = null;
+
+    public static Boolean isSeparator(final Integer val) {
+        if (separatorMap == null) {
+            separatorMap = new Map<Integer,String>();
+            for (String look : RsvrApexConstants.SEPARATORS) {
+                separatorMap.put(look.charAt(0),look);
             }
         }
-        return false;
+        return (separatorMap.get(val) != null);
     }
 
     public static Boolean isOperator(final String val) {

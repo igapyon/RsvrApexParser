@@ -910,7 +910,7 @@ public class RsvrApexLexicalParser {
 
         for (;;) {
             Integer next = input.readChar();
-            if (RsvrApexLexicalParserUtil.isSeparator(RsvrApexLexicalParserUtil.int2string(next))) {
+            if (RsvrApexLexicalParserUtil.isSeparator(next)) {
                 SeparatorToken result = new SeparatorToken();
                 result.type = 'Separator';
                 result.target = RsvrApexLexicalParserUtil.int2string(next);
