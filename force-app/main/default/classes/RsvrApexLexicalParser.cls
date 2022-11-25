@@ -717,9 +717,6 @@ public class RsvrApexLexicalParser {
         input.mark();
         final Boolean IS_LOCAL_DEBUG = false;
 
-        LiteralToken result = new LiteralToken();
-        result.type = 'StringLiteral';
-
         // canma should be first.
         Integer first = input.readChar();
         if (first != 39 /* ['] */) {
@@ -728,9 +725,11 @@ public class RsvrApexLexicalParser {
         }
         if (IS_LOCAL_DEBUG) System.debug('TRACE: Start of string literal.');
 
+        final List<Integer> targetList = new List<Integer>();
+        final List<Integer> targetOriginalList = new List<Integer>();
+
         // start string literal.
-        result.original = RsvrApexLexicalParserUtil.int2string(first);
-        result.target = '';
+        targetOriginalList.add(first);
         for (;;) {
             final Integer next = input.readChar();
             if (IS_LOCAL_DEBUG) System.debug('TRACE: Next char[' + RsvrApexLexicalParserUtil.int2string(next) + ']');
@@ -740,6 +739,10 @@ public class RsvrApexLexicalParser {
                 // End of file.
                 // Unexpected.
                 input.mark();
+                LiteralToken result = new LiteralToken();
+                result.type = 'StringLiteral';
+                result.target = String.fromCharArray(targetList);
+                result.original = String.fromCharArray(targetOriginalList);
                 return result;
             }
             if (next == 39 /* [Camma] */) {
@@ -747,8 +750,11 @@ public class RsvrApexLexicalParser {
 
                 // end of string literal.
                 input.mark();
-                result.original = result.original + RsvrApexLexicalParserUtil.int2string(next);
-                if (IS_LOCAL_DEBUG) System.debug('TRACE: String literal value.: ' + result.original);
+                targetOriginalList.add(next);
+                LiteralToken result = new LiteralToken();
+                result.type = 'StringLiteral';
+                result.target = String.fromCharArray(targetList);
+                result.original = String.fromCharArray(targetOriginalList);
                 return result;
             }
 
@@ -756,40 +762,40 @@ public class RsvrApexLexicalParser {
             if (next == 92 /* [bs] */) {
                 if (IS_LOCAL_DEBUG) System.debug('TRACE: Escape began.');
                 // Escape begin.
-                result.original = result.original + RsvrApexLexicalParserUtil.int2string(next);
+                targetOriginalList.add(next);
 
                 Integer next2 = input.readChar();
-                result.original = result.original + RsvrApexLexicalParserUtil.int2string(next2);
+                targetOriginalList.add(next2);
                 if (next2 == 98 /* [b] */) {
                     if (IS_LOCAL_DEBUG) System.debug('TRACE: Escape + b');
-                    result.target = result.target + 8 /* [b] */;
+                    targetList.add(8 /* [b] */);
                     continue;
                 }
                 if (next2 == 116 /* [t] */) {
                     if (IS_LOCAL_DEBUG) System.debug('TRACE: Escape + t');
-                    result.target = result.target + 9 /* [t] */;
+                    targetList.add(9 /* [t] */);
                     continue;
                 }
                 if (next2 == 110 /* [n] */) {
                     if (IS_LOCAL_DEBUG) System.debug('TRACE: Escape + n');
-                    result.target = result.target + 10 /* [n] */;
+                    targetList.add(10 /* [n] */);
                     continue;
                 }
                 if (next2 == 102 /* [f] */) {
                     if (IS_LOCAL_DEBUG) System.debug('TRACE: Escape + f');
-                    result.target = result.target + 12 /* [f] */;
+                    targetList.add(12 /* [f] */);
                     continue;
                 }
                 if (next2 == 114 /* [r] */) {
                     if (IS_LOCAL_DEBUG) System.debug('TRACE: Escape + r');
-                    result.target = result.target + 13 /* [r] */;
+                    targetList.add(13 /* [r] */);
                     continue;
                 }
                 if (next2 == 34 /* ["] */
                 || next2 == 39 /* [Camma] */
                 || next2 == 92 /* [backslash] */) {
                     if (IS_LOCAL_DEBUG) System.debug('TRACE: Escape + double/kanma,backslash');
-                    result.target = result.target + RsvrApexLexicalParserUtil.int2string(next2);
+                    targetList.add(next2);
                     continue;
                 }
                 // 'u' HexCharacter HexCharacter HexCharacter HexCharacter
@@ -816,19 +822,23 @@ public class RsvrApexLexicalParser {
                         break;
                     }
                     String hexTarget = RsvrApexLexicalParserUtil.int2string(hex1) + RsvrApexLexicalParserUtil.int2string(hex2) + RsvrApexLexicalParserUtil.int2string(hex3) + RsvrApexLexicalParserUtil.int2string(hex4);
-                    result.original = result.original + hexTarget;
+                    targetOriginalList.add(hex1);
+                    targetOriginalList.add(hex2);
+                    targetOriginalList.add(hex3);
+                    targetOriginalList.add(hex4);
                     // Hex錬成
                     Blob blobHexTarget = EncodingUtil.convertFromHex(hexTarget);
-                    result.target = result.target + blobHexTarget;
+                    // TODO FIXME 多分バグっている
+                    targetList.add(blobHexTarget.toString().charAt(0));
                     continue;
                 }
                 // エスケープ中の想定外のコース。ここに入ってはダメ。
-                System.debug('Fatal: Skipped char: ' + RsvrApexLexicalParserUtil.int2string(next2) + ', target[' + result + ']');
+                System.debug('Fatal: Skipped char: ' + RsvrApexLexicalParserUtil.int2string(next2));
                 break;
             }
 
-            result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
-            result.original = result.original + RsvrApexLexicalParserUtil.int2string(next);
+            targetOriginalList.add(next);
+            targetList.add(next);
         }
 
         input.reset();
