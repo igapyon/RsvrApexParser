@@ -67,6 +67,12 @@ public class RsvrApexLexicalParser {
     ////////////////////////////////
     // Mail process loop.
 
+    /**
+     * Parse given Apex Class text.
+     * 
+     * @param apexClassText Apex Class Text.
+     * @return List of LexicalToken.
+     */
     public List<LexicalToken> parse(String apexClassText) {
         input = new RsvrApexLexicalParserInput(apexClassText);
 

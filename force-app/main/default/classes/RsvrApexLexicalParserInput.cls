@@ -15,34 +15,41 @@
  */
 
 /**
- * Input parser for Lexical parse.
+ * Reservoir Apex Language Parser.
+ * 
+ * This class provide buffered input for Lexical Parser.
+ * 
+ * @since 2022-11-23
  */
 public class RsvrApexLexicalParserInput {
     private String originalApexClassText;
+    // CPUコスト低減化のためにListではなくMapで保持します。
     private Map<Integer,Integer> apexClassCharMap = new Map<Integer,Integer>();
+
+    // 現在処理位置情報。
     private Integer apexClassCharListSize = -1;
     private Integer currentPos = -1;
     private Integer markPos = -1;
 
     public RsvrApexLexicalParserInput(String apexClassText) {
+        final RsvrProcTime procTime = new RsvrProcTime('RsvrApexLexicalParserInput');
+        procTime.enter('RsvrApexLexicalParserInput');
+    
         originalApexClassText = apexClassText;
-        apexClassCharListSize = apexClassText.length();
 
-        // これだとバックスラッシュが消失する。
-        //this.apexClassCharList = apexClassText.getChars();
+        // 注意：以下の getChars() によるコードでは、バックスラッシュが消失する回復不能な問題があります。
+        // this.apexClassCharList = apexClassText.getChars();
 
         // 有利/不利があるのだろうか。
-        Long startMS = Datetime.now().getTime();
-        List<Integer> result = new List<Integer>();
-        Integer len = apexClassText.length();
+        final List<Integer> result = new List<Integer>();
+        final Integer len = apexClassText.length();
         for (Integer i = 0; i < len; i++) {
             apexClassCharMap.put(i, apexClassText.charAt(i));
         }
-        Long endMS = Datetime.now().getTime();
-        System.debug('TRACE: loop + add: ' + (endMS - startMS));
+        // CPUコストを減らすためにサイズを記憶します。
+        apexClassCharListSize = len;
 
-        // ワークアラウンド。バックスラッシュは増やしてしまえば良い。（自信はないがぱっと見は動作する）
-        //this.apexClassCharList = apexClassText.replace('\\','\\\\').getChars();
+        procTime.close();
     }
 
     public Integer readChar() {

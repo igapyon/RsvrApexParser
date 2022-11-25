@@ -15,7 +15,11 @@
  */
 
 /**
- * Apex Lexical Parser util.
+ * Reservoir Apex Language Parser.
+ * 
+ * This class provide Utilities for Lexical Parser.
+ * 
+ * @since 2022-11-23
  */
 public class RsvrApexLexicalParserUtil {
     private static final Map<Integer, String> int2stringMap = new Map<Integer, String>();
