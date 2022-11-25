@@ -23,6 +23,10 @@
  */
 @isTest(SeeAllData=false)
 private class RsvrApexLexicalParserTest13 {
+    /**
+     * DATETIME についての定数が正しく動作することを確認。
+     */
+
     // DATETIME 比較
     @isTest(SeeAllData=false)
     static void test01() {

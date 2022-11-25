@@ -23,7 +23,7 @@
  */
 @isTest(SeeAllData=false)
 private class RsvrApexLexicalParserTest11 {
-    // SOQL および SOSL クエリ
+    // SOQL および SOSL クエリのごく基本的なもののテスト。
     // https://developer.salesforce.com/docs/atlas.ja-jp.apexcode.meta/apexcode/langCon_apex_SOQL.htm
 
     @isTest(SeeAllData=false)

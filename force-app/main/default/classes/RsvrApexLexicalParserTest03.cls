@@ -23,19 +23,20 @@
  */
 @isTest(SeeAllData=false)
 private class RsvrApexLexicalParserTest03 {
-    private static final Boolean IS_APEXCLASS_OBJECTREAD = false;
-
+    /**
+     * ApexClass オブジェクトに格納されている Apex Class を新しいものから10個試みでパースする。
+     */
     @isTest(SeeAllData=false)
     static void test01() {
         List<ApexClass> apcList = [SELECT Name, Body, NamespacePrefix
             FROM ApexClass
             WHERE Status = 'Active'
             ORDER BY LastModifiedDate DESC
-            LIMIT 10];
+            LIMIT 1];
 
         for (ApexClass apc : apcList) {
             System.debug('Check: ' + apc.Name);
-            if (IS_APEXCLASS_OBJECTREAD) RsvrApexLexicalParserUtil.validateLexicalParser(apc.Name, false);
+            RsvrApexLexicalParserUtil.validateLexicalParser(apc.Name, false);
         }
     }
 }

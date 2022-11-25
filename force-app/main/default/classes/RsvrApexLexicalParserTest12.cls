@@ -25,6 +25,10 @@
 private class RsvrApexLexicalParserTest12 {
     // Literals
 
+    /**
+     * 文字列リテラルのエスケープに関する簡単な確認。
+     */
+
     @isTest(SeeAllData=false)
     static void test01() {
         Integer val1 = 123;

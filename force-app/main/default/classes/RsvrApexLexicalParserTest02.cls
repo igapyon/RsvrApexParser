@@ -23,60 +23,7 @@
  */
 @isTest(SeeAllData=false)
 private class RsvrApexLexicalParserTest02 {
-    private static final Boolean IS_APEXCLASS_OBJECTREAD = false;
-
     @isTest(SeeAllData=false)
     static void test01() {
-        if (IS_APEXCLASS_OBJECTREAD) RsvrApexLexicalParserUtil.validateLexicalParser('RsvrApexLexicalParser', false);
-    }
-
-    @isTest(SeeAllData=false)
-    static void test02() {
-        if (IS_APEXCLASS_OBJECTREAD) RsvrApexLexicalParserUtil.validateLexicalParser('RsvrApexLexicalParserTest', false);
-    }
-
-    @isTest(SeeAllData=false)
-    static void test03() {
-        if (IS_APEXCLASS_OBJECTREAD) RsvrApexLexicalParserUtil.validateLexicalParser('RsvrApexLexicalParserInput', false);
-    }
-
-    @isTest(SeeAllData=false)
-    static void test04() {
-        if (IS_APEXCLASS_OBJECTREAD) RsvrApexLexicalParserUtil.validateLexicalParser('RsvrApexLexicalParserInputTest', false);
-    }
-
-    @isTest(SeeAllData=false)
-    static void test05() {
-        if (IS_APEXCLASS_OBJECTREAD) RsvrApexLexicalParserUtil.validateLexicalParser('RsvrApexLexicalParserUtil', false);
-    }
-
-    @isTest(SeeAllData=false)
-    static void test06() {
-        if (IS_APEXCLASS_OBJECTREAD) RsvrApexLexicalParserUtil.validateLexicalParser('RsvrApexLexicalParserUtilTest', false);
-    }
-
-    @isTest(SeeAllData=false)
-    static void test07() {
-        if (IS_APEXCLASS_OBJECTREAD) RsvrApexLexicalParserUtil.validateLexicalParser('RsvrApexSyntaxParser', false);
-    }
-
-    @isTest(SeeAllData=false)
-    static void test08() {
-        if (IS_APEXCLASS_OBJECTREAD) RsvrApexLexicalParserUtil.validateLexicalParser('RsvrApexSyntaxParserTest', false);
-    }
-
-    @isTest(SeeAllData=false)
-    static void test11() {
-        if (IS_APEXCLASS_OBJECTREAD) RsvrApexLexicalParserUtil.validateLexicalParser('RsvrApexLexicalParserTest11', false);
-    }
-
-    @isTest(SeeAllData=false)
-    static void test12() {
-        if (IS_APEXCLASS_OBJECTREAD) RsvrApexLexicalParserUtil.validateLexicalParser('RsvrApexLexicalParserTest12', false);
-    }
-
-    @isTest(SeeAllData=false)
-    static void test13() {
-        if (IS_APEXCLASS_OBJECTREAD) RsvrApexLexicalParserUtil.validateLexicalParser('RsvrApexLexicalParserTest13', false);
     }
 }
