@@ -63,8 +63,8 @@ public class RsvrProcTime {
         currentProcName = procName;
         currentProcEnterTime = enterTime;
 
-        if (Math.mod(++callCounter,10000) == 0) {
-            // 1万回に1回はダンプします。
+        if (Math.mod(++callCounter,5000) == 0) {
+            // 5000回に1回はダンプします。
             dump();
         }
     }
@@ -84,7 +84,7 @@ public class RsvrProcTime {
     /**
      * 計測結果を標準出力にダンプします。
      * 
-     * enter() 呼び出し1万回に1回は自動的に呼び出されます。
+     * enter() 呼び出し5000回に1回は自動的に呼び出されます。
      */
     public void dump() {
         String message = '\n\n' + procTimeName + ':\n';
