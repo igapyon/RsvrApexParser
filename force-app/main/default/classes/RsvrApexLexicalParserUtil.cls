@@ -133,13 +133,13 @@ public class RsvrApexLexicalParserUtil {
     }
 
     public static Boolean isOperatorLetter(final Integer val) {
-        if ('='.charAt(0) == val
-        || '>'.charAt(0) == val
-        || '<'.charAt(0) == val
-        || '~'.charAt(0) == val
-        || '?'.charAt(0) == val
-        || '.'.charAt(0) == val
-        || ':'.charAt(0) == val
+        if (61 /*[=]*/ == val
+        || 62  /*[>]*/ == val
+        || 60  /*[<]*/ == val
+        || 126 /*[~]*/ == val
+        || 63  /*[?]*/ == val
+        || 46  /*[.]*/ == val
+        || 58  /*[:]*/ == val
         || '='.charAt(0) == val
         || '!'.charAt(0) == val
         || '&'.charAt(0) == val
