@@ -24,22 +24,116 @@
 @isTest(SeeAllData=false)
 private class RsvrApexLexicalParserTest03 {
     /**
-     * ApexClass オブジェクトに格納されている Apex Class を新しいものから10個試みでパースする。
+     * SFDC さん提供のサンプルをトライ。
      */
     @isTest(SeeAllData=false)
     static void test01() {
-        try {
-            List<ApexClass> apcList = [SELECT Name, Body, NamespacePrefix
-                FROM ApexClass
-                WHERE Status = 'Active'
-                ORDER BY LastModifiedDate DESC
-                LIMIT 1];
+        final String apexClassText = '@isTest(SeeAllData=false)\n'
+        + 'private class RsvrApexLexicalParserTest11 {\n'
+        + '    // SOQL および SOSL クエリ\n'
+        + '    @isTest(SeeAllData=false)\n'
+        + '    static void test01() {\n'
+        + '        List<Account> aa = [SELECT Id, Name FROM Account WHERE Name = \'Acme\'];\n'
+        + '    }';
 
-            for (ApexClass apc : apcList) {
-                System.debug('Check: ' + apc.Name);
-                RsvrApexLexicalParserUtil.validateLexicalParser(apc.Name, false);
-            }
-        } catch (QueryException ex) {
-        }
+        final RsvrApexLexicalParser parser = new RsvrApexLexicalParser();
+        List<RsvrApexLexicalParser.LexicalToken> tokenList = parser.parse(apexClassText);
+        System.assertEquals(68, tokenList.size());
+    }
+
+    @isTest(SeeAllData=false)
+    static void test02() {
+        final String apexClassText = 'public class Sample01 {\n'
+        + '    public void sample() {\n'
+        + '        Boolean val1 = true;\n'
+        + '        Boolean val2 = false;\n'
+        + '        Integer val3 = 123;\n'
+        + '        Long val4 = 123L;\n'
+        + '        String val5 = \'ABC\'123\';\n'
+        + '    }';
+
+        final RsvrApexLexicalParser parser = new RsvrApexLexicalParser();
+        List<RsvrApexLexicalParser.LexicalToken> tokenList = parser.parse(apexClassText);
+        System.assertEquals(63, tokenList.size());
+    }
+
+    @isTest(SeeAllData=false)
+    static void test03() {
+        final String apexClassText = 'List<Account> aa = [SELECT Id, Name FROM Account WHERE Name = \'Acme\' AND CreatedDate < 1999-01-01T23:01:01-01:00];\n';
+
+        final RsvrApexLexicalParser parser = new RsvrApexLexicalParser();
+        List<RsvrApexLexicalParser.LexicalToken> tokenList = parser.parse(apexClassText);
+    }
+
+    @isTest(SeeAllData=false)
+    static void test04() {
+        final String apexClassText = 'List<Account> aa = [SELECT Id, Name FROM Account WHERE Name = \'Acme\' AND CreatedDate < 1999-01-01T23:01:01Z];\n';
+
+        final RsvrApexLexicalParser parser = new RsvrApexLexicalParser();
+        List<RsvrApexLexicalParser.LexicalToken> tokenList = parser.parse(apexClassText);
+    }
+
+    @isTest(SeeAllData=false)
+    static void test05() {
+        final String apexClassText = '1999-01-01';
+
+        final RsvrApexLexicalParser parser = new RsvrApexLexicalParser();
+        List<RsvrApexLexicalParser.LexicalToken> tokenList = parser.parse(apexClassText);
+    }
+
+    @isTest(SeeAllData=false)
+    static void test06() {
+        final String apexClassText = '// ABC123';
+
+        final RsvrApexLexicalParser parser = new RsvrApexLexicalParser();
+        List<RsvrApexLexicalParser.LexicalToken> tokenList = parser.parse(apexClassText);
+    }
+
+    @isTest(SeeAllData=false)
+    static void test07() {
+        final String apexClassText = '/** ABC */ /* DEF */';
+
+        final RsvrApexLexicalParser parser = new RsvrApexLexicalParser();
+        List<RsvrApexLexicalParser.LexicalToken> tokenList = parser.parse(apexClassText);
+    }
+
+    @isTest(SeeAllData=false)
+    static void test08() {
+        final String apexClassText = 'Boolean look1 = true;';
+
+        final RsvrApexLexicalParser parser = new RsvrApexLexicalParser();
+        List<RsvrApexLexicalParser.LexicalToken> tokenList = parser.parse(apexClassText);
+    }
+
+    @isTest(SeeAllData=false)
+    static void test09() {
+        final String apexClassText = 'String look1 = \'ABC\'123\';';
+
+        final RsvrApexLexicalParser parser = new RsvrApexLexicalParser();
+        List<RsvrApexLexicalParser.LexicalToken> tokenList = parser.parse(apexClassText);
+    }
+
+    @isTest(SeeAllData=false)
+    static void test10() {
+        final String apexClassText = 'String look1 = \'\u0001\';';
+
+        final RsvrApexLexicalParser parser = new RsvrApexLexicalParser();
+        List<RsvrApexLexicalParser.LexicalToken> tokenList = parser.parse(apexClassText);
+    }
+
+    @isTest(SeeAllData=false)
+    static void test11() {
+        final String apexClassText = 'Number look1 = 123.456;';
+
+        final RsvrApexLexicalParser parser = new RsvrApexLexicalParser();
+        List<RsvrApexLexicalParser.LexicalToken> tokenList = parser.parse(apexClassText);
+    }
+
+    @isTest(SeeAllData=false)
+    static void test12() {
+        final String apexClassText = '123ABC/*PANIC*/;';
+
+        final RsvrApexLexicalParser parser = new RsvrApexLexicalParser();
+        List<RsvrApexLexicalParser.LexicalToken> tokenList = parser.parse(apexClassText);
     }
 }

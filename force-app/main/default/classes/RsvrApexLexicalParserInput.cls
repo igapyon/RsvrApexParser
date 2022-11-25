@@ -45,14 +45,29 @@ public class RsvrApexLexicalParserInput {
         // 注意：以下の getChars() によるコードでは、バックスラッシュが消失する回復不能な問題があります。
         // this.apexClassCharList = apexClassText.getChars();
 
-        // 有利/不利があるのだろうか。
-        final List<Integer> result = new List<Integer>();
-        final Integer len = apexClassText.length();
-        for (Integer i = 0; i < len; i++) {
-            apexClassCharMap.put(i, apexClassText.charAt(i));
+        if (true) {
+            // 有利/不利があるのだろうか。
+            final List<Integer> result = new List<Integer>();
+            final Integer len = apexClassText.length();
+            for (Integer i = 0; i < len; i++) {
+                apexClassCharMap.put(i, apexClassText.charAt(i));
+            }
+            // CPUコストを減らすためにサイズを記憶します。
+            apexClassCharListSize = len;
         }
-        // CPUコストを減らすためにサイズを記憶します。
-        apexClassCharListSize = len;
+
+        if (false) {
+            final String afterString = apexClassText.replace('\\','\\\\');
+            System.debug('TRACE: after: ' + afterString);
+            final List<Integer> result = afterString.getChars();
+            final Integer len = result.size();
+            for (Integer i = 0; i < len; i++) {
+                apexClassCharMap.put(i, result.get(i));
+            }
+
+            // CPUコストを減らすためにサイズを記憶します。
+            apexClassCharListSize = len;
+        }
 
         procTime.close();
     }

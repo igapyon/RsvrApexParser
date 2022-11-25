@@ -759,7 +759,7 @@ public class RsvrApexLexicalParser {
             }
 
             //     :   bs [btnfr"cammabs]
-            if (next == 92 /* [bs] */) {
+            if (next == RsvrUnicodeConstants.LETTER_Backslash) {
                 if (IS_LOCAL_DEBUG) System.debug('TRACE: Escape began.');
                 // Escape begin.
                 targetOriginalList.add(next);
