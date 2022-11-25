@@ -85,8 +85,8 @@ public class RsvrApexLexicalParser {
             ////////////////////////
             // Whitespace and comments.
 
-            if (IS_DEBUG) System.debug('TRACE: parseWS: ');
-            tok = parseWS();
+            if (IS_DEBUG) System.debug('TRACE: parseWhitespace: ');
+            tok = parseWhitespace();
             if (tok != null) {
                 tokenList.add(tok);
                 continue;
@@ -1074,8 +1074,8 @@ public class RsvrApexLexicalParser {
 
     // WS  :  [ trnu000C]+ -> channel(WHITESPACE_CHANNEL)
     //     ;
-    private WhitespaceToken parseWS() {
-        procTime.enter('parseWS');
+    private WhitespaceToken parseWhitespace() {
+        procTime.enter('parseWhitespace');
 
         input.mark();
 
