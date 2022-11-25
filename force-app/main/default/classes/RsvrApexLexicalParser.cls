@@ -15,7 +15,11 @@
  */
 
 /**
- * Lexical Parser for Apex Language.
+ * Reservoir Apex Language Parser.
+ * 
+ * This class provide Lexical Parser for Apex Language.
+ * 
+ * @since 2022-11-23
  */
 public class RsvrApexLexicalParser {
     private static final Boolean IS_DEBUG = false;
@@ -63,6 +67,12 @@ public class RsvrApexLexicalParser {
     ////////////////////////////////
     // Mail process loop.
 
+    /**
+     * Parse given Apex Class text.
+     * 
+     * @param apexClassText Apex Class Text.
+     * @return List of LexicalToken.
+     */
     public List<LexicalToken> parse(String apexClassText) {
         input = new RsvrApexLexicalParserInput(apexClassText);
 
@@ -908,17 +918,13 @@ public class RsvrApexLexicalParser {
 
         input.mark();
 
-        for (;;) {
-            Integer next = input.readChar();
-            if (RsvrApexLexicalParserUtil.isSeparator(next)) {
-                SeparatorToken result = new SeparatorToken();
-                result.type = 'Separator';
-                result.target = RsvrApexLexicalParserUtil.int2string(next);
-                result.original = result.target;
-                return result;
-            } else {
-                break;
-            }
+        final Integer next = input.readChar();
+        if (RsvrApexLexicalParserUtil.isSeparator(next)) {
+            final SeparatorToken result = new SeparatorToken();
+            result.type = 'Separator';
+            result.target = RsvrApexLexicalParserUtil.int2string(next);
+            result.original = result.target;
+            return result;
         }
 
         input.reset();
@@ -952,6 +958,7 @@ public class RsvrApexLexicalParser {
 
                 input.move(input.pos() - 1);
                 String target = String.fromCharArray(targetList);
+                // System.debug('TRACE: Operator candidate: [' + target + ']');
                 if (RsvrApexLexicalParserUtil.isOperator(target)) {
                     // Hit
                     input.mark();
@@ -959,8 +966,10 @@ public class RsvrApexLexicalParser {
                     result.type = 'Operator';
                     result.target = target;
                     result.original = result.target;
+                    // System.debug('TRACE: Operator: [' + result.target + ']');
                     return result;
                 } else {
+                    // System.debug('TRACE: Non Operator: [' + target + ']');
                     if (targetList.get(0) == 62 /* [>] */) {
                         // 特殊処理
                         input.reset();

@@ -13,8 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+/**
+ * Reservoir Apex Language Parser.
+ * 
+ * This class provide Apex test.
+ * 
+ * @since 2022-11-23
+ */
 @isTest(SeeAllData=false)
 private class RsvrApexLexicalParserTest13 {
+    /**
+     * DATETIME についての定数が正しく動作することを確認。
+     */
+
     // DATETIME 比較
     @isTest(SeeAllData=false)
     static void test01() {

@@ -13,9 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+/**
+ * Reservoir Apex Language Parser.
+ * 
+ * This class provide Apex test.
+ * 
+ * @since 2022-11-23
+ */
 @isTest(SeeAllData=false)
 private class RsvrApexSyntaxParserTest {
     @isTest(SeeAllData=false)
     static void test01() {
+        RsvrApexSyntaxParser parser = new RsvrApexSyntaxParser();
+        parser.parse();
     }
 }

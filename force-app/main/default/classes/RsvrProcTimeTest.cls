@@ -15,7 +15,22 @@
  */
 
 /**
- * Trace Process time.
+ * Measure Process Time.
+ * 
+ * This class provide Apex test.
+ * 
+ * @since 2022-11-23
  */
- public class RsvrProcTimeTest {
- }
+@isTest(SeeAllData=false)
+private class RsvrProcTimeTest {
+    @isTest(SeeAllData=false)
+    static void test01() {
+        RsvrProcTime procTime = new RsvrProcTime('RsvrProcTimeTest');
+        procTime.enter('first');
+        procTime.enter('second');
+        procTime.enter('third');
+        procTime.enter('first');
+        procTime.enter('first');
+        procTime.close();
+    }
+}

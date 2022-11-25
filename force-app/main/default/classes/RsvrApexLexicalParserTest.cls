@@ -13,13 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+/**
+ * Reservoir Apex Language Parser.
+ * 
+ * This class provide Apex test.
+ * 
+ * @since 2022-11-23
+ */
 @isTest(SeeAllData=false)
 public class RsvrApexLexicalParserTest {
-    private static final Boolean IS_APEXCLASS_OBJECTREAD = false;
-
     @isTest(SeeAllData=false)
     static void test01() {
-        if (IS_APEXCLASS_OBJECTREAD) RsvrApexLexicalParserUtil.validateLexicalParser('RsvrApexLexicalParserTest', false);
+        final String apexClassText = '@isTest(SeeAllData=false)\n'
+        + 'private class RsvrApexLexicalParserTest11 {\n'
+        + '    // SOQL および SOSL クエリ\n'
+        + '    @isTest(SeeAllData=false)\n'
+        + '    static void test01() {\n'
+        + '        List<Account> aa = [SELECT Id, Name FROM Account WHERE Name = \'Acme\'];\n'
+        + '    }';
+
+        final RsvrApexLexicalParser parser = new RsvrApexLexicalParser();
+        List<RsvrApexLexicalParser.LexicalToken> tokenList = parser.parse(apexClassText);
+        System.assertEquals(68, tokenList.size());
     }
 
     @isTest(SeeAllData=false)
