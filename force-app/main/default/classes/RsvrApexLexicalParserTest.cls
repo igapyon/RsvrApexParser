@@ -127,6 +127,14 @@ public class RsvrApexLexicalParserTest {
     }
 
     @isTest(SeeAllData=false)
+    static void test12() {
+        final String apexClassText = '123ABC/*PANIC*/;';
+
+        final RsvrApexLexicalParser parser = new RsvrApexLexicalParser();
+        List<RsvrApexLexicalParser.LexicalToken> tokenList = parser.parse(apexClassText);
+    }
+
+    @isTest(SeeAllData=false)
     static void test90() {
         System.assertEquals(39, '\''.charAt(0));
         System.assertEquals(92, '\\'.charAt(0));
