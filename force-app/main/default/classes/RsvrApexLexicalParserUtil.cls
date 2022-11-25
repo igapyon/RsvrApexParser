@@ -132,7 +132,7 @@ public class RsvrApexLexicalParserUtil {
                 operatorMap.put(look.toLowerCase(),look);
             }
         }
-        return (operatorMap.get(val.toLowerCase())) != null;
+        return (operatorMap.get(val.toLowerCase()) != null);
     }
 
     public static Boolean isOperatorLetter(final Integer val) {

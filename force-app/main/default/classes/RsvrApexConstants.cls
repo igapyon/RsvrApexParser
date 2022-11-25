@@ -442,6 +442,8 @@ public class RsvrApexConstants {
     public static final Integer OPE_LSHIFT_ASSIGN   = 32; // '<<='
     public static final Integer OPE_RSHIFT_ASSIGN   = 33; // '>>='
     public static final Integer OPE_URSHIFT_ASSIGN  = 34; // '>>>='
+    public static final Integer OPE_GE              = 35; // '>=' (iga added)
+    public static final Integer OPE_LE              = 36; // '<=' (iga added)
     
     public static final String[] OPERATORS = new String[]{
         '=',
@@ -478,6 +480,8 @@ public class RsvrApexConstants {
         '^=',
         '<<=',
         '>>=',
-        '>>>='
+        '>>>=',
+        '>=', // (iga added)
+        '<=' // (iga added)
     };
 }

@@ -952,6 +952,7 @@ public class RsvrApexLexicalParser {
 
                 input.move(input.pos() - 1);
                 String target = String.fromCharArray(targetList);
+                // System.debug('TRACE: Operator candidate: [' + target + ']');
                 if (RsvrApexLexicalParserUtil.isOperator(target)) {
                     // Hit
                     input.mark();
@@ -959,8 +960,10 @@ public class RsvrApexLexicalParser {
                     result.type = 'Operator';
                     result.target = target;
                     result.original = result.target;
+                    // System.debug('TRACE: Operator: [' + result.target + ']');
                     return result;
                 } else {
+                    // System.debug('TRACE: Non Operator: [' + target + ']');
                     if (targetList.get(0) == 62 /* [>] */) {
                         // 特殊処理
                         input.reset();
