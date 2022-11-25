@@ -200,13 +200,6 @@ public class RsvrApexLexicalParser {
                 tokenList.add(tok);
                 continue;
             }
-
-            if (IS_DEBUG) System.debug('TRACE: parseIntegerLiteral: ');
-            tok = parseIntegerLiteral();
-            if (tok != null) {
-                tokenList.add(tok);
-                continue;
-            }
                         
             // Do NOT enter here..
             {
@@ -555,46 +548,6 @@ public class RsvrApexLexicalParser {
     //     ;
     // 
 
-    private LiteralToken parseIntegerLiteral() {
-        procTime.enter('parseIntegerLiteral');
-        input.mark();
-
-        LiteralToken result = new LiteralToken();
-        result.type = 'IntegerLiteral';
-
-        result.target = '';
-        Boolean isExist = false;
-        for (;;) {
-            Integer next = input.readChar();
-            if (RsvrApexLexicalParserUtil.isDigit(next)) {
-                isExist = true;
-                result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
-                continue;
-            } else {
-                if (isExist == false) {
-                    input.reset();
-                    return null;
-                }
-
-                // アルファベットなら違うもの。
-                if (RsvrApexLexicalParserUtil.isJavaLetter(next)) {
-                    input.reset();
-                    return null;
-                }
-
-                input.move(input.pos() - 1);
-
-                // Hit
-                input.mark();
-                result.original = result.target;
-                return result;
-            }
-        }
-
-        input.reset();
-        return null;
-    }
-
     // LongLiteral
     //     : Digit Digit* [lL]
     //     ;
@@ -610,6 +563,11 @@ public class RsvrApexLexicalParser {
         Boolean isFirst = true;
         for (;;) {
             Integer next = input.readChar();
+            // アルファベットなら違うもの。
+            if (isFirst && RsvrApexLexicalParserUtil.isJavaLetter(next)) {
+                input.reset();
+                return null;
+            }
             if (RsvrApexLexicalParserUtil.isDigit(next)) {
                 isFirst = false;
                 result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
@@ -634,7 +592,7 @@ public class RsvrApexLexicalParser {
     // NumberLiteral
     //     :   Digit* '.' Digit Digit* [dD]?
     //     ;
-    private LiteralToken parseNumberLiteral() {
+    private LexicalToken parseNumberLiteral() {
         procTime.enter('parseNumberLiteral');
         input.mark();
 
@@ -647,6 +605,12 @@ public class RsvrApexLexicalParser {
         Boolean isDotExist = false;
         for (;;) {
             Integer next = input.readChar();
+            System.debug('next: ' + RsvrApexLexicalParserUtil.int2string(next));
+            // アルファベットなら違うもの。
+            if (isFirst && RsvrApexLexicalParserUtil.isJavaLetter(next)) {
+                input.reset();
+                return null;
+            }
             if (RsvrApexLexicalParserUtil.isDigit(next)) {
                 isFirst = false;
                 isExist = true;
@@ -658,23 +622,31 @@ public class RsvrApexLexicalParser {
                 result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
                 continue;
             }
-            if (isExist == false || isDotExist == false) {
-                input.reset();
-                return null;
-            }
 
-            // アルファベットなら違うもの。
-            if (RsvrApexLexicalParserUtil.isJavaLetter(next)) {
-                input.reset();
-                return null;
-            }
-            
-            input.move(input.pos() - 1);
+            if (next == RsvrUnicodeConstants.LETTER_Latin_Capital_Letter_D
+            || next == RsvrUnicodeConstants.LETTER_Latin_Small_Letter_D) {
+                isDotExist = true;
+                result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
+            } else {
+                // アルファベットなら違うもの。
+                if (RsvrApexLexicalParserUtil.isJavaLetter(next)) {
+                    input.reset();
+                    return null;
+                }
 
+                input.move(input.pos() - 1);
+            }
             // Hit
             input.mark();
-            result.original = result.target;
-            return result;
+
+            if (isDotExist == false) {
+                result.type = 'IntegerLiteral';
+                result.original = result.target;
+                return result;
+            } else {
+                result.original = result.target;
+                return result;
+            }
         }
 
         input.reset();
