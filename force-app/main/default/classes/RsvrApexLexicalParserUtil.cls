@@ -65,6 +65,9 @@ public class RsvrApexLexicalParserUtil {
         if (55296 /*'\uD800'*/ <= val && val <= 56319 /*'\uDBFF'*/) {
             return false;
         }
+        if (val == -1) {
+            return false;
+        }
         return true;
     }
 
@@ -98,6 +101,9 @@ public class RsvrApexLexicalParserUtil {
             return false;
         }
         if (55296 /*'\uD800'*/ <= val && val <= 56319 /*'\uDBFF'*/) {
+            return false;
+        }
+        if (val == -1) {
             return false;
         }
         return true;

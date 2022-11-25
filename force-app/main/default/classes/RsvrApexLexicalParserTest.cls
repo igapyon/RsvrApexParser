@@ -248,6 +248,51 @@ public class RsvrApexLexicalParserTest {
         System.assertEquals(1, tokenList.size());
     }
 
+    @isTest(SeeAllData=false)
+    static void test13() {
+        final String apexClassText = 'null';
+        final RsvrApexLexicalParser parser = new RsvrApexLexicalParser();
+        List<RsvrApexLexicalParser.LexicalToken> tokenList = parser.parse(apexClassText);
+
+        Integer index = 0;
+        RsvrApexLexicalParser.LexicalToken current = tokenList.get(index++);
+        System.assertEquals('NullLiteral', current.type);
+        System.assertEquals('null', current.target);
+        System.assertEquals('null', current.original);
+
+        System.assertEquals(1, tokenList.size());
+    }
+
+    @isTest(SeeAllData=false)
+    static void test14() {
+        final String apexClassText = 'true';
+        final RsvrApexLexicalParser parser = new RsvrApexLexicalParser();
+        List<RsvrApexLexicalParser.LexicalToken> tokenList = parser.parse(apexClassText);
+
+        Integer index = 0;
+        RsvrApexLexicalParser.LexicalToken current = tokenList.get(index++);
+        System.assertEquals('BooleanLiteral', current.type);
+        System.assertEquals('true', current.target);
+        System.assertEquals('true', current.original);
+
+        System.assertEquals(1, tokenList.size());
+    }
+
+    @isTest(SeeAllData=false)
+    static void test15() {
+        final String apexClassText = 'false';
+        final RsvrApexLexicalParser parser = new RsvrApexLexicalParser();
+        List<RsvrApexLexicalParser.LexicalToken> tokenList = parser.parse(apexClassText);
+
+        Integer index = 0;
+        RsvrApexLexicalParser.LexicalToken current = tokenList.get(index++);
+        System.assertEquals('BooleanLiteral', current.type);
+        System.assertEquals('false', current.target);
+        System.assertEquals('false', current.original);
+
+        System.assertEquals(1, tokenList.size());
+    }
+
     //////////////////////////////
     // memo
     // RsvrApexLexicalParserUtil.validateLexicalParser('RsvrApexLexicalParser', false);

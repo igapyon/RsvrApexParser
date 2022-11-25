@@ -216,8 +216,9 @@ public class RsvrApexLexicalParser {
         List<Integer> targetList = null;
 
         Boolean isExist = false;
-        for (;;) {
+        for (Integer index = 0; index < 100/* for safety */; index++) {
             Integer next = input.readChar();
+
             if (RsvrApexLexicalParserUtil.isJavaLetter(next)) {
                 isExist = true;
                 if (targetList == null) {
@@ -231,9 +232,12 @@ public class RsvrApexLexicalParser {
                     return null;
                 }
 
-                input.move(input.pos() - 1);
+                if (next != -1) {
+                    input.move(input.pos() - 1);
+                }
 
                 String target = String.fromCharArray(targetList);
+
                 if (target.toLowerCase() == 'null') {
                     // Hit
                     input.mark();
@@ -558,9 +562,8 @@ public class RsvrApexLexicalParser {
         targetOriginalList.add(first);
 
         Boolean isDotExist = false;
-        for (;;) {
+        for (Integer index = 0; index < 100/* for safety */; index++) {
             Integer next = input.readChar();
-            System.debug('next: ' + RsvrApexLexicalParserUtil.int2string(next));
             if (next == -1) {
                 // end of file.
                 input.mark();
@@ -670,7 +673,7 @@ public class RsvrApexLexicalParser {
 
         // start string literal.
         targetOriginalList.add(first);
-        for (;;) {
+        for (Integer index = 0; index < 10000/* for safety */; index++) {
             final Integer next = input.readChar();
             if (IS_LOCAL_DEBUG) System.debug('TRACE: Next char[' + RsvrApexLexicalParserUtil.int2string(next) + ']');
             if (IS_LOCAL_DEBUG) System.debug('TRACE: Remainingtext [' + input.getRemainingtext(false) + ']');
@@ -824,7 +827,7 @@ public class RsvrApexLexicalParser {
         List<Integer> targetList = null;
 
         Boolean isExist = false;
-        for (;;) {
+        for (Integer index = 0; index < 100/* for safety */; index++) {
             Integer next = input.readChar();
             if (RsvrApexLexicalParserUtil.isOperatorLetter(next)) {
                 isExist = true;
@@ -916,7 +919,7 @@ public class RsvrApexLexicalParser {
 
         Boolean isExist = false;
         Boolean isFirst = true;
-        for (;;) {
+        for (Integer index = 0; index < 100/* for safety */; index++) {
             Integer next = input.readChar();
             if (isFirst) {
                 isFirst = false;
@@ -985,7 +988,7 @@ public class RsvrApexLexicalParser {
         List<Integer> targetList = null;
 
         Boolean isExist = false;
-        for (;;) {
+        for (Integer index = 0; index < 10000/* for safety */; index++) {
             Integer next = input.readChar();
             if (next == -1) {
                 // end of file.
@@ -1066,7 +1069,7 @@ public class RsvrApexLexicalParser {
 
         // hit line comment
         Boolean isPastAsterisk = false;
-        for (;;) {
+        for (Integer index = 0; index < 10000/* for safety */; index++) {
             Integer next = input.readChar();
             targetOriginalList.add(next);
             if (next == RsvrUnicodeConstants.LETTER_Asterisk) {
@@ -1121,7 +1124,7 @@ public class RsvrApexLexicalParser {
         List<Integer> targetList = new List<Integer>();
 
         // hit line comment
-        for (;;) {
+        for (Integer index = 0; index < 10000/* for safety */; index++) {
             Integer next = input.readChar();
             if (next == 13 /* [r] */
             || next == 10 /* [n] */
