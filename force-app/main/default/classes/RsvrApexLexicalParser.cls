@@ -908,17 +908,13 @@ public class RsvrApexLexicalParser {
 
         input.mark();
 
-        for (;;) {
-            Integer next = input.readChar();
-            if (RsvrApexLexicalParserUtil.isSeparator(next)) {
-                SeparatorToken result = new SeparatorToken();
-                result.type = 'Separator';
-                result.target = RsvrApexLexicalParserUtil.int2string(next);
-                result.original = result.target;
-                return result;
-            } else {
-                break;
-            }
+        final Integer next = input.readChar();
+        if (RsvrApexLexicalParserUtil.isSeparator(next)) {
+            final SeparatorToken result = new SeparatorToken();
+            result.type = 'Separator';
+            result.target = RsvrApexLexicalParserUtil.int2string(next);
+            result.original = result.target;
+            return result;
         }
 
         input.reset();
