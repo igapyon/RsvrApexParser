@@ -103,6 +103,30 @@ public class RsvrApexLexicalParserTest {
     }
 
     @isTest(SeeAllData=false)
+    static void test09() {
+        final String apexClassText = 'String look1 = \'ABC\'123\';';
+
+        final RsvrApexLexicalParser parser = new RsvrApexLexicalParser();
+        List<RsvrApexLexicalParser.LexicalToken> tokenList = parser.parse(apexClassText);
+    }
+
+    @isTest(SeeAllData=false)
+    static void test10() {
+        final String apexClassText = 'String look1 = \'\u0001\';';
+
+        final RsvrApexLexicalParser parser = new RsvrApexLexicalParser();
+        List<RsvrApexLexicalParser.LexicalToken> tokenList = parser.parse(apexClassText);
+    }
+
+    @isTest(SeeAllData=false)
+    static void test11() {
+        final String apexClassText = 'Number look1 = 123.456;';
+
+        final RsvrApexLexicalParser parser = new RsvrApexLexicalParser();
+        List<RsvrApexLexicalParser.LexicalToken> tokenList = parser.parse(apexClassText);
+    }
+
+    @isTest(SeeAllData=false)
     static void test90() {
         System.assertEquals(39, '\''.charAt(0));
         System.assertEquals(92, '\\'.charAt(0));
