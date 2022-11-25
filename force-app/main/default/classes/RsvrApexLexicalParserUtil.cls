@@ -133,24 +133,23 @@ public class RsvrApexLexicalParserUtil {
     }
 
     public static Boolean isOperatorLetter(final Integer val) {
-        if (61 /*[=]*/ == val
-        || 62  /*[>]*/ == val
-        || 60  /*[<]*/ == val
-        || 126 /*[~]*/ == val
-        || 63  /*[?]*/ == val
-        || 46  /*[.]*/ == val
-        || 58  /*[:]*/ == val
-        || '='.charAt(0) == val
-        || '!'.charAt(0) == val
-        || '&'.charAt(0) == val
-        || '|'.charAt(0) == val
-        || '+'.charAt(0) == val
-        || '-'.charAt(0) == val
-        || '*'.charAt(0) == val
-        || '/'.charAt(0) == val
-        || '&'.charAt(0) == val
-        || '^'.charAt(0) == val) {
-                return true;
+        if (val == RsvrUnicodeConstants.LETTER_Equal
+        || val == RsvrUnicodeConstants.LETTER_Greater_Than
+        || val == RsvrUnicodeConstants.LETTER_Less_Than
+        || val == RsvrUnicodeConstants.LETTER_Tilde
+        || val == RsvrUnicodeConstants.LETTER_Question
+        || val == RsvrUnicodeConstants.LETTER_Full_Stop
+        || val == RsvrUnicodeConstants.LETTER_Colon
+        || val == RsvrUnicodeConstants.LETTER_Equal
+        || val == RsvrUnicodeConstants.LETTER_Exclamation
+        || val == RsvrUnicodeConstants.LETTER_Ampersand
+        || val == RsvrUnicodeConstants.LETTER_Vertical_Bar
+        || val == RsvrUnicodeConstants.LETTER_Plus
+        || val == RsvrUnicodeConstants.LETTER_Hyphen_Minus
+        || val == RsvrUnicodeConstants.LETTER_Asterisk
+        || val == RsvrUnicodeConstants.LETTER_Slash
+        || val == RsvrUnicodeConstants.LETTER_Circumflex_Accent) {
+            return true;
         }
         return false;
     }
