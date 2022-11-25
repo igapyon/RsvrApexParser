@@ -85,8 +85,8 @@ public class RsvrApexLexicalParser {
             ////////////////////////
             // Whitespace and comments.
 
-            if (IS_DEBUG) System.debug('TRACE: parseWS: ');
-            tok = parseWS();
+            if (IS_DEBUG) System.debug('TRACE: parseWhitespace: ');
+            tok = parseWhitespace();
             if (tok != null) {
                 tokenList.add(tok);
                 continue;
@@ -910,7 +910,7 @@ public class RsvrApexLexicalParser {
 
         for (;;) {
             Integer next = input.readChar();
-            if (RsvrApexLexicalParserUtil.isSeparator(RsvrApexLexicalParserUtil.int2string(next))) {
+            if (RsvrApexLexicalParserUtil.isSeparator(next)) {
                 SeparatorToken result = new SeparatorToken();
                 result.type = 'Separator';
                 result.target = RsvrApexLexicalParserUtil.int2string(next);
@@ -1074,8 +1074,8 @@ public class RsvrApexLexicalParser {
 
     // WS  :  [ trnu000C]+ -> channel(WHITESPACE_CHANNEL)
     //     ;
-    private WhitespaceToken parseWS() {
-        procTime.enter('parseWS');
+    private WhitespaceToken parseWhitespace() {
+        procTime.enter('parseWhitespace');
 
         input.mark();
 

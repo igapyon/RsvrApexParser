@@ -111,13 +111,16 @@ public class RsvrApexLexicalParserUtil {
         return (keywordMap.get(val.toLowerCase()) != null);
     }
 
-    public static Boolean isSeparator(final String val) {
-        for (String look : RsvrApexConstants.SEPARATORS) {
-            if (look.toLowerCase() == val.toLowerCase()) {
-                return true;
+    private static Map<Integer,String> separatorMap = null;
+
+    public static Boolean isSeparator(final Integer val) {
+        if (separatorMap == null) {
+            separatorMap = new Map<Integer,String>();
+            for (String look : RsvrApexConstants.SEPARATORS) {
+                separatorMap.put(look.charAt(0),look);
             }
         }
-        return false;
+        return (separatorMap.get(val) != null);
     }
 
     public static Boolean isOperator(final String val) {
@@ -130,24 +133,23 @@ public class RsvrApexLexicalParserUtil {
     }
 
     public static Boolean isOperatorLetter(final Integer val) {
-        if ('='.charAt(0) == val
-        || '>'.charAt(0) == val
-        || '<'.charAt(0) == val
-        || '~'.charAt(0) == val
-        || '?'.charAt(0) == val
-        || '.'.charAt(0) == val
-        || ':'.charAt(0) == val
-        || '='.charAt(0) == val
-        || '!'.charAt(0) == val
-        || '&'.charAt(0) == val
-        || '|'.charAt(0) == val
-        || '+'.charAt(0) == val
-        || '-'.charAt(0) == val
-        || '*'.charAt(0) == val
-        || '/'.charAt(0) == val
-        || '&'.charAt(0) == val
-        || '^'.charAt(0) == val) {
-                return true;
+        if (val == RsvrUnicodeConstants.LETTER_Equal
+        || val == RsvrUnicodeConstants.LETTER_Greater_Than
+        || val == RsvrUnicodeConstants.LETTER_Less_Than
+        || val == RsvrUnicodeConstants.LETTER_Tilde
+        || val == RsvrUnicodeConstants.LETTER_Question
+        || val == RsvrUnicodeConstants.LETTER_Full_Stop
+        || val == RsvrUnicodeConstants.LETTER_Colon
+        || val == RsvrUnicodeConstants.LETTER_Equal
+        || val == RsvrUnicodeConstants.LETTER_Exclamation
+        || val == RsvrUnicodeConstants.LETTER_Ampersand
+        || val == RsvrUnicodeConstants.LETTER_Vertical_Bar
+        || val == RsvrUnicodeConstants.LETTER_Plus
+        || val == RsvrUnicodeConstants.LETTER_Hyphen_Minus
+        || val == RsvrUnicodeConstants.LETTER_Asterisk
+        || val == RsvrUnicodeConstants.LETTER_Slash
+        || val == RsvrUnicodeConstants.LETTER_Circumflex_Accent) {
+            return true;
         }
         return false;
     }
