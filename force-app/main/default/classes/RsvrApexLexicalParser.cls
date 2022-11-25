@@ -102,13 +102,6 @@ public class RsvrApexLexicalParser {
                 continue;
             }
 
-            if (IS_DEBUG) System.debug('TRACE: parseDocComment: ');
-            tok = parseDocComment();
-            if (tok != null) {
-                tokenList.add(tok);
-                continue;
-            }
-
             if (IS_DEBUG) System.debug('TRACE: parseComment: ');
             tok = parseComment();
             if (tok != null) {
@@ -192,21 +185,6 @@ public class RsvrApexLexicalParser {
                 tokenList.add(tok);
                 continue;
             }
-
-            // LongのパースはIntegerより先に実施。
-            if (IS_DEBUG) System.debug('TRACE: parseLongLiteral: ');
-            tok = parseLongLiteral();
-            if (tok != null) {
-                tokenList.add(tok);
-                continue;
-            }
-
-            if (IS_DEBUG) System.debug('TRACE: parseIntegerLiteral: ');
-            tok = parseIntegerLiteral();
-            if (tok != null) {
-                tokenList.add(tok);
-                continue;
-            }
                         
             // Do NOT enter here..
             {
@@ -238,8 +216,9 @@ public class RsvrApexLexicalParser {
         List<Integer> targetList = null;
 
         Boolean isExist = false;
-        for (;;) {
+        for (Integer index = 0; index < 100/* for safety */; index++) {
             Integer next = input.readChar();
+
             if (RsvrApexLexicalParserUtil.isJavaLetter(next)) {
                 isExist = true;
                 if (targetList == null) {
@@ -253,9 +232,12 @@ public class RsvrApexLexicalParser {
                     return null;
                 }
 
-                input.move(input.pos() - 1);
+                if (next != -1) {
+                    input.move(input.pos() - 1);
+                }
 
                 String target = String.fromCharArray(targetList);
+
                 if (target.toLowerCase() == 'null') {
                     // Hit
                     input.mark();
@@ -555,130 +537,91 @@ public class RsvrApexLexicalParser {
     //     ;
     // 
 
-    private LiteralToken parseIntegerLiteral() {
-        procTime.enter('parseIntegerLiteral');
-        input.mark();
-
-        LiteralToken result = new LiteralToken();
-        result.type = 'IntegerLiteral';
-
-        result.target = '';
-        Boolean isExist = false;
-        for (;;) {
-            Integer next = input.readChar();
-            if (RsvrApexLexicalParserUtil.isDigit(next)) {
-                isExist = true;
-                result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
-                continue;
-            } else {
-                if (isExist == false) {
-                    input.reset();
-                    return null;
-                }
-
-                // アルファベットなら違うもの。
-                if (RsvrApexLexicalParserUtil.isJavaLetter(next)) {
-                    input.reset();
-                    return null;
-                }
-
-                input.move(input.pos() - 1);
-
-                // Hit
-                input.mark();
-                result.original = result.target;
-                return result;
-            }
-        }
-
-        input.reset();
-        return null;
-    }
-
     // LongLiteral
     //     : Digit Digit* [lL]
     //     ;
 
-    private LiteralToken parseLongLiteral() {
-        procTime.enter('parseLongLiteral');
+    // NumberLiteral
+    //     :   Digit* '.' Digit Digit* [dD]?
+    //     ;
+    private LexicalToken parseNumberLiteral() {
+        procTime.enter('parseNumberLiteral');
         input.mark();
 
-        LiteralToken result = new LiteralToken();
-        result.type = 'LongLiteral';
-
-        result.target = '';
-        Boolean isFirst = true;
-        for (;;) {
-            Integer next = input.readChar();
-            if (RsvrApexLexicalParserUtil.isDigit(next)) {
-                isFirst = false;
-                result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
-                continue;
-            }
-            if (isFirst == false && (next == 105 /* [l] */ || next == 76 /* [L] */)) {
-                result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
-
-                // Hit
-                input.mark();
-                result.original = result.target;
-                return result;
-            }
+        Integer first = input.readChar();
+        if (RsvrApexLexicalParserUtil.isDigit(first) == false) {
             input.reset();
             return null;
         }
 
-        input.reset();
-        return null;
-    }
+        // 数字が確定
+        final List<Integer> targetList = new List<Integer>();
+        final List<Integer> targetOriginalList = new List<Integer>();
 
-    // NumberLiteral
-    //     :   Digit* '.' Digit Digit* [dD]?
-    //     ;
-    private LiteralToken parseNumberLiteral() {
-        procTime.enter('parseNumberLiteral');
-        input.mark();
+        targetList.add(first);
+        targetOriginalList.add(first);
 
-        LiteralToken result = new LiteralToken();
-        result.type = 'NumberLiteral';
-
-        result.target = '';
-        Boolean isFirst = true;
-        Boolean isExist = false;
         Boolean isDotExist = false;
-        for (;;) {
+        for (Integer index = 0; index < 100/* for safety */; index++) {
             Integer next = input.readChar();
-            if (RsvrApexLexicalParserUtil.isDigit(next)) {
-                isFirst = false;
-                isExist = true;
-                result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
-                continue;
-            }
-            if (isFirst == false && isDotExist == false && next == 46 /* [.] */) {
-                isDotExist = true;
-                result.target = result.target + RsvrApexLexicalParserUtil.int2string(next);
-                continue;
-            }
-            if (isExist == false || isDotExist == false) {
-                input.reset();
-                return null;
+            if (next == -1) {
+                // end of file.
+                input.mark();
+                break;
             }
 
-            // アルファベットなら違うもの。
-            if (RsvrApexLexicalParserUtil.isJavaLetter(next)) {
-                input.reset();
-                return null;
+            if (next == RsvrUnicodeConstants.LETTER_Latin_Capital_Letter_D
+              || next == RsvrUnicodeConstants.LETTER_Latin_Small_Letter_D) {
+                // dD
+                input.mark();
+                targetOriginalList.add(next);
+                LiteralToken result = new LiteralToken();
+                result.type = 'NumberLiteral';
+                result.target = String.fromCharArray(targetList);
+                result.original = String.fromCharArray(targetOriginalList);
+                return result;
             }
-            
+            if (next == RsvrUnicodeConstants.LETTER_Latin_Capital_Letter_L
+              || next == RsvrUnicodeConstants.LETTER_Latin_Small_Letter_L) {
+                // lL
+                input.mark();
+                targetOriginalList.add(next);
+                LiteralToken result = new LiteralToken();
+                result.type = 'LongLiteral';
+                result.target = String.fromCharArray(targetList);
+                result.original = String.fromCharArray(targetOriginalList);
+                return result;
+            }
+            if (RsvrApexLexicalParserUtil.isDigit(next)) {
+                targetOriginalList.add(next);
+                targetList.add(next);
+                continue;
+            }
+            if (next == RsvrUnicodeConstants.LETTER_Full_Stop) {
+                isDotExist = true;
+                targetOriginalList.add(next);
+                targetList.add(next);
+                continue;
+            }
+
+            // 廃棄
             input.move(input.pos() - 1);
 
-            // Hit
-            input.mark();
-            result.original = result.target;
-            return result;
+            break;
         }
 
-        input.reset();
-        return null;
+        // ここまできたら値確定
+        input.mark();
+        LiteralToken result = new LiteralToken();
+        result.target = String.fromCharArray(targetList);
+        result.original = String.fromCharArray(targetOriginalList);
+        if (isDotExist) {
+            result.type = 'NumberLiteral';
+            return result;
+        } else {
+            result.type = 'IntegerLiteral';
+            return result;
+        }
     }
 
     // // §3.10.3 Boolean Literals
@@ -730,7 +673,7 @@ public class RsvrApexLexicalParser {
 
         // start string literal.
         targetOriginalList.add(first);
-        for (;;) {
+        for (Integer index = 0; index < 10000/* for safety */; index++) {
             final Integer next = input.readChar();
             if (IS_LOCAL_DEBUG) System.debug('TRACE: Next char[' + RsvrApexLexicalParserUtil.int2string(next) + ']');
             if (IS_LOCAL_DEBUG) System.debug('TRACE: Remainingtext [' + input.getRemainingtext(false) + ']');
@@ -759,7 +702,7 @@ public class RsvrApexLexicalParser {
             }
 
             //     :   bs [btnfr"cammabs]
-            if (next == 92 /* [bs] */) {
+            if (next == RsvrUnicodeConstants.LETTER_Backslash) {
                 if (IS_LOCAL_DEBUG) System.debug('TRACE: Escape began.');
                 // Escape begin.
                 targetOriginalList.add(next);
@@ -884,7 +827,7 @@ public class RsvrApexLexicalParser {
         List<Integer> targetList = null;
 
         Boolean isExist = false;
-        for (;;) {
+        for (Integer index = 0; index < 100/* for safety */; index++) {
             Integer next = input.readChar();
             if (RsvrApexLexicalParserUtil.isOperatorLetter(next)) {
                 isExist = true;
@@ -976,7 +919,7 @@ public class RsvrApexLexicalParser {
 
         Boolean isExist = false;
         Boolean isFirst = true;
-        for (;;) {
+        for (Integer index = 0; index < 100/* for safety */; index++) {
             Integer next = input.readChar();
             if (isFirst) {
                 isFirst = false;
@@ -1045,7 +988,7 @@ public class RsvrApexLexicalParser {
         List<Integer> targetList = null;
 
         Boolean isExist = false;
-        for (;;) {
+        for (Integer index = 0; index < 10000/* for safety */; index++) {
             Integer next = input.readChar();
             if (next == -1) {
                 // end of file.
@@ -1087,58 +1030,6 @@ public class RsvrApexLexicalParser {
     // DOC_COMMENT
     //     :   /** .*? */ -> channel(COMMENT_CHANNEL)
     //     ;
-    private CommentToken parseDocComment() {
-        procTime.enter('parseDocComment');
-
-        input.mark();
-
-        Integer first = input.readChar();
-        if (first != 47 /* [/] */) {
-            input.reset();
-            return null;
-        }
-        Integer second = input.readChar();
-        if (second != 42 /* [*] */) {
-            input.reset();
-            return null;
-        }
-        Integer third = input.readChar();
-        if (third != 42 /* [*] */) {
-            input.reset();
-            return null;
-        }
-
-        List<Integer> targetList = new List<Integer>();
-
-        // hit line comment
-        for (;;) {
-            Integer next = input.readChar();
-            if (next == 42 /* [*] */) {
-                input.mark();
-                Integer next2 = input.readChar();
-                if (next2 == 47 /* [/] */) {
-                    // End of comment.
-                    input.mark();
-                    CommentToken result = new CommentToken();
-                    result.type = 'DocComment';
-                    result.target = String.fromCharArray(targetList);
-                    result.original = '/**' + result.target + '*/';
-                    return result;
-                }
-                input.reset();
-            }
-
-            input.mark();
-            targetList.add(next);
-        }
-
-        CommentToken result = new CommentToken();
-        result.type = 'DocComment';
-        result.target = String.fromCharArray(targetList);
-        result.original = '/**' + result.target;
-
-        return result;
-    }
 
     // COMMENT
     //     :   '/*' .*? '*/' -> channel(COMMENT_CHANNEL)
@@ -1148,46 +1039,67 @@ public class RsvrApexLexicalParser {
 
         input.mark();
         Integer first = input.readChar();
-        if (first != 47 /* [/] */) {
+        if (first != RsvrUnicodeConstants.LETTER_Slash) {
             input.reset();
             return null;
         }
         Integer second = input.readChar();
-        if (second != 42 /* [*] */) {
+        if (second != RsvrUnicodeConstants.LETTER_Asterisk) {
             input.reset();
             return null;
         }
 
+        ////////////////////////////
+        // コメント確定
+
         List<Integer> targetList = new List<Integer>();
+        List<Integer> targetOriginalList = new List<Integer>();
+        targetOriginalList.add(first);
+        targetOriginalList.add(second);
+
+        input.mark();
+        Boolean isDocComment = false;
+        Integer third = input.readChar();
+        targetOriginalList.add(third);
+        if (third == RsvrUnicodeConstants.LETTER_Asterisk) {
+            isDocComment = true;
+        } else {
+            targetList.add(third);
+        }
 
         // hit line comment
-        for (;;) {
+        Boolean isPastAsterisk = false;
+        for (Integer index = 0; index < 10000/* for safety */; index++) {
             Integer next = input.readChar();
-            if (next == 42 /* [*] */) {
-                input.mark();
-                Integer next2 = input.readChar();
-                if (next2 == 47 /* [/] */) {
+            targetOriginalList.add(next);
+            if (next == RsvrUnicodeConstants.LETTER_Asterisk) {
+                isPastAsterisk = true;
+            } else {
+                if (next == RsvrUnicodeConstants.LETTER_Slash
+                || next == -1) {
                     // End of comment.
                     input.mark();
 
                     CommentToken result = new CommentToken();
-                    result.type = 'Comment';
+                    if (isDocComment) {
+                        result.type = 'DocComment';
+                    } else {
+                        result.type = 'Comment';
+                    }
                     result.target = String.fromCharArray(targetList);
-                    result.original = '/*' + result.target + '*/';
+                    result.original = String.fromCharArray(targetOriginalList);
                     return result;
                 }
-                input.reset();
+                if (isPastAsterisk) {
+                    isPastAsterisk = false;
+                    targetList.add(RsvrUnicodeConstants.LETTER_Asterisk);
+                }
+                targetList.add(next);
             }
-
-            input.mark();
-            targetList.add(next);
         }
 
-        CommentToken result = new CommentToken();
-        result.type = 'Comment';
-        result.target = String.fromCharArray(targetList);
-        result.original = '/*' + result.target;
-        return result;
+        input.reset();
+        return null;
     }
 
     // LINE_COMMENT
@@ -1212,7 +1124,7 @@ public class RsvrApexLexicalParser {
         List<Integer> targetList = new List<Integer>();
 
         // hit line comment
-        for (;;) {
+        for (Integer index = 0; index < 10000/* for safety */; index++) {
             Integer next = input.readChar();
             if (next == 13 /* [r] */
             || next == 10 /* [n] */

@@ -23,127 +23,277 @@
  */
 @isTest(SeeAllData=false)
 public class RsvrApexLexicalParserTest {
+    /**
+     * 基本的なパースの挙動を確認。
+     */
     @isTest(SeeAllData=false)
     static void test01() {
-        final String apexClassText = '@isTest(SeeAllData=false)\n'
-        + 'private class RsvrApexLexicalParserTest11 {\n'
-        + '    // SOQL および SOSL クエリ\n'
-        + '    @isTest(SeeAllData=false)\n'
-        + '    static void test01() {\n'
-        + '        List<Account> aa = [SELECT Id, Name FROM Account WHERE Name = \'Acme\'];\n'
-        + '    }';
-
+        final String apexClassText = 'Boolean val1 = true;';
         final RsvrApexLexicalParser parser = new RsvrApexLexicalParser();
         List<RsvrApexLexicalParser.LexicalToken> tokenList = parser.parse(apexClassText);
-        System.assertEquals(68, tokenList.size());
+
+        Integer index = 0;
+        RsvrApexLexicalParser.LexicalToken current = tokenList.get(index++);
+        System.assertEquals('Identifier', current.type);
+        System.assertEquals('Boolean', current.target);
+
+        current = tokenList.get(index++);
+        System.assertEquals('Whitespace', current.type);
+        System.assertEquals(' ', current.target);
+
+        current = tokenList.get(index++);
+        System.assertEquals('Identifier', current.type);
+        System.assertEquals('val1', current.target);
+
+        current = tokenList.get(index++);
+        System.assertEquals('Whitespace', current.type);
+        System.assertEquals(' ', current.target);
+
+        current = tokenList.get(index++);
+        System.assertEquals('Operator', current.type);
+        System.assertEquals('=', current.target);
+
+        current = tokenList.get(index++);
+        System.assertEquals('Whitespace', current.type);
+        System.assertEquals(' ', current.target);
+
+        current = tokenList.get(index++);
+        System.assertEquals('BooleanLiteral', current.type);
+        System.assertEquals('true', current.target);
+
+        current = tokenList.get(index++);
+        System.assertEquals('Separator', current.type);
+        System.assertEquals(';', current.target);
+
+        System.assertEquals(8, tokenList.size());
     }
 
     @isTest(SeeAllData=false)
     static void test02() {
-        final String apexClassText = 'public class Sample01 {\n'
-        + '    public void sample() {\n'
-        + '        Boolean val1 = true;\n'
-        + '        Boolean val2 = false;\n'
-        + '        Integer val3 = 123;\n'
-        + '        Long val4 = 123L;\n'
-        + '        String val5 = \'ABC\'123\';\n'
-        + '    }';
-
+        final String apexClassText = 'String val1=\'ABC\\\'123\';';
         final RsvrApexLexicalParser parser = new RsvrApexLexicalParser();
         List<RsvrApexLexicalParser.LexicalToken> tokenList = parser.parse(apexClassText);
-        System.assertEquals(63, tokenList.size());
+
+        Integer index = 0;
+        RsvrApexLexicalParser.LexicalToken current = tokenList.get(index++);
+        System.assertEquals('Identifier', current.type);
+        System.assertEquals('String', current.target);
+
+        current = tokenList.get(index++);
+        System.assertEquals('Whitespace', current.type);
+        System.assertEquals(' ', current.target);
+
+        current = tokenList.get(index++);
+        System.assertEquals('Identifier', current.type);
+        System.assertEquals('val1', current.target);
+
+        current = tokenList.get(index++);
+        System.assertEquals('Operator', current.type);
+        System.assertEquals('=', current.target);
+
+        current = tokenList.get(index++);
+        System.assertEquals('StringLiteral', current.type);
+        System.assertEquals('ABC\'123', current.target);
+
+        current = tokenList.get(index++);
+        System.assertEquals('Separator', current.type);
+        System.assertEquals(';', current.target);
+
+        System.assertEquals(6, tokenList.size());
     }
 
     @isTest(SeeAllData=false)
     static void test03() {
-        final String apexClassText = 'List<Account> aa = [SELECT Id, Name FROM Account WHERE Name = \'Acme\' AND CreatedDate < 1999-01-01T23:01:01-01:00];\n';
-
+        final String apexClassText = '\'ABC\n123\'';
         final RsvrApexLexicalParser parser = new RsvrApexLexicalParser();
         List<RsvrApexLexicalParser.LexicalToken> tokenList = parser.parse(apexClassText);
+
+        Integer index = 0;
+        RsvrApexLexicalParser.LexicalToken current = tokenList.get(index++);
+        System.assertEquals('StringLiteral', current.type);
+        System.assertEquals('ABC\n123', current.target);
+
+        System.assertEquals(1, tokenList.size());
     }
 
     @isTest(SeeAllData=false)
     static void test04() {
-        final String apexClassText = 'List<Account> aa = [SELECT Id, Name FROM Account WHERE Name = \'Acme\' AND CreatedDate < 1999-01-01T23:01:01Z];\n';
-
+        final String apexClassText = '1987-01-23';
         final RsvrApexLexicalParser parser = new RsvrApexLexicalParser();
         List<RsvrApexLexicalParser.LexicalToken> tokenList = parser.parse(apexClassText);
+
+        Integer index = 0;
+        RsvrApexLexicalParser.LexicalToken current = tokenList.get(index++);
+        System.assertEquals('DateLiteral', current.type);
+        System.assertEquals('1987-01-23', current.target);
+
+        System.assertEquals(1, tokenList.size());
     }
 
     @isTest(SeeAllData=false)
     static void test05() {
-        final String apexClassText = '1999-01-01';
-
+        final String apexClassText = '1999-01-01T23:01:01-01:00';
         final RsvrApexLexicalParser parser = new RsvrApexLexicalParser();
         List<RsvrApexLexicalParser.LexicalToken> tokenList = parser.parse(apexClassText);
+
+        Integer index = 0;
+        RsvrApexLexicalParser.LexicalToken current = tokenList.get(index++);
+        System.assertEquals('DateTimeLiteral', current.type);
+        System.assertEquals('1999-01-01T23:01:01-01:00', current.target);
+
+        System.assertEquals(1, tokenList.size());
     }
 
     @isTest(SeeAllData=false)
     static void test06() {
-        final String apexClassText = '// ABC123';
-
+        final String apexClassText = '1999-01-01T23:01:01Z';
         final RsvrApexLexicalParser parser = new RsvrApexLexicalParser();
         List<RsvrApexLexicalParser.LexicalToken> tokenList = parser.parse(apexClassText);
+
+        Integer index = 0;
+        RsvrApexLexicalParser.LexicalToken current = tokenList.get(index++);
+        System.assertEquals('DateTimeLiteral', current.type);
+        System.assertEquals('1999-01-01T23:01:01Z', current.target);
+
+        System.assertEquals(1, tokenList.size());
     }
 
     @isTest(SeeAllData=false)
     static void test07() {
-        final String apexClassText = '/** ABC */ /* DEF */';
-
+        final String apexClassText = '123.456';
         final RsvrApexLexicalParser parser = new RsvrApexLexicalParser();
         List<RsvrApexLexicalParser.LexicalToken> tokenList = parser.parse(apexClassText);
+
+        Integer index = 0;
+        RsvrApexLexicalParser.LexicalToken current = tokenList.get(index++);
+        System.assertEquals('NumberLiteral', current.type);
+        System.assertEquals('123.456', current.target);
+        System.assertEquals('123.456', current.original);
+
+        System.assertEquals(1, tokenList.size());
     }
 
     @isTest(SeeAllData=false)
     static void test08() {
-        final String apexClassText = 'Boolean look1 = true;';
-
+        final String apexClassText = '123L';
         final RsvrApexLexicalParser parser = new RsvrApexLexicalParser();
         List<RsvrApexLexicalParser.LexicalToken> tokenList = parser.parse(apexClassText);
+
+        Integer index = 0;
+        RsvrApexLexicalParser.LexicalToken current = tokenList.get(index++);
+        System.assertEquals('LongLiteral', current.type);
+        System.assertEquals('123', current.target);
+        System.assertEquals('123L', current.original);
+
+        System.assertEquals(1, tokenList.size());
     }
 
     @isTest(SeeAllData=false)
     static void test09() {
-        final String apexClassText = 'String look1 = \'ABC\'123\';';
-
+        final String apexClassText = '123';
         final RsvrApexLexicalParser parser = new RsvrApexLexicalParser();
         List<RsvrApexLexicalParser.LexicalToken> tokenList = parser.parse(apexClassText);
+
+        Integer index = 0;
+        RsvrApexLexicalParser.LexicalToken current = tokenList.get(index++);
+        System.assertEquals('IntegerLiteral', current.type);
+        System.assertEquals('123', current.target);
+        System.assertEquals('123', current.original);
+
+        System.assertEquals(1, tokenList.size());
     }
 
     @isTest(SeeAllData=false)
     static void test10() {
-        final String apexClassText = 'String look1 = \'\u0001\';';
-
+        final String apexClassText = '// COMMENT';
         final RsvrApexLexicalParser parser = new RsvrApexLexicalParser();
         List<RsvrApexLexicalParser.LexicalToken> tokenList = parser.parse(apexClassText);
+
+        Integer index = 0;
+        RsvrApexLexicalParser.LexicalToken current = tokenList.get(index++);
+        System.assertEquals('LineComment', current.type);
+        System.assertEquals(' COMMENT', current.target);
+        System.assertEquals('// COMMENT', current.original);
+
+        System.assertEquals(1, tokenList.size());
     }
 
     @isTest(SeeAllData=false)
     static void test11() {
-        final String apexClassText = 'Number look1 = 123.456;';
-
+        final String apexClassText = '/* COMMENT*COM */';
         final RsvrApexLexicalParser parser = new RsvrApexLexicalParser();
         List<RsvrApexLexicalParser.LexicalToken> tokenList = parser.parse(apexClassText);
+
+        Integer index = 0;
+        RsvrApexLexicalParser.LexicalToken current = tokenList.get(index++);
+        System.assertEquals('Comment', current.type);
+        System.assertEquals(' COMMENT*COM ', current.target);
+        System.assertEquals('/* COMMENT*COM */', current.original);
+
+        System.assertEquals(1, tokenList.size());
     }
 
     @isTest(SeeAllData=false)
     static void test12() {
-        final String apexClassText = '123ABC/*PANIC*/;';
-
+        final String apexClassText = '/** COMMENT*COM */';
         final RsvrApexLexicalParser parser = new RsvrApexLexicalParser();
         List<RsvrApexLexicalParser.LexicalToken> tokenList = parser.parse(apexClassText);
+
+        Integer index = 0;
+        RsvrApexLexicalParser.LexicalToken current = tokenList.get(index++);
+        System.assertEquals('DocComment', current.type);
+        System.assertEquals(' COMMENT*COM ', current.target);
+        System.assertEquals('/** COMMENT*COM */', current.original);
+
+        System.assertEquals(1, tokenList.size());
     }
 
     @isTest(SeeAllData=false)
-    static void test90() {
-        System.assertEquals(39, '\''.charAt(0));
-        System.assertEquals(92, '\\'.charAt(0));
-        System.assertEquals(8, '\b'.charAt(0));
-        System.assertEquals(9, '\t'.charAt(0));
-        System.assertEquals(10, '\n'.charAt(0));
-        System.assertEquals(12, '\f'.charAt(0));
-        System.assertEquals(13, '\r'.charAt(0));
-        System.assertEquals(34, '"'.charAt(0));
-        System.assertEquals(12, '\u000C'.charAt(0));
+    static void test13() {
+        final String apexClassText = 'null';
+        final RsvrApexLexicalParser parser = new RsvrApexLexicalParser();
+        List<RsvrApexLexicalParser.LexicalToken> tokenList = parser.parse(apexClassText);
+
+        Integer index = 0;
+        RsvrApexLexicalParser.LexicalToken current = tokenList.get(index++);
+        System.assertEquals('NullLiteral', current.type);
+        System.assertEquals('null', current.target);
+        System.assertEquals('null', current.original);
+
+        System.assertEquals(1, tokenList.size());
     }
+
+    @isTest(SeeAllData=false)
+    static void test14() {
+        final String apexClassText = 'true';
+        final RsvrApexLexicalParser parser = new RsvrApexLexicalParser();
+        List<RsvrApexLexicalParser.LexicalToken> tokenList = parser.parse(apexClassText);
+
+        Integer index = 0;
+        RsvrApexLexicalParser.LexicalToken current = tokenList.get(index++);
+        System.assertEquals('BooleanLiteral', current.type);
+        System.assertEquals('true', current.target);
+        System.assertEquals('true', current.original);
+
+        System.assertEquals(1, tokenList.size());
+    }
+
+    @isTest(SeeAllData=false)
+    static void test15() {
+        final String apexClassText = 'false';
+        final RsvrApexLexicalParser parser = new RsvrApexLexicalParser();
+        List<RsvrApexLexicalParser.LexicalToken> tokenList = parser.parse(apexClassText);
+
+        Integer index = 0;
+        RsvrApexLexicalParser.LexicalToken current = tokenList.get(index++);
+        System.assertEquals('BooleanLiteral', current.type);
+        System.assertEquals('false', current.target);
+        System.assertEquals('false', current.original);
+
+        System.assertEquals(1, tokenList.size());
+    }
+
+    //////////////////////////////
+    // memo
+    // RsvrApexLexicalParserUtil.validateLexicalParser('RsvrApexLexicalParser', false);
 }
