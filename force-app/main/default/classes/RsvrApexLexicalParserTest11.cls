@@ -33,10 +33,13 @@ private class RsvrApexLexicalParserTest11 {
 
     @isTest(SeeAllData=false)
     static void test02() {
-        Contact c = new Contact(Account = [SELECT Name FROM Account 
-            WHERE NumberOfEmployees > 10 LIMIT 1]);
-        c.FirstName = 'James';
-        c.LastName = 'Yoyce';
+        try {
+            Contact c = new Contact(Account = [SELECT Name FROM Account 
+                WHERE NumberOfEmployees > 10 LIMIT 1]);
+            c.FirstName = 'James';
+            c.LastName = 'Yoyce';
+        } catch (QueryException ex) {
+        }
     }
 
     @isTest(SeeAllData=false)
