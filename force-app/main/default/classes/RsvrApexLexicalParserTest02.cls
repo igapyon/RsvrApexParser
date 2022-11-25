@@ -25,5 +25,81 @@
 private class RsvrApexLexicalParserTest02 {
     @isTest(SeeAllData=false)
     static void test01() {
+        final String apexClassText = 'Boolean val1 = true;';
+        final RsvrApexLexicalParser parser = new RsvrApexLexicalParser();
+        List<RsvrApexLexicalParser.LexicalToken> tokenList = parser.parse(apexClassText);
+
+        Integer index = 0;
+        RsvrApexLexicalParser.LexicalToken current = tokenList.get(index++);
+        System.assertEquals('Identifier', current.type);
+        System.assertEquals('Boolean', current.target);
+
+        current = tokenList.get(index++);
+        System.assertEquals('Whitespace', current.type);
+        System.assertEquals(' ', current.target);
+
+        current = tokenList.get(index++);
+        System.assertEquals('Identifier', current.type);
+        System.assertEquals('val1', current.target);
+
+        current = tokenList.get(index++);
+        System.assertEquals('Whitespace', current.type);
+        System.assertEquals(' ', current.target);
+
+        current = tokenList.get(index++);
+        System.assertEquals('Operator', current.type);
+        System.assertEquals('=', current.target);
+
+        current = tokenList.get(index++);
+        System.assertEquals('Whitespace', current.type);
+        System.assertEquals(' ', current.target);
+
+        current = tokenList.get(index++);
+        System.assertEquals('BooleanLiteral', current.type);
+        System.assertEquals('true', current.target);
+
+        current = tokenList.get(index++);
+        System.assertEquals('Separator', current.type);
+        System.assertEquals(';', current.target);
+    }
+
+    @isTest(SeeAllData=false)
+    static void test01() {
+        final String apexClassText = 'String val1 = \'ABC\'123\';';
+        final RsvrApexLexicalParser parser = new RsvrApexLexicalParser();
+        List<RsvrApexLexicalParser.LexicalToken> tokenList = parser.parse(apexClassText);
+
+        Integer index = 0;
+        RsvrApexLexicalParser.LexicalToken current = tokenList.get(index++);
+        System.assertEquals('Identifier', current.type);
+        System.assertEquals('String', current.target);
+
+        current = tokenList.get(index++);
+        System.assertEquals('Whitespace', current.type);
+        System.assertEquals(' ', current.target);
+
+        current = tokenList.get(index++);
+        System.assertEquals('Identifier', current.type);
+        System.assertEquals('val1', current.target);
+
+        current = tokenList.get(index++);
+        System.assertEquals('Whitespace', current.type);
+        System.assertEquals(' ', current.target);
+
+        current = tokenList.get(index++);
+        System.assertEquals('Operator', current.type);
+        System.assertEquals('=', current.target);
+
+        current = tokenList.get(index++);
+        System.assertEquals('Whitespace', current.type);
+        System.assertEquals(' ', current.target);
+
+        current = tokenList.get(index++);
+        System.assertEquals('StringLiteral', current.type);
+        System.assertEquals('ABC\'123', current.target);
+
+        current = tokenList.get(index++);
+        System.assertEquals('Separator', current.type);
+        System.assertEquals(';', current.target);
     }
 }
