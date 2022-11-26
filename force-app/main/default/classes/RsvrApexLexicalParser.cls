@@ -898,13 +898,11 @@ public class RsvrApexLexicalParser {
 
         input.mark();
 
-        AtsignToken result = new AtsignToken();
-        result.type = 'Atsign';
-
-        result.target = '';
-
         Integer next = input.readChar();
         if (next == 64 /* [@] */) {
+            AtsignToken result = new AtsignToken();
+            result.type = 'Atsign';
+        
             result.target = RsvrApexLexicalParserUtil.int2string(next);
             result.original = result.target;
             return result;

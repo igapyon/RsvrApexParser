@@ -428,6 +428,26 @@ public class RsvrApexLexicalParserTest {
         System.assertEquals(1, tokenList.size());
     }
 
+    @isTest(SeeAllData=false)
+    static void testAtsign() {
+        final String apexClassText = '@isTest';
+        final RsvrApexLexicalParser parser = new RsvrApexLexicalParser();
+        List<RsvrApexLexicalParser.LexicalToken> tokenList = parser.parse(apexClassText);
+
+        Integer index = 0;
+        RsvrApexLexicalParser.LexicalToken current = tokenList.get(index++);
+        System.assertEquals('Atsign', current.type);
+        System.assertEquals('@', current.target);
+        System.assertEquals('@', current.original);
+
+        current = tokenList.get(index++);
+        System.assertEquals('Identifier', current.type);
+        System.assertEquals('isTest', current.target);
+        System.assertEquals('isTest', current.original);
+
+        System.assertEquals(2, tokenList.size());
+    }
+
     //////////////////////////////
     // memo
     // RsvrApexLexicalParserUtil.validateLexicalParser('RsvrApexLexicalParser', false);
