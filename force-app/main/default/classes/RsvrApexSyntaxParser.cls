@@ -26,9 +26,13 @@ public class RsvrApexSyntaxParser {
     }
 
     public class CompilationUnitToken extends SyntaxToken {
+        public TypeDeclarationToken typeDeclaration {get; set;}
     }
 
     public class TypeDeclarationToken extends SyntaxToken {
+    }
+
+    public class ModifierToken extends SyntaxToken {
     }
 
     public class ClassDeclarationToken extends SyntaxToken {
@@ -61,29 +65,63 @@ public class RsvrApexSyntaxParser {
     public class PropertyDeclarationToken extends SyntaxToken {
     }
 
-    public void parse() {
+    public class QualifiedNameToken extends SyntaxToken {
     }
 
+    public class FormalParametersToken extends SyntaxToken {
+    }
+
+    public class BlockToken extends SyntaxToken {
+    }
+
+    private Integer currentPos = 0;
+
+    /**
+     * // entry point for Apex trigger files
+        triggerUnit
+            : TRIGGER id ON id LPAREN triggerCase (COMMA triggerCase)* RPAREN block EOF
+            ;
+
+        triggerCase
+            : (BEFORE|AFTER) (INSERT|UPDATE|DELETE|UNDELETE)
+            ;
+
+        // entry point for Apex class files
+        compilationUnit
+            : typeDeclaration EOF
+            ;
+     */
+    public SyntaxToken parse(List<RsvrApexLexicalParser.LexicalToken> lexicaltokenList) {
+
+        // TODO TRIGGER TBDE
+
+        CompilationUnitToken compToken = new CompilationUnitToken();
+
+        TypeDeclarationToken tryToken = parseTypeDeclaration();
+        if (tryToken != null) {
+            compToken.typeDeclaration = tryToken;
+        }
+
+        return compToken;
+    }
+
+    /**
+        typeDeclaration
+            : modifier* classDeclaration
+            | modifier* enumDeclaration
+            | modifier* interfaceDeclaration
+     * 
+     */
+    public TypeDeclarationToken parseTypeDeclaration() {
+        return null;
+    }
+
+    public ModifierToken parseModifier() {
+        return null;
+    }
 
 /*
-// entry point for Apex trigger files
-triggerUnit
-    : TRIGGER id ON id LPAREN triggerCase (COMMA triggerCase)* RPAREN block EOF
-    ;
 
-triggerCase
-    : (BEFORE|AFTER) (INSERT|UPDATE|DELETE|UNDELETE)
-    ;
-
-// entry point for Apex class files
-compilationUnit
-    : typeDeclaration EOF
-    ;
-
-typeDeclaration
-    : modifier* classDeclaration
-    | modifier* enumDeclaration
-    | modifier* interfaceDeclaration
     ;
 
 classDeclaration
