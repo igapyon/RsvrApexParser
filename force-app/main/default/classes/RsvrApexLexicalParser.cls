@@ -32,31 +32,6 @@ public class RsvrApexLexicalParser {
         public String original {get; set;}
     }
 
-    public class KeywordToken extends LexicalToken {
-        public Integer no {get; set;}
-    }
-
-    public class LiteralToken extends LexicalToken {
-    }
-
-    public class SeparatorToken extends LexicalToken {
-    }
-
-    public class OperatorToken extends LexicalToken {
-    }
-
-    public class WhitespaceToken extends LexicalToken {
-    }
-
-    public class CommentToken extends LexicalToken {
-    }
-
-    public class IdentifierToken extends LexicalToken {
-    }
-
-    public class AtsignToken extends LexicalToken {
-    }
-
     public class PanicToken extends LexicalToken {
         public String message {get; set;}
         public String remainingtext {get; set;}
@@ -65,8 +40,8 @@ public class RsvrApexLexicalParser {
     private RsvrApexLexicalParserInput input = null;
     private List<RsvrApexLexicalParser.LexicalToken> tokenList = new List<RsvrApexLexicalParser.LexicalToken>();
 
-    ////////////////////////////////
-    // Mail process loop.
+    /////////////////////////////////////////////////////////////////
+    // Main process loop.
 
     /**
      * Parse given Apex Class text.
@@ -203,11 +178,15 @@ public class RsvrApexLexicalParser {
         return tokenList;
     }
 
-    // Mail process loop.
-    ////////////////////////////////
+    // Main process loop.
+    /////////////////////////////////////////////////////////////////
 
-    ///////////////////////////////////////
-    // Parse
+    /////////////////////////////////////////////////////////////////
+    // // Keywords
+
+    public class KeywordToken extends LexicalToken {
+        public Integer no {get; set;}
+    }
 
     private static Map<String,Integer> keywordNoMap = null;
 
@@ -275,15 +254,181 @@ public class RsvrApexLexicalParser {
         input.reset();
         return null;
     }
-
+    
+    // ABSTRACT      : 'abstract';
+    // AFTER         : 'after';
+    // BEFORE        : 'before';
+    // BREAK         : 'break';
+    // CATCH         : 'catch';
+    // CLASS         : 'class';
+    // CONTINUE      : 'continue';
+    // DELETE        : 'delete';
+    // DO            : 'do';
+    // ELSE          : 'else';
+    // ENUM          : 'enum';
+    // EXTENDS       : 'extends';
+    // FINAL         : 'final';
+    // FINALLY       : 'finally';
+    // FOR           : 'for';
+    // GET           : 'get';
+    // GLOBAL	      : 'global';
+    // IF            : 'if';
+    // IMPLEMENTS    : 'implements';
+    // INHERITED     : 'inherited';
+    // INSERT        : 'insert';
+    // INSTANCEOF    : 'instanceof';
+    // INTERFACE     : 'interface';
+    // MERGE         : 'merge';
+    // NEW           : 'new';
+    // NULL          : 'null';
+    // ON            : 'on';
+    // OVERRIDE      : 'override';
+    // PRIVATE       : 'private';
+    // PROTECTED     : 'protected';
+    // PUBLIC        : 'public';
+    // RETURN        : 'return';
+    // SYSTEMRUNAS   : 'system.runas';
+    // SET           : 'set';
+    // SHARING       : 'sharing';
+    // STATIC        : 'static';
+    // SUPER         : 'super';
+    // SWITCH        : 'switch';
+    // TESTMETHOD    : 'testmethod';
+    // THIS          : 'this';
+    // THROW         : 'throw';
+    // TRANSIENT     : 'transient';
+    // TRIGGER       : 'trigger';
+    // TRY           : 'try';
+    // UNDELETE      : 'undelete';
+    // UPDATE        : 'update';
+    // UPSERT        : 'upsert';
+    // VIRTUAL       : 'virtual';
+    // VOID          : 'void';
+    // WEBSERVICE    : 'webservice';
+    // WHEN          : 'when';
+    // WHILE         : 'while';
+    // WITH          : 'with';
+    // WITHOUT       : 'without';
     // 
-    // channels {
-    // WHITESPACE_CHANNEL,
-    // COMMENT_CHANNEL
-    // }
+    // // Apex generic types, Set is defined above for properties
+    // LIST          : 'list';
+    // MAP           : 'map';
+    // 
+    // // Soql specific keywords
+    // SELECT          : 'select';
+    // COUNT           : 'count';
+    // FROM            : 'from';
+    // AS              : 'as';
+    // USING           : 'using';
+    // SCOPE           : 'scope';
+    // WHERE           : 'where';
+    // ORDER           : 'order';
+    // BY              : 'by';
+    // LIMIT           : 'limit';
+    // SOQLAND         : 'and';
+    // SOQLOR          : 'or';
+    // NOT             : 'not';
+    // AVG             : 'avg';
+    // COUNT_DISTINCT  : 'count_distinct';
+    // MIN             : 'min';
+    // MAX             : 'max';
+    // SUM             : 'sum';
+    // TYPEOF          : 'typeof';
+    // END             : 'end';
+    // THEN            : 'then';
+    // LIKE            : 'like';
+    // IN              : 'in';
+    // INCLUDES        : 'includes';
+    // EXCLUDES        : 'excludes';
+    // ASC             : 'asc';
+    // DESC            : 'desc';
+    // NULLS           : 'nulls';
+    // FIRST           : 'first';
+    // LAST            : 'last';
+    // GROUP           : 'group';
+    // ALL             : 'all';
+    // ROWS            : 'rows';
+    // VIEW            : 'view';
+    // HAVING          : 'having';
+    // ROLLUP          : 'rollup';
+    // TOLABEL         : 'tolabel';
+    // OFFSET          : 'offset';
+    // DATA            : 'data';
+    // CATEGORY        : 'category';
+    // AT              : 'at';
+    // ABOVE           : 'above';
+    // BELOW           : 'below';
+    // ABOVE_OR_BELOW  : 'above_or_below';
+    // SECURITY_ENFORCED : 'security_enforced';
+    // REFERENCE       : 'reference';
+    // CUBE            : 'cube';
+    // FORMAT          : 'format';
+    // TRACKING        : 'tracking';
+    // VIEWSTAT        : 'viewstat';
+    // CUSTOM          : 'custom';
+    // STANDARD        : 'standard';
+    // DISTANCE        : 'distance';
+    // GEOLOCATION     : 'geolocation';
+    // 
+    // // SOQL Date functions
+    // CALENDAR_MONTH      : 'calendar_month';
+    // CALENDAR_QUARTER    : 'calendar_quarter';
+    // CALENDAR_YEAR       : 'calendar_year';
+    // DAY_IN_MONTH        : 'day_in_month';
+    // DAY_IN_WEEK         : 'day_in_week';
+    // DAY_IN_YEAR         : 'day_in_year';
+    // DAY_ONLY            : 'day_only';
+    // FISCAL_MONTH        : 'fiscal_month';
+    // FISCAL_QUARTER      : 'fiscal_quarter';
+    // FISCAL_YEAR         : 'fiscal_year';
+    // HOUR_IN_DAY         : 'hour_in_day';
+    // WEEK_IN_MONTH       : 'week_in_month';
+    // WEEK_IN_YEAR        : 'week_in_year';
+    // CONVERT_TIMEZONE    : 'converttimezone';
+    // 
+    // // SOQL Date formulas
+    // YESTERDAY                 : 'yesterday';
+    // TODAY                     : 'today';
+    // TOMORROW                  : 'tomorrow';
+    // LAST_WEEK                 : 'last_week';
+    // THIS_WEEK                 : 'this_week';
+    // NEXT_WEEK                 : 'next_week';
+    // LAST_MONTH                : 'last_month';
+    // THIS_MONTH                : 'this_month';
+    // NEXT_MONTH                : 'next_month';
+    // LAST_90_DAYS              : 'last_90_days';
+    // NEXT_90_DAYS              : 'next_90_days';
+    // LAST_N_DAYS_N             : 'last_n_days';
+    // NEXT_N_DAYS_N             : 'next_n_days';
+    // NEXT_N_WEEKS_N            : 'next_n_weeks';
+    // LAST_N_WEEKS_N            : 'last_n_weeks';
+    // NEXT_N_MONTHS_N           : 'next_n_months';
+    // LAST_N_MONTHS_N           : 'last_n_months';
+    // THIS_QUARTER              : 'this_quarter';
+    // LAST_QUARTER              : 'last_quarter';
+    // NEXT_QUARTER              : 'next_quarter';
+    // NEXT_N_QUARTERS_N         : 'next_n_quarters';
+    // LAST_N_QUARTERS_N         : 'last_n_quarters';
+    // THIS_YEAR                 : 'this_year';
+    // LAST_YEAR                 : 'last_year';
+    // NEXT_YEAR                 : 'next_year';
+    // NEXT_N_YEARS_N            : 'next_n_years';
+    // LAST_N_YEARS_N            : 'last_n_years';
+    // THIS_FISCAL_QUARTER       : 'this_fiscal_quarter';
+    // LAST_FISCAL_QUARTER       : 'last_fiscal_quarter';
+    // NEXT_FISCAL_QUARTER       : 'next_fiscal_quarter';
+    // NEXT_N_FISCAL_QUARTERS_N  : 'next_n_fiscal_quarters';
+    // LAST_N_FISCAL_QUARTERS_N  : 'last_n_fiscal_quarters';
+    // THIS_FISCAL_YEAR          : 'this_fiscal_year';
+    // LAST_FISCAL_YEAR          : 'last_fiscal_year';
+    // NEXT_FISCAL_YEAR          : 'next_fiscal_year';
+    // NEXT_N_FISCAL_YEARS_N     : 'next_n_fiscal_years';
+    // LAST_N_FISCAL_YEARS_N     : 'last_n_fiscal_years';
 
-    // SOQL Date literal
+    /////////////////////////////////////////////////////////////////
+    // // SOQL Date literal
     // DateLiteral: Digit Digit Digit Digit '-' Digit Digit '-' Digit Digit;
+
     private LiteralToken parseDateLiteral() {
         procTime.enter('parseDateLiteral');
         input.mark();
@@ -351,7 +496,9 @@ public class RsvrApexLexicalParser {
         return result;
     }    
 
+    /////////////////////////////////////////////////////////////////
     // DateTimeLiteral: DateLiteral 't' Digit Digit ':' Digit Digit ':' Digit Digit ('z' | (('+' | '-') Digit+ ( ':' Digit+)? ));
+
     private LiteralToken parseDateTimeLiteral() {
         procTime.enter('parseDateTimeLiteral');
         input.mark();
@@ -502,59 +649,86 @@ public class RsvrApexLexicalParser {
         return result;
     }
 
-    // TODO SOQL Currency literal は一旦未着手のまま放置。
-
-    // SOQL Currency literal
-    // (NOTE: this is also a valid Identifier)
+    // // SOQL Currency literal
+    // // (NOTE: this is also a valid Identifier)
     // IntegralCurrencyLiteral: [a-z] [a-z] [a-z] Digit+;
 
-    // TODO FIND 系は一旦未着手のまま放置。
+    // TODO SOQL Currency literal は一旦未着手のまま放置。
+
+    // // SOSL Keywords
+    // FIND                      : 'find';
+    // EMAIL                     : 'email';
+    // NAME                      : 'name';
+    // PHONE                     : 'phone';
+    // SIDEBAR                   : 'sidebar';
+    // FIELDS                    : 'fields';
+    // METADATA                  : 'metadata';
+    // PRICEBOOKID               : 'pricebookid';
+    // NETWORK                   : 'network';
+    // SNIPPET                   : 'snippet';
+    // TARGET_LENGTH             : 'target_length';
+    // DIVISION                  : 'division';
+    // RETURNING                 : 'returning';
+    // LISTVIEW                  : 'listview';
 
     // FindLiteral
-    // :   '[' WS? 'find' WS '\'' FindCharacters? '\''
-    // ;
+    //     :   '[' WS? 'find' WS '\'' FindCharacters? '\''
+    //     ;
+
+    // TODO FIND 系は一旦未着手のまま放置。
 
     // fragment
     // FindCharacters
     //     :   FindCharacter+
     //     ;
-
+    // 
     // fragment
     // FindCharacter
     //     :   ~['\\]
     //     |   FindEscapeSequence
     //     ;
+    // 
     // FindLiteralAlt
     //     :   '[' WS? 'find' WS '{' FindCharactersAlt? '}'
     //     ;
+    // 
     // fragment
     // FindCharactersAlt
     //     :   FindCharacterAlt+
     //     ;
+    // 
     // fragment
     // FindCharacterAlt
     //     :   ~[}\\]
     //     |   FindEscapeSequence
     //     ;
+    // 
     // fragment
     // FindEscapeSequence
-    //     :   '\\' [+\-&|!(){}^"~*?:'\\]
+    //     :   '\\' [+\-&|!(){}    // "~*?:'\\]
     //     ;
 
+    /////////////////////////////////////////////////////////////////
+    //
+
+    public class LiteralToken extends LexicalToken {
+    }
+
+    /////////////////////////////////////////////////////////////////
     // // §3.10.1 Integer Literals
     // 
     // IntegerLiteral
     //     :   Digit Digit*
     //     ;
     // 
-
     // LongLiteral
     //     : Digit Digit* [lL]
     //     ;
-
+    // 
     // NumberLiteral
     //     :   Digit* '.' Digit Digit* [dD]?
     //     ;
+
     private LexicalToken parseNumberLiteral() {
         procTime.enter('parseNumberLiteral');
         input.mark();
@@ -641,34 +815,31 @@ public class RsvrApexLexicalParser {
         }
     }
 
-    // // §3.10.3 Boolean Literals
+    // fragment
+    // HexCharacter
+    //     :   Digit | 'a' | 'b' | 'c' | 'd' | 'e' | 'f'
+    //     ;
+    // 
+    // fragment
+    // Digit
+    //     :   [0-9]
+    //     ;
 
+    /////////////////////////////////////////////////////////////////
+    // // §3.10.3 Boolean Literals
+    // 
     // BooleanLiteral
     //     :   'true'
     //     |   'false'
     //     ;
 
-    // // §3.10.5 String Literals
+    // Note: BooleanLiteral は parseIdentifier の内部で実現。
 
+    /////////////////////////////////////////////////////////////////
+    // // §3.10.5 String Literals
+    // 
     // StringLiteral
     //     :   '\'' StringCharacters? '\''
-    //     ;
-
-    // fragment
-    // StringCharacters
-    //     :   StringCharacter+
-    //     ;
-
-    // fragment
-    // StringCharacter
-    //     :   ~['\\]
-    //     |   EscapeSequence
-    //     ;
-    // // §3.10.6 Escape Sequences for Character and String Literals
-    // fragment
-    // EscapeSequence
-    //     :   '\\' [btnfr"'\\]
-    //     |   '\\u' HexCharacter HexCharacter HexCharacter HexCharacter
     //     ;
 
     private LiteralToken parseStringLiteral() {
@@ -808,11 +979,49 @@ public class RsvrApexLexicalParser {
         return null;
     }
 
-    // // §3.10.7 The Null Literal
+    // fragment
+    // StringCharacters
+    //     :   StringCharacter+
+    //     ;
+    // 
+    // fragment
+    // StringCharacter
+    //     :   ~['\\]
+    //     |   EscapeSequence
+    //     ;
+    // 
+    // // §3.10.6 Escape Sequences for Character and String Literals
+    // 
+    // fragment
+    // EscapeSequence
+    //     :   '\\' [btnfr"'\\]
+    //     |   '\\u' HexCharacter HexCharacter HexCharacter HexCharacter
+    //     ;
 
+    /////////////////////////////////////////////////////////////////
+    // // §3.10.7 The Null Literal
+    // 
     // NullLiteral
     //     :   NULL
     //     ;
+
+    // Note: NullLiteral は parseKeyword の内部で実現。
+
+    /////////////////////////////////////////////////////////////////
+    // // §3.11 Separators
+    // 
+    // LPAREN          : '(';
+    // RPAREN          : ')';
+    // LBRACE          : '{';
+    // RBRACE          : '}';
+    // LBRACK          : '[';
+    // RBRACK          : ']';
+    // SEMI            : ';';
+    // COMMA           : ',';
+    // DOT             : '.';
+
+    public class SeparatorToken extends LexicalToken {
+    }
 
     /**
      * Parse separator.
@@ -837,7 +1046,48 @@ public class RsvrApexLexicalParser {
         return null;
     }
 
+    /////////////////////////////////////////////////////////////////
     // // §3.12 Operators
+    // 
+    // ASSIGN          : '=';
+    // GT              : '>';
+    // LT              : '<';
+    // BANG            : '!';
+    // TILDE           : '~';
+    // QUESTIONDOT     : '?.';
+    // QUESTION        : '?';
+    // COLON           : ':';
+    // EQUAL           : '==';
+    // TRIPLEEQUAL     : '===';
+    // NOTEQUAL        : '!=';
+    // LESSANDGREATER  : '<>';
+    // TRIPLENOTEQUAL  : '!==';
+    // AND             : '&&';
+    // OR              : '||';
+    // INC             : '++';
+    // DEC             : '--';
+    // ADD             : '+';
+    // SUB             : '-';
+    // MUL             : '*';
+    // DIV             : '/';
+    // BITAND          : '&';
+    // BITOR           : '|';
+    // CARET           : '    // ';
+    // MAPTO           : '=>';
+    // 
+    // ADD_ASSIGN      : '+=';
+    // SUB_ASSIGN      : '-=';
+    // MUL_ASSIGN      : '*=';
+    // DIV_ASSIGN      : '/=';
+    // AND_ASSIGN      : '&=';
+    // OR_ASSIGN       : '|=';
+    // XOR_ASSIGN      : '    // =';
+    // LSHIFT_ASSIGN   : '<<=';
+    // RSHIFT_ASSIGN   : '>>=';
+    // URSHIFT_ASSIGN  : '>>>=';
+
+    public class OperatorToken extends LexicalToken {
+    }
 
     private OperatorToken parseOperator() {
         procTime.enter('parseOperator');
@@ -900,11 +1150,16 @@ public class RsvrApexLexicalParser {
         return null;
     }
 
-    //
-    // Additional symbols not defined in the lexical specification
-    //
-
+    /////////////////////////////////////////////////////////////////
+    // //
+    // // Additional symbols not defined in the lexical specification
+    // //
+    // 
     // ATSIGN : '@';
+
+    public class AtsignToken extends LexicalToken {
+    }
+
     private AtsignToken parseAtsign() {
         procTime.enter('parseAtsign');
 
@@ -924,11 +1179,16 @@ public class RsvrApexLexicalParser {
         return null;
     }
 
+    /////////////////////////////////////////////////////////////////
     // // §3.8 Identifiers (must appear after all keywords in the grammar)
-
+    // 
     // Identifier
     //     :   JavaLetter JavaLetterOrDigit*
     //     ;
+
+    public class IdentifierToken extends LexicalToken {
+    }
+
     private LexicalToken parseIdentifier() {
         procTime.enter('parseIdentifier');
 
@@ -993,12 +1253,37 @@ public class RsvrApexLexicalParser {
         return null;
     }
 
+    // // Apex identifiers don't support non-ascii but we maintain Java rules here and post-validate
+    // // so we can give better error messages
+    // fragment
+    // JavaLetter
+    //     :   [a-zA-Z$_] // these are the "java letters" below 0xFF
+    //     |   // covers all characters above 0xFF which are not a surrogate
+    //         ~[\u0000-\u00FF\uD800-\uDBFF]
+    //     |   // covers UTF-16 surrogate pairs encodings for U+10000 to U+10FFFF
+    //         [\uD800-\uDBFF] [\uDC00-\uDFFF]
+    //     ;
+    // 
+    // fragment
+    // JavaLetterOrDigit
+    //     :   [a-zA-Z0-9$_] // these are the "java letters or digits" below 0xFF
+    //     |   // covers all characters above 0xFF which are not a surrogate
+    //         ~[\u0000-\u00FF\uD800-\uDBFF]
+    //     |   // covers UTF-16 surrogate pairs encodings for U+10000 to U+10FFFF
+    //         [\uD800-\uDBFF] [\uDC00-\uDFFF]
+    //     ;
+
+    /////////////////////////////////////////////////////////////////
     // //
     // // Whitespace and comments
     // //
-
-    // WS  :  [ trnu000C]+ -> channel(WHITESPACE_CHANNEL)
+    // 
+    // WS  :  [ \t\r\n\u000C]+ -> channel(WHITESPACE_CHANNEL)
     //     ;
+
+    public class WhitespaceToken extends LexicalToken {
+    }
+
     private WhitespaceToken parseWhitespace() {
         procTime.enter('parseWhitespace');
 
@@ -1046,13 +1331,18 @@ public class RsvrApexLexicalParser {
         return result;
     }
 
+    /////////////////////////////////////////////////////////////////
     // DOC_COMMENT
-    //     :   /** .*? */ -> channel(COMMENT_CHANNEL)
+    //     :   '/**' .*? '*/' -> channel(COMMENT_CHANNEL)
     //     ;
-
+    // 
     // COMMENT
     //     :   '/*' .*? '*/' -> channel(COMMENT_CHANNEL)
     //     ;
+
+    public class CommentToken extends LexicalToken {
+    }
+
     private CommentToken parseComment() {
         procTime.enter('parseComment');
 
@@ -1120,10 +1410,12 @@ public class RsvrApexLexicalParser {
         input.reset();
         return null;
     }
-
+    
+    /////////////////////////////////////////////////////////////////
     // LINE_COMMENT
-    //     :   // ~[rn]* -> channel(COMMENT_CHANNEL)
+    //     :   '//' ~[\r\n]* -> channel(COMMENT_CHANNEL)
     //     ;
+
     private CommentToken parseLineComment() {
         procTime.enter('parseLineComment');
 
