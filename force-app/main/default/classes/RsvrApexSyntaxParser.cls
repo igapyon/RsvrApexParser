@@ -74,6 +74,7 @@ public class RsvrApexSyntaxParser {
     public class BlockToken extends SyntaxToken {
     }
 
+    private List<RsvrApexLexicalParser.LexicalToken> lexicalTokenList;
     private Integer currentPos = 0;
 
     /**
@@ -91,7 +92,8 @@ public class RsvrApexSyntaxParser {
             : typeDeclaration EOF
             ;
      */
-    public SyntaxToken parse(List<RsvrApexLexicalParser.LexicalToken> lexicaltokenList) {
+    public SyntaxToken parse(List<RsvrApexLexicalParser.LexicalToken> lexicalTokenList) {
+        this.lexicalTokenList = lexicalTokenList;
 
         // TODO TRIGGER TBDE
 
