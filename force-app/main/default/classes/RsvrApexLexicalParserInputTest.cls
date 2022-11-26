@@ -22,10 +22,22 @@
  * @since 2022-11-23
  */
 @isTest(SeeAllData=false)
-private class RsvrApexSyntaxParserTest {
+private class RsvrApexLexicalParserInputTest {
     @isTest(SeeAllData=false)
     static void test01() {
-        RsvrApexSyntaxParser parser = new RsvrApexSyntaxParser();
-        parser.parse();
+        final String apexClassText = '@isTest(SeeAllData=false)\n'
+            + 'private class RsvrApexLexicalParserTest11 {\n'
+            + '    // SOQL および SOSL クエリ\n'
+            + '    @isTest(SeeAllData=false)\n'
+            + '    static void test01() {\n'
+            + '        List<Account> aa = [SELECT Id, Name FROM Account WHERE Name = \'Acme\'];\n'
+            + '    }';
+        final RsvrApexLexicalParserInput input = new RsvrApexLexicalParserInput(apexClassText);
+        input.mark();
+        input.reset();
+        input.move(0);
+        input.pos();
+        input.readChar();
+        input.getRemainingtext(false);
     }
 }

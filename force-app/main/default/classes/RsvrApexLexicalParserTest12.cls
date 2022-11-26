@@ -22,10 +22,34 @@
  * @since 2022-11-23
  */
 @isTest(SeeAllData=false)
-private class RsvrApexSyntaxParserTest {
+private class RsvrApexLexicalParserTest12 {
+    // Literals
+
+    /**
+     * 文字列リテラルのエスケープに関する簡単な確認。
+     */
+
     @isTest(SeeAllData=false)
     static void test01() {
-        RsvrApexSyntaxParser parser = new RsvrApexSyntaxParser();
-        parser.parse();
+        Integer val1 = 123;
+        Long val2 = 123L;
+        Double val3 = 123.456;
+        Boolean val4 = true;
+        Boolean val5 = false;
+        String val6 = null;
+    }
+
+    @isTest(SeeAllData=false)
+    static void test02() {
+        String val1 = 'ABC';
+        String val2 = 'A\'C';
+        String val3 = 'A\\C';
+        String val4 = 'A\nC';
+    }
+
+    @isTest(SeeAllData=false)
+    static void test03() {
+        String val1 = 'A\'C';
+        List<Integer> myList = val1.getChars();
     }
 }

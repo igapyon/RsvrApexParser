@@ -22,10 +22,24 @@
  * @since 2022-11-23
  */
 @isTest(SeeAllData=false)
-private class RsvrApexSyntaxParserTest {
+private class RsvrApexLexicalParserTest01 {
+    /**
+     * ApexClass オブジェクトに格納されている Apex Class を新しいものからN個試みでパースする。
+     */
     @isTest(SeeAllData=false)
     static void test01() {
-        RsvrApexSyntaxParser parser = new RsvrApexSyntaxParser();
-        parser.parse();
+        try {
+            List<ApexClass> apcList = [SELECT Name, Body, NamespacePrefix
+                FROM ApexClass
+                WHERE Status = 'Active'
+                ORDER BY LastModifiedDate DESC
+                LIMIT 1];
+
+            for (ApexClass apc : apcList) {
+                System.debug('Check: ' + apc.Name);
+                RsvrApexLexicalParserUtil.validateLexicalParser(apc.Name, false);
+            }
+        } catch (QueryException ex) {
+        }
     }
 }

@@ -13,6 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+/**
+ * Reservoir Apex Language Parser.
+ * 
+ * This class provide Constants of Apex Language.
+ * 
+ * @since 2022-11-23
+ */
 public class RsvrApexConstants {
     public static final Integer KEY_ABSTRACT = 0;
     public static final Integer KEY_AFTER = 1;
@@ -438,6 +446,8 @@ public class RsvrApexConstants {
     public static final Integer OPE_LSHIFT_ASSIGN   = 32; // '<<='
     public static final Integer OPE_RSHIFT_ASSIGN   = 33; // '>>='
     public static final Integer OPE_URSHIFT_ASSIGN  = 34; // '>>>='
+    public static final Integer OPE_GE              = 35; // '>=' (iga added)
+    public static final Integer OPE_LE              = 36; // '<=' (iga added)
     
     public static final String[] OPERATORS = new String[]{
         '=',
@@ -474,6 +484,8 @@ public class RsvrApexConstants {
         '^=',
         '<<=',
         '>>=',
-        '>>>='
+        '>>>=',
+        '>=', // (iga added)
+        '<=' // (iga added)
     };
 }

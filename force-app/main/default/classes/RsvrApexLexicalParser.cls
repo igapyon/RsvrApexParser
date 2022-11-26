@@ -13,8 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+/**
+ * Reservoir Apex Language Parser.
+ * 
+ * This class provide Lexical Parser for Apex Language.
+ * 
+ * @since 2022-11-23
+ */
 public class RsvrApexLexicalParser {
     private static final Boolean IS_DEBUG = false;
+
+    private static final RsvrProcTime procTime = new RsvrProcTime('RsvrApexLexicalParser');
 
     public abstract class LexicalToken {
         public String type {get; set;}
@@ -51,190 +61,198 @@ public class RsvrApexLexicalParser {
         public String remainingtext {get; set;}
     }
 
-    private String apexClassText;
-    private List<LexicalToken> tokenList = new List<LexicalToken>();
-    private Integer currentPos = -1;
-    private Integer markPos = -1;
-
-    private Integer readChar() {
-        currentPos++;
-        if (apexClassText.length() <= currentPos) {
-            // end of string.
-            return -1;
-        }
-
-        return apexClassText.charAt(currentPos);
-    }
-
-    private Integer mark() {
-        markPos = currentPos;
-        return markPos;
-    }
-
-    private void move(Integer pos) {
-        currentPos = pos;
-    }
-
-    private Integer pos() {
-        return currentPos;
-    }
-
-    private void reset() {
-        currentPos = markPos;
-    }
+    private RsvrApexLexicalParserInput input = null;
+    private List<RsvrApexLexicalParser.LexicalToken> tokenList = new List<RsvrApexLexicalParser.LexicalToken>();
 
     ////////////////////////////////
-    // Mail process.
+    // Mail process loop.
 
+    /**
+     * Parse given Apex Class text.
+     * 
+     * @param apexClassText Apex Class Text.
+     * @return List of LexicalToken.
+     */
     public List<LexicalToken> parse(String apexClassText) {
-        this.apexClassText = apexClassText;
-        tokenList = new List<LexicalToken>();
-        currentPos = -1;
-        markPos = -1;
+        input = new RsvrApexLexicalParserInput(apexClassText);
 
         for (;;) {
-            if (IS_DEBUG) System.debug('TRACE: Current remaining text: ' + getRemainingtext(true));
-            {
-                // Check End of file.
-                mark();
-                if (readChar() == -1) {
-                    if (IS_DEBUG) System.debug('TRACE: check EOF: ');
-                    // End of file
-                    break;
-                }
-                reset();
+            if (IS_DEBUG) System.debug('TRACE: Current remaining text: ' + input.getRemainingtext(true));
+
+            ////////////////////////////////
+            // Check End of file.
+            input.mark();
+            if (input.readChar() == -1) {
+                if (IS_DEBUG) System.debug('TRACE: check EOF: ');
+                // End of file
+                break;
+            }
+            input.reset();
+
+            // Parse.
+            LexicalToken tok = null;
+
+            ////////////////////////
+            // Whitespace and comments.
+
+            if (IS_DEBUG) System.debug('TRACE: parseWhitespace: ');
+            tok = parseWhitespace();
+            if (tok != null) {
+                tokenList.add(tok);
+                continue;
             }
 
-            {
-                if (IS_DEBUG) System.debug('TRACE: parseKeyword: ');
-                KeywordToken tok = parseKeyword();
-                if (tok != null) {
-                    tokenList.add(tok);
-                    continue;
-                }
+            if (IS_DEBUG) System.debug('TRACE: parseComment: ');
+            tok = parseComment();
+            if (tok != null) {
+                tokenList.add(tok);
+                continue;
             }
-            {
-                if (IS_DEBUG) System.debug('TRACE: parseIdentifier: ');
-                IdentifierToken tok = parseIdentifier();
-                if (tok != null) {
-                    tokenList.add(tok);
-                    continue;
-                }
+
+            if (IS_DEBUG) System.debug('TRACE: parseLineComment: ');
+            tok = parseLineComment();
+            if (tok != null) {
+                tokenList.add(tok);
+                continue;
             }
-            {
-                if (IS_DEBUG) System.debug('TRACE: parseSeparator: ');
-                SeparatorToken tok = parseSeparator();
-                if (tok != null) {
-                    tokenList.add(tok);
-                    continue;
-                }
+
+            //////////////////////////////////////////////////////////
+
+            if (IS_DEBUG) System.debug('TRACE: parseKeyword: ');
+            tok = parseKeyword();
+            if (tok != null) {
+                tokenList.add(tok);
+                continue;
             }
-            {
-                if (IS_DEBUG) System.debug('TRACE: parseOperator: ');
-                OperatorToken tok = parseOperator();
-                if (tok != null) {
-                    tokenList.add(tok);
-                    continue;
-                }
+
+            if (IS_DEBUG) System.debug('TRACE: parseIdentifier: ');
+            tok = parseIdentifier();
+            if (tok != null) {
+                tokenList.add(tok);
+                continue;
             }
-            {
-                if (IS_DEBUG) System.debug('TRACE: parseAtsign: ');
-                AtsignToken tok = parseAtsign();
-                if (tok != null) {
-                    tokenList.add(tok);
-                    continue;
-                }
+
+            if (IS_DEBUG) System.debug('TRACE: parseSeparator: ');
+            tok = parseSeparator();
+            if (tok != null) {
+                tokenList.add(tok);
+                continue;
+            }
+
+            if (IS_DEBUG) System.debug('TRACE: parseOperator: ');
+            tok = parseOperator();
+            if (tok != null) {
+                tokenList.add(tok);
+                continue;
+            }
+
+            if (IS_DEBUG) System.debug('TRACE: parseAtsign: ');
+            tok = parseAtsign();
+            if (tok != null) {
+                tokenList.add(tok);
+                continue;
             }
 
             ////////////////////////
             // Literals
 
-            {
-                if (IS_DEBUG) System.debug('TRACE: parseStringLiteral: ');
-                LiteralToken tok = parseStringLiteral();
-                if (tok != null) {
-                    tokenList.add(tok);
-                    continue;
-                }
-            }
-
-            ////////////////////////
-            // Whitespace and comments.
-
-            {
-                if (IS_DEBUG) System.debug('TRACE: parseWS: ');
-                WhitespaceToken tok = parseWS();
-                if (tok != null) {
-                    tokenList.add(tok);
-                    continue;
-                }
-            }
-            {
-                if (IS_DEBUG) System.debug('TRACE: parseDocComment: ');
-                CommentToken tok = parseDocComment();
-                if (tok != null) {
-                    tokenList.add(tok);
-                    continue;
-                }
-            }
-            {
-                if (IS_DEBUG) System.debug('TRACE: parseComment: ');
-                CommentToken tok = parseComment();
-                if (tok != null) {
-                    tokenList.add(tok);
-                    continue;
-                }
-            }
-            {
-                if (IS_DEBUG) System.debug('TRACE: parseLineComment: ');
-                CommentToken tok = parseLineComment();
-                if (tok != null) {
-                    tokenList.add(tok);
-                    continue;
-                }
-            }
-
-            // Can't here.
-            {
-                System.debug('TRACE: PANIC: Unexpected error. Process stopped.: ' + getRemainingtext(true));
-                PanicToken tok = new PanicToken();
-                tok.type = 'PANIC';
-                tok.message = 'Unexpected error. Process stopped.';
-                tok.remainingtext = getRemainingtext(false);
+            // parseDateLiteral より先にparseDateTimeLiteralを実施。
+            if (IS_DEBUG) System.debug('TRACE: parseDateTimeLiteral: ');
+            tok = parseDateTimeLiteral();
+            if (tok != null) {
                 tokenList.add(tok);
+                continue;
+            }
+
+            if (IS_DEBUG) System.debug('TRACE: parseDateLiteral: ');
+            tok = parseDateLiteral();
+            if (tok != null) {
+                tokenList.add(tok);
+                continue;
+            }            
+
+            if (IS_DEBUG) System.debug('TRACE: parseStringLiteral: ');
+            tok = parseStringLiteral();
+            if (tok != null) {
+                tokenList.add(tok);
+                continue;
+            }
+
+            // NumberのパースはLongより先に実施。
+            if (IS_DEBUG) System.debug('TRACE: parseNumberLiteral: ');
+            tok = parseNumberLiteral();
+            if (tok != null) {
+                tokenList.add(tok);
+                continue;
+            }
+                        
+            // Do NOT enter here..
+            {
+                System.debug('TRACE: PANIC: Unexpected error. Process stopped.: [' + input.getRemainingtext(true) + ']');
+                PanicToken panic = new PanicToken();
+                panic.type = 'PANIC';
+                panic.message = 'Unexpected error. Process stopped.';
+                panic.remainingtext = input.getRemainingtext(false);
+                tokenList.add(panic);
                 break;
             }        
         }
-        
+
+        procTime.close();
         return tokenList;
     }
+
+    // Mail process loop.
+    ////////////////////////////////
 
     ///////////////////////////////////////
     // Parse
 
-    private KeywordToken parseKeyword() {
-        KeywordToken result = new KeywordToken();
-        result.type = 'Keyword';
+    private LexicalToken parseKeyword() {
+        procTime.enter('parseKeyword');
 
-        mark();
-        result.target = '';
+        input.mark();
+
+        List<Integer> targetList = null;
+
         Boolean isExist = false;
-        for (;;) {
-            Integer next = readChar();
-            if (isJavaLetter(next)) {
+        for (Integer index = 0; index < 100/* for safety */; index++) {
+            Integer next = input.readChar();
+
+            if (RsvrApexLexicalParserUtil.isJavaLetter(next)) {
                 isExist = true;
-                result.target = result.target + int2string(next);
+                if (targetList == null) {
+                    targetList = new List<Integer>();
+                }
+                targetList.add(next);
                 continue;
             } else {
                 if (isExist == false) {
-                    reset();
+                    input.reset();
                     return null;
                 }
 
-                move(pos() - 1);
-                if (isKeyword(result.target)) {
+                if (next != -1) {
+                    input.move(input.pos() - 1);
+                }
+
+                String target = String.fromCharArray(targetList);
+
+                if (target.toLowerCase() == 'null') {
                     // Hit
-                    mark();
+                    input.mark();
+                    LiteralToken result = new LiteralToken();
+                    result.type = 'NullLiteral';
+                    result.target = target;
+                    result.original = result.target;
+                    return result;
+                }
+                if (RsvrApexLexicalParserUtil.isKeyword(target)) {
+                    // Hit
+                    input.mark();
+                    KeywordToken result = new KeywordToken();
+                    result.type = 'Keyword';
+                    result.target = target;
                     result.original = result.target;
                     return result;
                 } else {
@@ -243,7 +261,7 @@ public class RsvrApexLexicalParser {
             }
         }
 
-        reset();
+        input.reset();
         return null;
     }
 
@@ -255,12 +273,231 @@ public class RsvrApexLexicalParser {
 
     // SOQL Date literal
     // DateLiteral: Digit Digit Digit Digit '-' Digit Digit '-' Digit Digit;
+    private LiteralToken parseDateLiteral() {
+        procTime.enter('parseDateLiteral');
+        input.mark();
+
+        Integer val1 = input.readChar();
+        if (RsvrApexLexicalParserUtil.isDigit(val1) == false) {
+            input.reset();
+            return null;
+        }
+        Integer val2 = input.readChar();
+        if (RsvrApexLexicalParserUtil.isDigit(val2) == false) {
+            input.reset();
+            return null;
+        }
+        Integer val3 = input.readChar();
+        if (RsvrApexLexicalParserUtil.isDigit(val3) == false) {
+            input.reset();
+            return null;
+        }
+        Integer val4 = input.readChar();
+        if (RsvrApexLexicalParserUtil.isDigit(val4) == false) {
+            input.reset();
+            return null;
+        }
+        Integer val5 = input.readChar();
+        if (val5 != 45 /* [-] */) {
+            input.reset();
+            return null;
+        }
+        Integer val6 = input.readChar();
+        if (RsvrApexLexicalParserUtil.isDigit(val6) == false) {
+            input.reset();
+            return null;
+        }
+        Integer val7 = input.readChar();
+        if (RsvrApexLexicalParserUtil.isDigit(val7) == false) {
+            input.reset();
+            return null;
+        }
+        Integer val8 = input.readChar();
+        if (val8 != 45 /* [-] */) {
+            input.reset();
+            return null;
+        }
+        Integer val9 = input.readChar();
+        if (RsvrApexLexicalParserUtil.isDigit(val9) == false) {
+            input.reset();
+            return null;
+        }
+        Integer val10 = input.readChar();
+        if (RsvrApexLexicalParserUtil.isDigit(val10) == false) {
+            input.reset();
+            return null;
+        }
+
+        LiteralToken result = new LiteralToken();
+        result.type = 'DateLiteral';
+        result.target = '';
+
+        // この時点でDateリテラルとする。
+        result.target = RsvrApexLexicalParserUtil.int2string(val1) + RsvrApexLexicalParserUtil.int2string(val2) + RsvrApexLexicalParserUtil.int2string(val3) + RsvrApexLexicalParserUtil.int2string(val4) + RsvrApexLexicalParserUtil.int2string(val5) + RsvrApexLexicalParserUtil.int2string(val6) + RsvrApexLexicalParserUtil.int2string(val7) + RsvrApexLexicalParserUtil.int2string(val8) + RsvrApexLexicalParserUtil.int2string(val9) + RsvrApexLexicalParserUtil.int2string(val10);
+        result.original = result.target;
+        input.mark();
+
+        return result;
+    }    
+
     // DateTimeLiteral: DateLiteral 't' Digit Digit ':' Digit Digit ':' Digit Digit ('z' | (('+' | '-') Digit+ ( ':' Digit+)? ));
+    private LiteralToken parseDateTimeLiteral() {
+        procTime.enter('parseDateTimeLiteral');
+        input.mark();
+
+        Integer val1 = input.readChar();
+        if (RsvrApexLexicalParserUtil.isDigit(val1) == false) {
+            input.reset();
+            return null;
+        }
+        Integer val2 = input.readChar();
+        if (RsvrApexLexicalParserUtil.isDigit(val2) == false) {
+            input.reset();
+            return null;
+        }
+        Integer val3 = input.readChar();
+        if (RsvrApexLexicalParserUtil.isDigit(val3) == false) {
+            input.reset();
+            return null;
+        }
+        Integer val4 = input.readChar();
+        if (RsvrApexLexicalParserUtil.isDigit(val4) == false) {
+            input.reset();
+            return null;
+        }
+        Integer val5 = input.readChar();
+        if (val5 != 45 /* [-] */) {
+            input.reset();
+            return null;
+        }
+        Integer val6 = input.readChar();
+        if (RsvrApexLexicalParserUtil.isDigit(val6) == false) {
+            input.reset();
+            return null;
+        }
+        Integer val7 = input.readChar();
+        if (RsvrApexLexicalParserUtil.isDigit(val7) == false) {
+            input.reset();
+            return null;
+        }
+        Integer val8 = input.readChar();
+        if (val8 != 45 /* [-] */) {
+            input.reset();
+            return null;
+        }
+        Integer val9 = input.readChar();
+        if (RsvrApexLexicalParserUtil.isDigit(val9) == false) {
+            input.reset();
+            return null;
+        }
+        Integer val10 = input.readChar();
+        if (RsvrApexLexicalParserUtil.isDigit(val10) == false) {
+            input.reset();
+            return null;
+        }
+
+        // t
+        Integer val11 = input.readChar();
+        if (val11 != 't'.charAt(0) && val11 != 'T'.charAt(0)) {
+            input.reset();
+            return null;
+        }
+
+        // Digit Digit ':' Digit Digit ':' Digit Digit
+        Integer val12 = input.readChar();
+        if (RsvrApexLexicalParserUtil.isDigit(val12) == false) {
+            input.reset();
+            return null;
+        }
+        Integer val13 = input.readChar();
+        if (RsvrApexLexicalParserUtil.isDigit(val13) == false) {
+            input.reset();
+            return null;
+        }
+        Integer val14 = input.readChar();
+        if (val14 != ':'.charAt(0)) {
+            input.reset();
+            return null;
+        }
+        Integer val15 = input.readChar();
+        if (RsvrApexLexicalParserUtil.isDigit(val15) == false) {
+            input.reset();
+            return null;
+        }
+        Integer val16 = input.readChar();
+        if (RsvrApexLexicalParserUtil.isDigit(val16) == false) {
+            input.reset();
+            return null;
+        }
+        Integer val17 = input.readChar();
+        if (val17 != ':'.charAt(0)) {
+            input.reset();
+            return null;
+        }
+        Integer val18 = input.readChar();
+        if (RsvrApexLexicalParserUtil.isDigit(val18) == false) {
+            input.reset();
+            return null;
+        }
+        Integer val19 = input.readChar();
+        if (RsvrApexLexicalParserUtil.isDigit(val19) == false) {
+            input.reset();
+            return null;
+        }
+
+        LiteralToken result = new LiteralToken();
+        result.type = 'DateTimeLiteral';
+        result.target = '';
+
+        // ('z' | (('+' | '-') Digit+ ( ':' Digit+)? ))
+        Integer val20 = input.readChar();
+        if (val20 == 'z'.charAt(0) || val20 == 'Z'.charAt(0)) {
+            // hit
+            result.target = RsvrApexLexicalParserUtil.int2string(val1) + RsvrApexLexicalParserUtil.int2string(val2) + RsvrApexLexicalParserUtil.int2string(val3) + RsvrApexLexicalParserUtil.int2string(val4) + RsvrApexLexicalParserUtil.int2string(val5) + RsvrApexLexicalParserUtil.int2string(val6) + RsvrApexLexicalParserUtil.int2string(val7) + RsvrApexLexicalParserUtil.int2string(val8) + RsvrApexLexicalParserUtil.int2string(val9) + RsvrApexLexicalParserUtil.int2string(val10)
+                + RsvrApexLexicalParserUtil.int2string(val11) + RsvrApexLexicalParserUtil.int2string(val12) + RsvrApexLexicalParserUtil.int2string(val13) + RsvrApexLexicalParserUtil.int2string(val14) + RsvrApexLexicalParserUtil.int2string(val15) + RsvrApexLexicalParserUtil.int2string(val16) + RsvrApexLexicalParserUtil.int2string(val17) + RsvrApexLexicalParserUtil.int2string(val18) + RsvrApexLexicalParserUtil.int2string(val19) + RsvrApexLexicalParserUtil.int2string(val20);
+            result.original = result.target;
+            input.mark();
+            return result;
+        }
+        if (val20 != '+'.charAt(0) && val20 != '-'.charAt(0)) {
+            input.reset();
+            return null;
+        }
+        Integer val21 = input.readChar();
+        if (RsvrApexLexicalParserUtil.isDigit(val21) == false) {
+            input.reset();
+            return null;
+        }
+
+        // この時点でDateTimeリテラル確定。
+        result.target = RsvrApexLexicalParserUtil.int2string(val1) + RsvrApexLexicalParserUtil.int2string(val2) + RsvrApexLexicalParserUtil.int2string(val3) + RsvrApexLexicalParserUtil.int2string(val4) + RsvrApexLexicalParserUtil.int2string(val5) + RsvrApexLexicalParserUtil.int2string(val6) + RsvrApexLexicalParserUtil.int2string(val7) + RsvrApexLexicalParserUtil.int2string(val8) + RsvrApexLexicalParserUtil.int2string(val9) + RsvrApexLexicalParserUtil.int2string(val10)
+            + RsvrApexLexicalParserUtil.int2string(val11) + RsvrApexLexicalParserUtil.int2string(val12) + RsvrApexLexicalParserUtil.int2string(val13) + RsvrApexLexicalParserUtil.int2string(val14) + RsvrApexLexicalParserUtil.int2string(val15) + RsvrApexLexicalParserUtil.int2string(val16) + RsvrApexLexicalParserUtil.int2string(val17) + RsvrApexLexicalParserUtil.int2string(val18) + RsvrApexLexicalParserUtil.int2string(val19) + RsvrApexLexicalParserUtil.int2string(val20)
+            + RsvrApexLexicalParserUtil.int2string(val21);
+        input.mark();
+
+        // Digit+ ( ':' Digit+)? )
+        for (;;) {
+            Integer valX = input.readChar();
+            if (RsvrApexLexicalParserUtil.isDigit(valX) || ':'.charAt(0) == valX) {
+                result.target = result.target + RsvrApexLexicalParserUtil.int2string(valX);
+                input.mark();
+                continue;
+            }
+            input.reset();
+            break;
+        }
+        result.original = result.target;
+        input.reset();
+        return result;
+    }
+
+    // TODO SOQL Currency literal は一旦未着手のまま放置。
 
     // SOQL Currency literal
     // (NOTE: this is also a valid Identifier)
     // IntegralCurrencyLiteral: [a-z] [a-z] [a-z] Digit+;
 
+    // TODO FIND 系は一旦未着手のまま放置。
 
     // FindLiteral
     // :   '[' WS? 'find' WS '\'' FindCharacters? '\''
@@ -307,16 +544,91 @@ public class RsvrApexLexicalParser {
     // NumberLiteral
     //     :   Digit* '.' Digit Digit* [dD]?
     //     ;
+    private LexicalToken parseNumberLiteral() {
+        procTime.enter('parseNumberLiteral');
+        input.mark();
 
-    // fragment
-    // HexCharacter
-    //     :   Digit | 'a' | 'b' | 'c' | 'd' | 'e' | 'f'
-    //     ;
+        Integer first = input.readChar();
+        if (RsvrApexLexicalParserUtil.isDigit(first) == false) {
+            input.reset();
+            return null;
+        }
 
-    // fragment
-    // Digit
-    //     :   [0-9]
-    //     ;
+        // 数字が確定
+        final List<Integer> targetList = new List<Integer>();
+        final List<Integer> targetOriginalList = new List<Integer>();
+
+        targetList.add(first);
+        targetOriginalList.add(first);
+
+        Boolean isDotExist = false;
+        for (Integer index = 0; index < 100/* for safety */; index++) {
+            Integer next = input.readChar();
+            if (next == -1) {
+                // end of file.
+                input.mark();
+                break;
+            }
+
+            if (next == RsvrUnicodeConstants.LETTER_Latin_Capital_Letter_D
+              || next == RsvrUnicodeConstants.LETTER_Latin_Small_Letter_D) {
+                // dD
+                input.mark();
+                targetOriginalList.add(next);
+                LiteralToken result = new LiteralToken();
+                result.type = 'NumberLiteral';
+                result.target = String.fromCharArray(targetList);
+                result.original = String.fromCharArray(targetOriginalList);
+                return result;
+            }
+            if (next == RsvrUnicodeConstants.LETTER_Latin_Capital_Letter_L
+              || next == RsvrUnicodeConstants.LETTER_Latin_Small_Letter_L) {
+                // lL
+                input.mark();
+                targetOriginalList.add(next);
+                LiteralToken result = new LiteralToken();
+                result.type = 'LongLiteral';
+                result.target = String.fromCharArray(targetList);
+                result.original = String.fromCharArray(targetOriginalList);
+                return result;
+            }
+            if (RsvrApexLexicalParserUtil.isDigit(next)) {
+                targetOriginalList.add(next);
+                targetList.add(next);
+                continue;
+            }
+            if (next == RsvrUnicodeConstants.LETTER_Full_Stop) {
+                isDotExist = true;
+                targetOriginalList.add(next);
+                targetList.add(next);
+                continue;
+            }
+
+            // 廃棄
+            input.move(input.pos() - 1);
+
+            if (RsvrApexLexicalParserUtil.isJavaLetter(next)) {
+                // DONT.
+                input.reset();
+                return null;
+            }
+
+            break;
+        }
+
+        // ここまできたら値確定
+        input.mark();
+        LiteralToken result = new LiteralToken();
+        result.target = String.fromCharArray(targetList);
+        result.original = String.fromCharArray(targetOriginalList);
+        if (isDotExist) {
+            result.type = 'NumberLiteral';
+            return result;
+        } else {
+            result.type = 'IntegerLiteral';
+            return result;
+        }
+    }
 
     // // §3.10.3 Boolean Literals
 
@@ -326,52 +638,10 @@ public class RsvrApexLexicalParser {
     //     ;
 
     // // §3.10.5 String Literals
-    private LiteralToken parseStringLiteral() {
-        LiteralToken result = new LiteralToken();
-        result.type = 'StringLiteral';
-
-        mark();
-
-        // canma should be first.
-        Integer first = readChar();
-        if (first != '\''.charAt(0)) {
-            reset();
-            return null;
-        }
-
-        // start string literal.
-        result.original = int2string(first);
-        result.target = '';
-        for (;;) {
-            Integer next = readChar();
-            if (next == -1) {
-                // End of file.
-                // Unexpected.
-                reset();
-                return result;
-            }
-            if (next == '\''.charAt(0)) {
-                // end of string literal.
-                mark();
-                result.original = result.original + result.target + int2string(next);
-                return result;
-            }
-
-            // TODO エスケープシーケンス
-            // TODO Unicode
-        
-            result.target = result.target + int2string(next);
-        }
-
-        reset();
-        return null;
-    }
 
     // StringLiteral
     //     :   '\'' StringCharacters? '\''
     //     ;
-
-
 
     // fragment
     // StringCharacters
@@ -390,20 +660,148 @@ public class RsvrApexLexicalParser {
     //     |   '\\u' HexCharacter HexCharacter HexCharacter HexCharacter
     //     ;
 
+    private LiteralToken parseStringLiteral() {
+        procTime.enter('parseStringLiteral');
+
+        input.mark();
+        final Boolean IS_LOCAL_DEBUG = false;
+
+        // canma should be first.
+        Integer first = input.readChar();
+        if (first != 39 /* ['] */) {
+            input.reset();
+            return null;
+        }
+        if (IS_LOCAL_DEBUG) System.debug('TRACE: Start of string literal.');
+
+        final List<Integer> targetList = new List<Integer>();
+        final List<Integer> targetOriginalList = new List<Integer>();
+
+        // start string literal.
+        targetOriginalList.add(first);
+        for (Integer index = 0; index < 10000/* for safety */; index++) {
+            final Integer next = input.readChar();
+            if (IS_LOCAL_DEBUG) System.debug('TRACE: Next char[' + RsvrApexLexicalParserUtil.int2string(next) + ']');
+            if (IS_LOCAL_DEBUG) System.debug('TRACE: Remainingtext [' + input.getRemainingtext(false) + ']');
+            if (next == -1) {
+                if (IS_LOCAL_DEBUG) System.debug('TRACE: End of file.');
+                // End of file.
+                // Unexpected.
+                input.mark();
+                LiteralToken result = new LiteralToken();
+                result.type = 'StringLiteral';
+                result.target = String.fromCharArray(targetList);
+                result.original = String.fromCharArray(targetOriginalList);
+                return result;
+            }
+            if (next == 39 /* [Camma] */) {
+                if (IS_LOCAL_DEBUG) System.debug('TRACE: End of string literal.');
+
+                // end of string literal.
+                input.mark();
+                targetOriginalList.add(next);
+                LiteralToken result = new LiteralToken();
+                result.type = 'StringLiteral';
+                result.target = String.fromCharArray(targetList);
+                result.original = String.fromCharArray(targetOriginalList);
+                return result;
+            }
+
+            //     :   bs [btnfr"cammabs]
+            if (next == RsvrUnicodeConstants.LETTER_Backslash) {
+                if (IS_LOCAL_DEBUG) System.debug('TRACE: Escape began.');
+                // Escape begin.
+                targetOriginalList.add(next);
+
+                Integer next2 = input.readChar();
+                targetOriginalList.add(next2);
+                if (next2 == 98 /* [b] */) {
+                    if (IS_LOCAL_DEBUG) System.debug('TRACE: Escape + b');
+                    targetList.add(8 /* [b] */);
+                    continue;
+                }
+                if (next2 == 116 /* [t] */) {
+                    if (IS_LOCAL_DEBUG) System.debug('TRACE: Escape + t');
+                    targetList.add(9 /* [t] */);
+                    continue;
+                }
+                if (next2 == 110 /* [n] */) {
+                    if (IS_LOCAL_DEBUG) System.debug('TRACE: Escape + n');
+                    targetList.add(10 /* [n] */);
+                    continue;
+                }
+                if (next2 == 102 /* [f] */) {
+                    if (IS_LOCAL_DEBUG) System.debug('TRACE: Escape + f');
+                    targetList.add(12 /* [f] */);
+                    continue;
+                }
+                if (next2 == 114 /* [r] */) {
+                    if (IS_LOCAL_DEBUG) System.debug('TRACE: Escape + r');
+                    targetList.add(13 /* [r] */);
+                    continue;
+                }
+                if (next2 == 34 /* ["] */
+                || next2 == 39 /* [Camma] */
+                || next2 == 92 /* [backslash] */) {
+                    if (IS_LOCAL_DEBUG) System.debug('TRACE: Escape + double/kanma,backslash');
+                    targetList.add(next2);
+                    continue;
+                }
+                // 'u' HexCharacter HexCharacter HexCharacter HexCharacter
+                if (next2 == 117 /* [u] */) {
+                    if (IS_LOCAL_DEBUG) System.debug('TRACE: Escape + u');
+                    Integer hex1 = input.readChar();
+                    if (RsvrApexLexicalParserUtil.isHexCharacter(hex1) == false) {
+                        input.reset();
+                        break;
+                    }
+                    Integer hex2 = input.readChar();
+                    if (RsvrApexLexicalParserUtil.isHexCharacter(hex2) == false) {
+                        input.reset();
+                        break;
+                    }
+                    Integer hex3 = input.readChar();
+                    if (RsvrApexLexicalParserUtil.isHexCharacter(hex3) == false) {
+                        input.reset();
+                        break;
+                    }
+                    Integer hex4 = input.readChar();
+                    if (RsvrApexLexicalParserUtil.isHexCharacter(hex4) == false) {
+                        input.reset();
+                        break;
+                    }
+                    targetOriginalList.add(hex1);
+                    targetOriginalList.add(hex2);
+                    targetOriginalList.add(hex3);
+                    targetOriginalList.add(hex4);
+                    // Hex錬成
+                    if (hex1 == RsvrUnicodeConstants.LETTER_Digit_Zero && hex2 == RsvrUnicodeConstants.LETTER_Digit_Zero) {
+                        String wrk = EncodingUtil.urlDecode('%' + RsvrApexLexicalParserUtil.int2string(hex3) + RsvrApexLexicalParserUtil.int2string(hex4), 'UTF-8');
+                        targetList.add(wrk.charAt(0));
+                    } else {
+                        String wrk = EncodingUtil.urlDecode('%' + RsvrApexLexicalParserUtil.int2string(hex1) + RsvrApexLexicalParserUtil.int2string(hex2) + '%' + RsvrApexLexicalParserUtil.int2string(hex3) + RsvrApexLexicalParserUtil.int2string(hex4), 'UTF-8');
+                        targetList.add(wrk.charAt(0));
+                    }
+                    continue;
+                }
+                // エスケープ中の想定外のコース。ここに入ってはダメ。
+                System.debug('Fatal: Skipped char: ' + RsvrApexLexicalParserUtil.int2string(next2));
+                break;
+            }
+
+            targetOriginalList.add(next);
+            targetList.add(next);
+        }
+
+        input.reset();
+        return null;
+    }
+
     // // §3.10.7 The Null Literal
 
     // NullLiteral
     //     :   NULL
     //     ;
-
-    private static Boolean isSeparator(String val) {
-        for (String look : RsvrApexConstants.SEPARATORS) {
-            if (look.toLowerCase() == val.toLowerCase()) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     /**
      * Parse separator.
@@ -411,92 +809,82 @@ public class RsvrApexLexicalParser {
      * Must be one char.
      */
     private SeparatorToken parseSeparator() {
-        SeparatorToken result = new SeparatorToken();
-        result.type = 'Separator';
+        procTime.enter('parseSeparator');
 
-        mark();
-        result.target = '';
-        for (;;) {
-            Integer next = readChar();
-            if (isSeparator(int2string(next))) {
-                result.target = result.target + int2string(next);
-                result.original = result.target;
-                return result;
-            } else {
-                break;
-            }
+        input.mark();
+
+        final Integer next = input.readChar();
+        if (RsvrApexLexicalParserUtil.isSeparator(next)) {
+            final SeparatorToken result = new SeparatorToken();
+            result.type = 'Separator';
+            result.target = RsvrApexLexicalParserUtil.int2string(next);
+            result.original = result.target;
+            return result;
         }
 
-        reset();
+        input.reset();
         return null;
     }
 
     // // §3.12 Operators
 
-    private static Boolean isOperator(String val) {
-        for (String look : RsvrApexConstants.OPERATORS) {
-            if (look.toLowerCase() == val.toLowerCase()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public static Boolean isOperatorLetter(Integer val) {
-        if ('='.charAt(0) == val
-        || '>'.charAt(0) == val
-        || '<'.charAt(0) == val
-        || '~'.charAt(0) == val
-        || '?'.charAt(0) == val
-        || '.'.charAt(0) == val
-        || ':'.charAt(0) == val
-        || '='.charAt(0) == val
-        || '!'.charAt(0) == val
-        || '&'.charAt(0) == val
-        || '|'.charAt(0) == val
-        || '+'.charAt(0) == val
-        || '-'.charAt(0) == val
-        || '*'.charAt(0) == val
-        || '/'.charAt(0) == val
-        || '&'.charAt(0) == val
-        || '^'.charAt(0) == val) {
-                return true;
-        }
-        return false;
-    }
-
     private OperatorToken parseOperator() {
-        OperatorToken result = new OperatorToken();
-        result.type = 'Operator';
+        procTime.enter('parseOperator');
 
-        mark();
-        result.target = '';
+        input.mark();
+
+        List<Integer> targetList = null;
+
         Boolean isExist = false;
-        for (;;) {
-            Integer next = readChar();
-            if (isOperatorLetter(next)) {
+        for (Integer index = 0; index < 100/* for safety */; index++) {
+            Integer next = input.readChar();
+            if (RsvrApexLexicalParserUtil.isOperatorLetter(next)) {
                 isExist = true;
-                result.target = result.target + int2string(next);
+                if (targetList == null) {
+                    targetList = new List<Integer>();
+                }
+                targetList.add(next);
                 continue;
             } else {
                 if (isExist == false) {
-                    reset();
+                    input.reset();
                     return null;
                 }
 
-                move(pos() - 1);
-                if (isOperator(result.target)) {
+                input.move(input.pos() - 1);
+                String target = String.fromCharArray(targetList);
+                // System.debug('TRACE: Operator candidate: [' + target + ']');
+                if (RsvrApexLexicalParserUtil.isOperator(target)) {
                     // Hit
-                    mark();
+                    input.mark();
+                    OperatorToken result = new OperatorToken();
+                    result.type = 'Operator';
+                    result.target = target;
                     result.original = result.target;
+                    // System.debug('TRACE: Operator: [' + result.target + ']');
                     return result;
                 } else {
+                    // System.debug('TRACE: Non Operator: [' + target + ']');
+                    if (targetList.get(0) == 62 /* [>] */) {
+                        // 特殊処理
+                        input.reset();
+                        Integer retry = input.readChar();
+
+                        OperatorToken result = new OperatorToken();
+                        result.type = 'Operator';
+                        result.target = RsvrApexLexicalParserUtil.int2string(retry);
+                        result.original = result.target;
+                        input.mark();
+                        return result;
+                    }
+
+                    // in case // or /* pass here.
                     break;
                 }
             }
         }
 
-        reset();
+        input.reset();
         return null;
     }
 
@@ -506,20 +894,21 @@ public class RsvrApexLexicalParser {
 
     // ATSIGN : '@';
     private AtsignToken parseAtsign() {
-        AtsignToken result = new AtsignToken();
-        result.type = 'Atsign';
+        procTime.enter('parseAtsign');
 
-        mark();
-        result.target = '';
+        input.mark();
 
-        Integer next = readChar();
-        if (next == '@'.charAt(0)) {
-            result.target = int2string(next);
+        Integer next = input.readChar();
+        if (next == 64 /* [@] */) {
+            AtsignToken result = new AtsignToken();
+            result.type = 'Atsign';
+        
+            result.target = RsvrApexLexicalParserUtil.int2string(next);
             result.original = result.target;
             return result;
         }
 
-        reset();
+        input.reset();
         return null;
     }
 
@@ -528,309 +917,237 @@ public class RsvrApexLexicalParser {
     // Identifier
     //     :   JavaLetter JavaLetterOrDigit*
     //     ;
-    private IdentifierToken parseIdentifier() {
-        IdentifierToken result = new IdentifierToken();
-        result.type = 'Identifier';
+    private LexicalToken parseIdentifier() {
+        procTime.enter('parseIdentifier');
 
-        mark();
-        result.target = '';
+        input.mark();
+
+        List<Integer> targetList = null;
+
         Boolean isExist = false;
-        for (;;) {
-            Integer next = readChar();
-            if (isJavaLetterOrDigit(next)) {
-                isExist = true;
-                result.target = result.target + int2string(next);
-                continue;
-            } else {
-                if (isExist == false) {
-                    reset();
-                    return null;
+        Boolean isFirst = true;
+        for (Integer index = 0; index < 10000/* for safety */; index++) {
+            Integer next = input.readChar();
+            if (isFirst) {
+                isFirst = false;
+                if (RsvrApexLexicalParserUtil.isJavaLetter(next)) {
+                    isExist = true;
+                    if (targetList == null) {
+                        targetList = new List<Integer>();
+                    }
+                    targetList.add(next);
+                    continue;
                 }
+            } else {
+                if (RsvrApexLexicalParserUtil.isJavaLetterOrDigit(next)) {
+                    isExist = true;
+                    if (targetList == null) {
+                        targetList = new List<Integer>();
+                    }
+                    targetList.add(next);
+                    continue;
+                }
+            }
+            if (isExist == false) {
+                input.reset();
+                return null;
+            }
 
-                move(pos() - 1);
+            // 読み過ぎた部分を廃棄。
+            input.move(input.pos() - 1);
 
-                // Hit
-                mark();
+            // Hit
+            input.mark();
+
+            final String target = String.fromCharArray(targetList);
+
+            if (target.toLowerCase() == 'true'
+            || target.toLowerCase() == 'false') {
+                LiteralToken result = new LiteralToken();
+                result.type = 'BooleanLiteral';
+                result.target = target;
                 result.original = result.target;
                 return result;
             }
+
+            IdentifierToken result = new IdentifierToken();
+            result.type = 'Identifier';
+            result.target = target;
+            result.original = result.target;
+            return result;
         }
 
-        reset();
+        input.reset();
         return null;
     }
-
-    // // Apex identifiers don't support non-ascii but we maintain Java rules here and post-validate
-    // // so we can give better error messages
-    // fragment
-    // JavaLetter
-    //     :   [a-zA-Z$_] // these are the "java letters" below 0xFF
-    //     |   // covers all characters above 0xFF which are not a surrogate
-    //         ~[\u0000-\u00FF\uD800-\uDBFF]
-    //     |   // covers UTF-16 surrogate pairs encodings for U+10000 to U+10FFFF
-    //         [\uD800-\uDBFF] [\uDC00-\uDFFF]
-    //     ;
-    private static Boolean isJavaLetter(Integer val) {
-        // [a-zA-Z$_] // these are the "java letters" below 0xFF
-        if ('a'.charAt(0) <= val && val <= 'z'.charAt(0)) {
-            return true;
-        }
-        if ('A'.charAt(0) <= val && val <= 'Z'.charAt(0)) {
-            return true;
-        }
-        if ('$'.charAt(0) == val) {
-            return true;
-        }
-        if ('_'.charAt(0) == val) {
-            return true;
-        }
-        // ~[\u0000-\u00FF\uD800-\uDBFF]
-        if ('\u0000'.charAt(0) <= val && val <= '\u00FF'.charAt(0)) {
-            return false;
-        }
-        if ('\uD800'.charAt(0) <= val && val <= '\uDBFF'.charAt(0)) {
-            return false;
-        }
-        return true;
-    }
-
-    // fragment
-    // JavaLetterOrDigit
-    //     :   [a-zA-Z0-9$_] // these are the "java letters or digits" below 0xFF
-    //     |   // covers all characters above 0xFF which are not a surrogate
-    //         ~[\u0000-\u00FF\uD800-\uDBFF]
-    //     |   // covers UTF-16 surrogate pairs encodings for U+10000 to U+10FFFF
-    //         [\uD800-\uDBFF] [\uDC00-\uDFFF]
-    //     ;
-    private static Boolean isJavaLetterOrDigit(Integer val) {
-        // [a-zA-Z$_] // these are the "java letters" below 0xFF
-        if ('a'.charAt(0) <= val && val <= 'z'.charAt(0)) {
-            return true;
-        }
-        if ('A'.charAt(0) <= val && val <= 'Z'.charAt(0)) {
-            return true;
-        }
-        if ('0'.charAt(0) <= val && val <= '9'.charAt(0)) {
-            return true;
-        }
-        if ('$'.charAt(0) == val) {
-            return true;
-        }
-        if ('_'.charAt(0) == val) {
-            return true;
-        }
-        // ~[\u0000-\u00FF\uD800-\uDBFF]
-        if ('\u0000'.charAt(0) <= val && val <= '\u00FF'.charAt(0)) {
-            return false;
-        }
-        if ('\uD800'.charAt(0) <= val && val <= '\uDBFF'.charAt(0)) {
-            return false;
-        }
-        return true;
-    }
-
-    private static Boolean isKeyword(String val) {
-        for (String look : RsvrApexConstants.KEYWORDS) {
-            if (look.toLowerCase() == val.toLowerCase()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
 
     // //
     // // Whitespace and comments
     // //
 
-    // WS  :  [ \t\r\n\u000C]+ -> channel(WHITESPACE_CHANNEL)
+    // WS  :  [ trnu000C]+ -> channel(WHITESPACE_CHANNEL)
     //     ;
-    private WhitespaceToken parseWS() {
-        WhitespaceToken result = new WhitespaceToken();
-        result.type = 'Whitespace';
+    private WhitespaceToken parseWhitespace() {
+        procTime.enter('parseWhitespace');
 
-        mark();
-        result.target = '';
+        input.mark();
+
+        List<Integer> targetList = null;
+
         Boolean isExist = false;
-        for (;;) {
-            Integer next = readChar();
+        for (Integer index = 0; index < 10000/* for safety */; index++) {
+            Integer next = input.readChar();
             if (next == -1) {
                 // end of file.
-                mark();
+                input.mark();
                 break;
             }
 
-            if (next == ' '.charAt(0)
-            || next == '\t'.charAt(0)
-            || next == '\r'.charAt(0)
-            || next == '\n'.charAt(0)
-            || next == '\u000C'.charAt(0)) {
+            if (next == 32 /* [' '] */
+            || next == 9 /* [t] */
+            || next == 12 /* [r] */
+            || next == 10 /* [n] */
+            || next == 12 /* [u000C] */) {
                 isExist = true;
-                mark();
-                result.target = result.target + int2string(next);
+                input.mark();
+                if (targetList == null) {
+                    targetList = new List<Integer>();
+                }
+
+                targetList.add(next);
                 continue;
             }
             // Other.
-            reset();
+            input.reset();
             break;
         }
 
         if (isExist == false) {
-            reset();
+            input.reset();
             return null;
         }
 
+        WhitespaceToken result = new WhitespaceToken();
+        result.type = 'Whitespace';
+        result.target = String.fromCharArray(targetList);
         result.original = result.target;
         return result;
     }
 
     // DOC_COMMENT
-    //     :   '/**' .*? '*/' -> channel(COMMENT_CHANNEL)
+    //     :   /** .*? */ -> channel(COMMENT_CHANNEL)
     //     ;
-    private CommentToken parseDocComment() {
-        CommentToken result = new CommentToken();
-        result.type = 'DocComment';
-
-        mark();
-        Integer first = readChar();
-        if (first != '/'.charAt(0)) {
-            reset();
-            return null;
-        }
-        Integer second = readChar();
-        if (second != '*'.charAt(0)) {
-            reset();
-            return null;
-        }
-        Integer third = readChar();
-        if (third != '*'.charAt(0)) {
-            reset();
-            return null;
-        }
-
-        // hit line comment
-        result.original = int2string(first) + int2string(second) + int2string(third);
-        result.target = '';
-        for (;;) {
-            Integer next = readChar();
-            if (next == '*'.charAt(0)) {
-                mark();
-                Integer next2 = readChar();
-                if (next2 == '/'.charAt(0)) {
-                    // End of comment.
-                    mark();
-                    result.original = result.original + result.target + int2string(next) + int2string(next2);
-                    return result;
-                }
-                reset();
-            }
-
-            mark();
-            result.target = result.target + int2string(next);
-        }
-
-        return result;
-    }
 
     // COMMENT
     //     :   '/*' .*? '*/' -> channel(COMMENT_CHANNEL)
     //     ;
     private CommentToken parseComment() {
-        CommentToken result = new CommentToken();
-        result.type = 'Comment';
+        procTime.enter('parseComment');
 
-        mark();
-        Integer first = readChar();
-        if (first != '/'.charAt(0)) {
-            reset();
+        input.mark();
+        Integer first = input.readChar();
+        if (first != RsvrUnicodeConstants.LETTER_Slash) {
+            input.reset();
             return null;
         }
-        Integer second = readChar();
-        if (second != '*'.charAt(0)) {
-            reset();
+        Integer second = input.readChar();
+        if (second != RsvrUnicodeConstants.LETTER_Asterisk) {
+            input.reset();
             return null;
         }
 
-        // hit line comment
-        result.original = int2string(first) + int2string(second);
-        result.target = '';
-        for (;;) {
-            Integer next = readChar();
-            if (next == '*'.charAt(0)) {
-                mark();
-                Integer next2 = readChar();
-                if (next2 == '/'.charAt(0)) {
+        ////////////////////////////
+        // コメント確定
+
+        List<Integer> targetList = new List<Integer>();
+        List<Integer> targetOriginalList = new List<Integer>();
+        targetOriginalList.add(first);
+        targetOriginalList.add(second);
+
+        input.mark();
+        Boolean isDocComment = false;
+        Integer third = input.readChar();
+        targetOriginalList.add(third);
+        if (third == RsvrUnicodeConstants.LETTER_Asterisk) {
+            isDocComment = true;
+        } else {
+            targetList.add(third);
+        }
+
+        // hit comment
+        Boolean isPastAsterisk = false;
+        for (Integer index = 0; index < 10000/* for safety */; index++) {
+            Integer next = input.readChar();
+            targetOriginalList.add(next);
+            if (next == RsvrUnicodeConstants.LETTER_Asterisk) {
+                isPastAsterisk = true;
+            } else {
+                if (isPastAsterisk && next == RsvrUnicodeConstants.LETTER_Slash
+                || next == -1) {
                     // End of comment.
-                    mark();
-                    result.original = result.original + result.target + int2string(next) + int2string(next2);
+                    input.mark();
+
+                    CommentToken result = new CommentToken();
+                    if (isDocComment) {
+                        result.type = 'DocComment';
+                    } else {
+                        result.type = 'Comment';
+                    }
+                    result.target = String.fromCharArray(targetList);
+                    result.original = String.fromCharArray(targetOriginalList);
                     return result;
                 }
-                reset();
+                if (isPastAsterisk) {
+                    isPastAsterisk = false;
+                    targetList.add(RsvrUnicodeConstants.LETTER_Asterisk);
+                }
+                targetList.add(next);
             }
-
-            mark();
-            result.target = result.target + int2string(next);
         }
 
-        return result;
+        input.reset();
+        return null;
     }
 
     // LINE_COMMENT
-    //     :   '//' ~[\r\n]* -> channel(COMMENT_CHANNEL)
+    //     :   // ~[rn]* -> channel(COMMENT_CHANNEL)
     //     ;
     private CommentToken parseLineComment() {
-        CommentToken result = new CommentToken();
-        result.type = 'LineComment';
+        procTime.enter('parseLineComment');
 
-        mark();
-        Integer first = readChar();
-        if (first != '/'.charAt(0)) {
-            reset();
+        input.mark();
+
+        Integer first = input.readChar();
+        if (first != 47 /* [/] */) {
+            input.reset();
             return null;
         }
-        Integer second = readChar();
-        if (second != '/'.charAt(0)) {
-            reset();
+        Integer second = input.readChar();
+        if (second != 47 /* [/] */) {
+            input.reset();
             return null;
         }
+
+        List<Integer> targetList = new List<Integer>();
 
         // hit line comment
-        result.original = int2string(first) + int2string(second);
-        result.target = '';
-        for (;;) {
-            Integer next = readChar();
-            if (next == '\r'.charAt(0)
-            || next == '\n'.charAt(0)
+        for (Integer index = 0; index < 10000/* for safety */; index++) {
+            Integer next = input.readChar();
+            if (next == 13 /* [r] */
+            || next == 10 /* [n] */
             || next == -1) {
-                reset();
-                result.original = result.original + result.target;
+                input.move(input.pos() - 1);
+                input.mark();
                 break;
             }
 
-            mark();
-            result.target = result.target + int2string(next);
+            targetList.add(next);
         }
 
+        CommentToken result = new CommentToken();
+        result.type = 'LineComment';
+        result.target = String.fromCharArray(targetList);
+        result.original = '//' + result.target;
         return result;
-    }
-
-    public static String int2string(Integer val) {
-        List<Integer> nextOne = new List<Integer>();
-        nextOne.add(val);
-        return String.fromCharArray(nextOne);
-    }
-
-    public String getRemainingtext(Boolean isNext) {
-        Integer pos = currentPos;
-        if (isNext) {
-            pos++;
-        }
-        if (pos < 0) {
-            pos = 0;
-        }
-        if (apexClassText.length() <= (pos)) {
-            return '';
-        }
-        return apexClassText.substring(pos);
     }
 }

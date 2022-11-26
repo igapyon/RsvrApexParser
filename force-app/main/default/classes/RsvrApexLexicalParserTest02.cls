@@ -22,10 +22,6 @@
  * @since 2022-11-23
  */
 @isTest(SeeAllData=false)
-private class RsvrApexSyntaxParserTest {
-    @isTest(SeeAllData=false)
-    static void test01() {
-        RsvrApexSyntaxParser parser = new RsvrApexSyntaxParser();
-        parser.parse();
-    }
+private class RsvrApexLexicalParserTest02 {
+
 }
