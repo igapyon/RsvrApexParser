@@ -165,6 +165,10 @@ public class RsvrApexSyntaxParser {
     }
 
     private ClassDeclarationToken parseClassDeclaration() {
+        System.debug('parseClassDeclaration()');
+        input.dumpNextTokens();
+
+
         input.mark();
         // CLASS
         RsvrApexLexicalParser.KeywordToken keyTok = input.getFirstKeywordToken();
@@ -334,6 +338,7 @@ public class RsvrApexSyntaxParser {
             return modTok;
         }
     
+        input.reset();
         return null;
     }
 
