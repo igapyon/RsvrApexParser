@@ -96,12 +96,11 @@ public class RsvrApexSyntaxParser {
     }
 
     // QualifiedNameToken は作らない。
-    }
 
     // ただし、TypeRefToken は作る。
     public class TypeRefToken extends SyntaxToken {
         public List<TypeNameToken> typeNameList = new List<TypeNameToken>();
-        : typeName (DOT typeName)* arraySubscripts
+//        : typeName (DOT typeName)* arraySubscripts
     }
 
     public class TypeNameToken  extends SyntaxToken {
@@ -345,12 +344,13 @@ return null;
 
      */
     private TypeRefToken parseTypeRef() {
-
+return null;
     }
 
 
 
     private TypeNameToken parseTypeName() {
+        return null;
 
     }
 
