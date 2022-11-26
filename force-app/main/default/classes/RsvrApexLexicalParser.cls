@@ -898,13 +898,11 @@ public class RsvrApexLexicalParser {
 
         input.mark();
 
-        AtsignToken result = new AtsignToken();
-        result.type = 'Atsign';
-
-        result.target = '';
-
         Integer next = input.readChar();
         if (next == 64 /* [@] */) {
+            AtsignToken result = new AtsignToken();
+            result.type = 'Atsign';
+        
             result.target = RsvrApexLexicalParserUtil.int2string(next);
             result.original = result.target;
             return result;
@@ -928,7 +926,7 @@ public class RsvrApexLexicalParser {
 
         Boolean isExist = false;
         Boolean isFirst = true;
-        for (Integer index = 0; index < 100/* for safety */; index++) {
+        for (Integer index = 0; index < 10000/* for safety */; index++) {
             Integer next = input.readChar();
             if (isFirst) {
                 isFirst = false;
@@ -1076,7 +1074,7 @@ public class RsvrApexLexicalParser {
             targetList.add(third);
         }
 
-        // hit line comment
+        // hit comment
         Boolean isPastAsterisk = false;
         for (Integer index = 0; index < 10000/* for safety */; index++) {
             Integer next = input.readChar();
@@ -1084,7 +1082,7 @@ public class RsvrApexLexicalParser {
             if (next == RsvrUnicodeConstants.LETTER_Asterisk) {
                 isPastAsterisk = true;
             } else {
-                if (next == RsvrUnicodeConstants.LETTER_Slash
+                if (isPastAsterisk && next == RsvrUnicodeConstants.LETTER_Slash
                 || next == -1) {
                     // End of comment.
                     input.mark();
