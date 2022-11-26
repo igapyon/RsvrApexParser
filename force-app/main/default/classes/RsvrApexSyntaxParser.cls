@@ -23,15 +23,15 @@
  */
 public class RsvrApexSyntaxParser {
     public abstract class SyntaxToken {
-        final private List<RsvrApexLexicalParser.LexicalToken> relatedTokenList = new List<RsvrApexLexicalParser.LexicalToken>();
-        final private List<RsvrApexLexicalParser.LexicalToken> relatedWhitespaceList = new List<RsvrApexLexicalParser.LexicalToken>();
+        final private List<RsvrApexLexicalParser.LexicalToken> tokenList = new List<RsvrApexLexicalParser.LexicalToken>();
+        final private List<RsvrApexLexicalParser.LexicalToken> whitespaceList = new List<RsvrApexLexicalParser.LexicalToken>();
 
         public List<RsvrApexLexicalParser.LexicalToken> getTokenList() {
-            return relatedTokenList;
+            return tokenList;
         }
 
         public List<RsvrApexLexicalParser.LexicalToken> getWhitespaceList() {
-            return relatedWhitespaceList;
+            return whitespaceList;
         }
     }
 

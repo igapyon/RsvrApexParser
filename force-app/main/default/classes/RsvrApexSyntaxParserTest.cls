@@ -32,15 +32,11 @@ private class RsvrApexSyntaxParserTest {
         RsvrApexSyntaxParser parser = new RsvrApexSyntaxParser();
         List<RsvrApexSyntaxParser.SyntaxToken> tokList = parser.unify(lexList);
         parser.parse(tokList);
-
-        //for (RsvrApexSyntaxParser.UnknownToken token : tokList) {
-        //    System.debug('### ' + token.toString());
-        //}
     }
 
     @isTest(SeeAllData=false)
     static void test02() {
-        final String apexClassBody = 'public class MyClass {}';
+        final String apexClassBody = 'public with sharing class MyClass {}';
         final RsvrApexLexicalParser lexParser = new RsvrApexLexicalParser();
         final List<RsvrApexLexicalParser.LexicalToken> lexList = lexParser.parse(apexClassBody);
 
@@ -49,6 +45,5 @@ private class RsvrApexSyntaxParserTest {
         RsvrApexSyntaxParser.CompilationUnitToken compilationUnit = (RsvrApexSyntaxParser.CompilationUnitToken) parser.parse(tokList);
 
         System.debug('###: ' + compilationUnit.typeDeclaration.toString());
-
     }
 }
