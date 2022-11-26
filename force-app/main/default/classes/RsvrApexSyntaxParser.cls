@@ -117,6 +117,16 @@ public class RsvrApexSyntaxParser {
         
     public class CompilationUnitToken extends SyntaxToken {
         public TypeDeclarationToken typeDeclaration {get; set;}
+
+        public String dump(String indent) {
+            String strDump = '\n' + (indent + 'CompilationUnitToken:\n');
+
+            if (typeDeclaration != null) {
+                strDump += typeDeclaration.dump(indent + '  ');
+            }
+
+            return strDump;
+        }
     }
 
     /////////////////////////////////////////////////////////////////
@@ -132,6 +142,25 @@ public class RsvrApexSyntaxParser {
         public ClassDeclarationToken classDeclaration {get; set;}
         public EnumDeclarationToken enumDeclaration {get; set;}
         public InterfaceDeclarationToken interfaceDeclaration {get; set;}
+
+        public String dump(String indent) {
+            String strDump = (indent + 'TypeDeclaration:\n');
+
+            for (ModifierToken modTok : modifierList) {
+                strDump += modTok.dump(indent + '  ');
+            }
+            if (classDeclaration != null) {
+                strDump += classDeclaration.dump(indent + '  ');
+            }
+//            if (enumDeclaration != null) {
+//                
+//            }
+//            if (interfaceDeclaration != null) {
+//                
+//            }
+
+            return strDump;
+        }
     }
 
     private TypeDeclarationToken parseTypeDeclaration() {
@@ -162,6 +191,12 @@ public class RsvrApexSyntaxParser {
 
     public class ClassDeclarationToken extends SyntaxToken {
         public String identifier {get; set;}
+
+        public String dump(String indent) {
+            String strDump = (indent + 'ClassDeclaration:\n');
+            strDump += (indent + '  identifier: ' + identifier);
+            return strDump;
+        }
     }
 
     private ClassDeclarationToken parseClassDeclaration() {
@@ -287,6 +322,13 @@ public class RsvrApexSyntaxParser {
 
         // Annotation用のフィールド。
         public String qualifiedName {get; set;}
+
+        public String dump(String indent) {
+            String strDump = (indent + 'Modifier:\n');
+            strDump += indent + '  no: ' + no + '\n';
+            strDump += indent + '  qualifiedName: ' + qualifiedName + '\n';
+            return strDump;
+        }
     }
 
     private ModifierToken parseModifier() {
@@ -317,6 +359,7 @@ public class RsvrApexSyntaxParser {
             input.mark();
             ModifierToken modTok = new ModifierToken();
             modTok.no = keyTok.no;
+            modTok.qualifiedName = keyTok.target;
             modTok.getTokenList().add(keyTok);
             return modTok;
         }
@@ -333,6 +376,7 @@ public class RsvrApexSyntaxParser {
             input.mark();
             ModifierToken modTok = new ModifierToken();
             modTok.no = keyTok.no;
+            modTok.qualifiedName = keyTok.target + ' ' + keyTok2.target;
             modTok.getTokenList().add(keyTok);
             modTok.getTokenList().add(keyTok2);
             return modTok;

@@ -31,7 +31,8 @@ private class RsvrApexSyntaxParserTest {
 
         RsvrApexSyntaxParser parser = new RsvrApexSyntaxParser();
         List<RsvrApexSyntaxParser.SyntaxToken> tokList = parser.unify(lexList);
-        parser.parse(tokList);
+        RsvrApexSyntaxParser.CompilationUnitToken compUnitTok = (RsvrApexSyntaxParser.CompilationUnitToken) parser.parse(tokList);
+        System.debug(compUnitTok.dump(''));
     }
 
     @isTest(SeeAllData=false)
@@ -42,8 +43,9 @@ private class RsvrApexSyntaxParserTest {
 
         RsvrApexSyntaxParser parser = new RsvrApexSyntaxParser();
         List<RsvrApexSyntaxParser.SyntaxToken> tokList = parser.unify(lexList);
-        RsvrApexSyntaxParser.CompilationUnitToken compilationUnit = (RsvrApexSyntaxParser.CompilationUnitToken) parser.parse(tokList);
+        RsvrApexSyntaxParser.CompilationUnitToken compUnitTok = (RsvrApexSyntaxParser.CompilationUnitToken) parser.parse(tokList);
 
-        System.debug('###: ' + compilationUnit.typeDeclaration.toString());
+        System.debug(compUnitTok.dump(''));
     }
+
 }
