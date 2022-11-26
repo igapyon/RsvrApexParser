@@ -864,18 +864,19 @@ public class RsvrApexLexicalParser {
                     // System.debug('TRACE: Operator: [' + result.target + ']');
                     return result;
                 } else {
-                    // System.debug('TRACE: Non Operator: [' + target + ']');
-                    if (targetList.get(0) == 62 /* [>] */) {
-                        // 特殊処理
-                        input.reset();
-                        Integer retry = input.readChar();
-
-                        OperatorToken result = new OperatorToken();
-                        result.type = 'Operator';
-                        result.target = RsvrApexLexicalParserUtil.int2string(retry);
-                        result.original = result.target;
-                        input.mark();
-                        return result;
+                    // 短くしながら確認
+                    for (Integer len = target.length() - 1; len > 0; len--) {
+                        input.move(input.pos() - 1);
+                        final String subTarget = target.substring(0,len);
+                        if (RsvrApexLexicalParserUtil.isOperator(subTarget)) {
+                            // hit!
+                            input.mark();
+                            OperatorToken result = new OperatorToken();
+                            result.type = 'Operator';
+                            result.target = subTarget;
+                            result.original = result.target;
+                            return result;
+                        }
                     }
 
                     // in case // or /* pass here.
