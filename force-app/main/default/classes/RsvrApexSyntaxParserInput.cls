@@ -63,4 +63,36 @@ public class RsvrApexSyntaxParserInput {
     public void reset() {
         currentPos = markPos;
     }
+
+    /**
+     * 最初のLexicalTokenを取得。
+     * ポジションは一つ進みます。
+     */
+    public RsvrApexLexicalParser.LexicalToken getFirstLexicalToken() {
+        return readToken().getTokenList().get(0);
+    }
+
+    /**
+     * 最初の(Lexical)KeywordTokenを取得。
+     * 成功しようが失敗しようが、ポジションは一つ進みます。
+     */
+    public RsvrApexLexicalParser.KeywordToken getFirstKeywordToken() {
+        RsvrApexLexicalParser.LexicalToken lexToken = readToken().getTokenList().get(0);
+        if (lexToken instanceof RsvrApexLexicalParser.KeywordToken) {
+            return (RsvrApexLexicalParser.KeywordToken) lexToken;
+        }
+        return null;
+    }
+
+    /**
+     * 最初の(Lexical)IdentifierTokenを取得。
+     * 成功しようが失敗しようが、ポジションは一つ進みます。
+     */
+    public RsvrApexLexicalParser.IdentifierToken getFirstIdentifierToken() {
+        RsvrApexLexicalParser.LexicalToken lexToken = readToken().getTokenList().get(0);
+        if (lexToken instanceof RsvrApexLexicalParser.IdentifierToken) {
+            return (RsvrApexLexicalParser.IdentifierToken) lexToken;
+        }
+        return null;
+    }
 }
