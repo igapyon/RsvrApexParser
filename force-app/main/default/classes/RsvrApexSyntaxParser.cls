@@ -194,7 +194,7 @@ public class RsvrApexSyntaxParser {
 
         public String dump(String indent) {
             String strDump = (indent + 'ClassDeclaration:\n');
-            strDump += (indent + '  identifier: ' + identifier);
+            strDump += (indent + '  identifier: ' + identifier + '\n');
             return strDump;
         }
     }
@@ -249,6 +249,11 @@ public class RsvrApexSyntaxParser {
     //     ;
 
     public class EnumDeclarationToken extends SyntaxToken {
+
+        public String dump(String indent) {
+            String strDump = (indent + 'EnumDeclaration:\n');
+            return strDump;
+        }
     }
 
     /////////////////////////////////////////////////////////////////
@@ -262,6 +267,11 @@ public class RsvrApexSyntaxParser {
     //     ;
 
     public class InterfaceDeclarationToken extends SyntaxToken {
+
+        public String dump(String indent) {
+            String strDump = (indent + 'InterfaceDeclaration:\n');
+            return strDump;
+        }
     }
 
     /////////////////////////////////////////////////////////////////
@@ -275,6 +285,11 @@ public class RsvrApexSyntaxParser {
     //     ;
 
     public class ClassBodyToken extends SyntaxToken {
+
+        public String dump(String indent) {
+            String strDump = (indent + 'ClassBody:\n');
+            return strDump;
+        }
     }
 
     /////////////////////////////////////////////////////////////////
@@ -290,6 +305,11 @@ public class RsvrApexSyntaxParser {
     //     ;
 
     public class ClassBodyDeclarationToken extends SyntaxToken {
+
+        public String dump(String indent) {
+            String strDump = (indent + 'ClassBodyDeclaration:\n');
+            return strDump;
+        }
     }
 
     /////////////////////////////////////////////////////////////////
@@ -434,6 +454,11 @@ public class RsvrApexSyntaxParser {
     //  */
 
     public class MemberDeclarationToken extends SyntaxToken {
+
+        public String dump(String indent) {
+            String strDump = (indent + 'MemberDeclaration:\n');
+            return strDump;
+        }
     }
 
     /////////////////////////////////////////////////////////////////
@@ -445,6 +470,11 @@ public class RsvrApexSyntaxParser {
     //     ;
 
     public class MethodDeclarationToken extends SyntaxToken {
+
+        public String dump(String indent) {
+            String strDump = (indent + 'MethodDeclaration:\n');
+            return strDump;
+        }
     }
 
     /////////////////////////////////////////////////////////////////
@@ -453,6 +483,11 @@ public class RsvrApexSyntaxParser {
     //     ;
 
     public class ConstructorDeclarationToken extends SyntaxToken {
+
+        public String dump(String indent) {
+            String strDump = (indent + 'ConstructorDeclaration:\n');
+            return strDump;
+        }
     }
 
     /////////////////////////////////////////////////////////////////
@@ -461,6 +496,11 @@ public class RsvrApexSyntaxParser {
     //     ;
 
     public class FieldDeclarationToken extends SyntaxToken {
+
+        public String dump(String indent) {
+            String strDump = (indent + 'FieldDeclaration:\n');
+            return strDump;
+        }
     }
 
     /////////////////////////////////////////////////////////////////
@@ -469,6 +509,11 @@ public class RsvrApexSyntaxParser {
     //     ;
 
     public class PropertyDeclarationToken extends SyntaxToken {
+
+        public String dump(String indent) {
+            String strDump = (indent + 'PropertyDeclaration:\n');
+            return strDump;
+        }
     }
 
     /////////////////////////////////////////////////////////////////
@@ -502,7 +547,11 @@ public class RsvrApexSyntaxParser {
 
     public class TypeRefToken extends SyntaxToken {
         public List<TypeNameToken> typeNameList = new List<TypeNameToken>();
-//        : typeName (DOT typeName)* arraySubscripts
+
+        public String dump(String indent) {
+            String strDump = (indent + 'TypeRef:\n');
+            return strDump;
+        }
     }
 
     /////////////////////////////////////////////////////////////////
@@ -519,6 +568,11 @@ public class RsvrApexSyntaxParser {
     //     ;
 
     public class TypeNameToken  extends SyntaxToken {
+
+        public String dump(String indent) {
+            String strDump = (indent + 'TypeName:\n');
+            return strDump;
+        }
     }
 
     private TypeNameToken parseTypeName() {
@@ -537,6 +591,11 @@ public class RsvrApexSyntaxParser {
     //     ;
 
     public class FormalParametersToken extends SyntaxToken {
+
+        public String dump(String indent) {
+            String strDump = (indent + 'FormalParameters:\n');
+            return strDump;
+        }
     }
 
     /////////////////////////////////////////////////////////////////
