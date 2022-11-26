@@ -45,73 +45,6 @@ public class RsvrApexSyntaxParser {
     public class NopToken extends SyntaxToken {
     }
 
-
-    public class TypeDeclarationToken extends SyntaxToken {
-        public final List<ModifierToken> modifierList = new List<ModifierToken>();
-
-        public ClassDeclarationToken classDeclaration {get; set;}
-        public EnumDeclarationToken enumDeclaration {get; set;}
-        public InterfaceDeclarationToken interfaceDeclaration {get; set;}
-    }
-
-    /**
-     * AnnotationToken は作らずに、ModifierToken を使用。
-     */
-    public class ModifierToken extends SyntaxToken {
-        // 非Annotation用のフィールド。
-        public Integer no {get; set;}
-
-        // Annotation用のフィールド。
-        public String qualifiedName {get; set;}
-    }
-
-    public class ClassDeclarationToken extends SyntaxToken {
-    }
-
-    public class EnumDeclarationToken extends SyntaxToken {
-    }
-
-    public class InterfaceDeclarationToken extends SyntaxToken {
-    }
-
-    public class ClassBodyToken extends SyntaxToken {
-    }
-
-    public class ClassBodyDeclarationToken extends SyntaxToken {
-    }
-
-    public class MemberDeclarationToken extends SyntaxToken {
-    }
-
-    public class MethodDeclarationToken extends SyntaxToken {
-    }
-
-    public class FieldDeclarationToken extends SyntaxToken {
-    }
-
-    public class ConstructorDeclarationToken extends SyntaxToken {
-    }
-
-    public class PropertyDeclarationToken extends SyntaxToken {
-    }
-
-    // QualifiedNameToken は作らない。
-
-    // ただし、TypeRefToken は作る。
-    public class TypeRefToken extends SyntaxToken {
-        public List<TypeNameToken> typeNameList = new List<TypeNameToken>();
-//        : typeName (DOT typeName)* arraySubscripts
-    }
-
-    public class TypeNameToken  extends SyntaxToken {
-    }
-
-    public class FormalParametersToken extends SyntaxToken {
-    }
-
-    public class BlockToken extends SyntaxToken {
-    }
-
     public List<SyntaxToken> unify(List<RsvrApexLexicalParser.LexicalToken> lexicalTokenList) {
         final List<SyntaxToken> result = new List<SyntaxToken>();
 
@@ -163,6 +96,44 @@ public class RsvrApexSyntaxParser {
         return compToken;
     }
 
+    //////////////////////////////
+    // 仕切り直し
+
+    /////////////////////////////////////////////////////////////////
+    // // entry point for Apex trigger files
+    // triggerUnit
+    //     : TRIGGER id ON id LPAREN triggerCase (COMMA triggerCase)* RPAREN block EOF
+    //     ;
+    // 
+    // triggerCase
+    //     : (BEFORE|AFTER) (INSERT|UPDATE|DELETE|UNDELETE)
+    //     ;
+
+    /////////////////////////////////////////////////////////////////
+    // // entry point for Apex class files
+    // compilationUnit
+    //     : typeDeclaration EOF
+    //     ;
+        
+    public class CompilationUnitToken extends SyntaxToken {
+        public TypeDeclarationToken typeDeclaration {get; set;}
+    }
+
+    /////////////////////////////////////////////////////////////////
+    // typeDeclaration
+    //     : modifier* classDeclaration
+    //     | modifier* enumDeclaration
+    //     | modifier* interfaceDeclaration
+    //     ;
+
+    public class TypeDeclarationToken extends SyntaxToken {
+        public final List<ModifierToken> modifierList = new List<ModifierToken>();
+
+        public ClassDeclarationToken classDeclaration {get; set;}
+        public EnumDeclarationToken enumDeclaration {get; set;}
+        public InterfaceDeclarationToken interfaceDeclaration {get; set;}
+    }
+
     private TypeDeclarationToken parseTypeDeclaration() {
         TypeDeclarationToken typeDecToken = new TypeDeclarationToken();
         for (;;) {
@@ -179,6 +150,17 @@ public class RsvrApexSyntaxParser {
         }
 
         return typeDecToken;
+    }
+
+    /////////////////////////////////////////////////////////////////
+    // classDeclaration
+    //     : CLASS id
+    //       (EXTENDS typeRef)?
+    //       (IMPLEMENTS typeList)?
+    //       classBody
+    //     ;
+
+    public class ClassDeclarationToken extends SyntaxToken {
     }
 
     private ClassDeclarationToken parseClassDeclaration() {
@@ -218,7 +200,88 @@ public class RsvrApexSyntaxParser {
 return null;
         
     }
+    
+    /////////////////////////////////////////////////////////////////
+    // enumDeclaration
+    //     : ENUM id
+    //       LBRACE enumConstants? RBRACE
+    //     ;
 
+    public class EnumDeclarationToken extends SyntaxToken {
+    }
+
+    /////////////////////////////////////////////////////////////////
+    // enumConstants
+    //  	: id (COMMA id)*
+    //    	;
+
+    /////////////////////////////////////////////////////////////////
+    // interfaceDeclaration
+    //     : INTERFACE id (EXTENDS typeList)? interfaceBody
+    //     ;
+
+    public class InterfaceDeclarationToken extends SyntaxToken {
+    }
+
+    /////////////////////////////////////////////////////////////////
+    // typeList
+    //     : typeRef (COMMA typeRef)*
+    //     ;
+
+    /////////////////////////////////////////////////////////////////
+    // classBody
+    //     : LBRACE classBodyDeclaration* RBRACE
+    //     ;
+
+    public class ClassBodyToken extends SyntaxToken {
+    }
+
+    /////////////////////////////////////////////////////////////////
+    // interfaceBody
+    //     : LBRACE interfaceMethodDeclaration* RBRACE
+    //     ;
+
+    /////////////////////////////////////////////////////////////////
+    // classBodyDeclaration
+    //     : SEMI
+    //     | STATIC? block
+    //     | modifier* memberDeclaration
+    //     ;
+
+    public class ClassBodyDeclarationToken extends SyntaxToken {
+    }
+
+    /////////////////////////////////////////////////////////////////
+    // /* Unify all annotation & modifiers so we can give better error messages */
+    // modifier
+    //     : annotation
+    //     | GLOBAL
+    //     | PUBLIC
+    //     | PROTECTED
+    //     | PRIVATE
+    //     | TRANSIENT
+    //     | STATIC
+    //     | ABSTRACT
+    //     | FINAL
+    //     | WEBSERVICE
+    //     | OVERRIDE
+    //     | VIRTUAL
+    //     | TESTMETHOD
+    //     | WITH SHARING
+    //     | WITHOUT SHARING
+    //     | INHERITED SHARING
+    //     ;
+
+    /**
+     * AnnotationToken は作らずに、ModifierToken を使用。
+     */
+    public class ModifierToken extends SyntaxToken {
+        // 非Annotation用のフィールド。
+        public Integer no {get; set;}
+
+        // Annotation用のフィールド。
+        public String qualifiedName {get; set;}
+    }
 
     private ModifierToken parseModifier() {
         ModifierToken annoToken = parseAnnotation();
@@ -302,11 +365,146 @@ return null;
         return modToken;
     }
 
-    /**
-     * qualifiedName
-        : id (DOT id)*
-        ;
-     */
+    /////////////////////////////////////////////////////////////////
+    // memberDeclaration
+    //     : methodDeclaration
+    //     | fieldDeclaration
+    //     | constructorDeclaration
+    //     | interfaceDeclaration
+    //     | classDeclaration
+    //     | enumDeclaration
+    //     | propertyDeclaration
+    //     ;
+    // 
+    // /* We use rule this even for void methods which cannot have [] after parameters.
+    //    This simplifies grammar and we can consider void to be a type, which
+    //    renders the [] matching as a context-sensitive issue or a semantic check
+    //    for invalid return type after parsing.
+    //  */
+
+    public class MemberDeclarationToken extends SyntaxToken {
+    }
+
+    /////////////////////////////////////////////////////////////////
+    // methodDeclaration
+    //     : (typeRef|VOID) id formalParameters
+    //       (   block
+    //       |   SEMI
+    //       )
+    //     ;
+
+    public class MethodDeclarationToken extends SyntaxToken {
+    }
+
+    /////////////////////////////////////////////////////////////////
+    // constructorDeclaration
+    //     : qualifiedName formalParameters block
+    //     ;
+
+    public class ConstructorDeclarationToken extends SyntaxToken {
+    }
+
+    /////////////////////////////////////////////////////////////////
+    // fieldDeclaration
+    //     : typeRef variableDeclarators SEMI
+    //     ;
+
+    public class FieldDeclarationToken extends SyntaxToken {
+    }
+
+    /////////////////////////////////////////////////////////////////
+    // propertyDeclaration
+    //     : typeRef id LBRACE propertyBlock* RBRACE
+    //     ;
+
+    public class PropertyDeclarationToken extends SyntaxToken {
+    }
+
+    /////////////////////////////////////////////////////////////////
+    // interfaceMethodDeclaration
+    //     : modifier* (typeRef|VOID) id formalParameters SEMI
+    //     ;
+
+    /////////////////////////////////////////////////////////////////
+    // variableDeclarators
+    //     : variableDeclarator (COMMA variableDeclarator)*
+    //     ;
+
+    /////////////////////////////////////////////////////////////////
+    // variableDeclarator
+    //     : id (ASSIGN expression)?
+    //     ;
+
+    /////////////////////////////////////////////////////////////////
+    // arrayInitializer
+    //     : LBRACE (expression (COMMA expression)* (COMMA)? )? RBRACE
+    //     ;
+
+    /////////////////////////////////////////////////////////////////
+    // typeRef
+    //     : typeName (DOT typeName)* arraySubscripts
+    //     ;
+
+    private TypeRefToken parseTypeRef() {
+        return null;
+    }
+
+    public class TypeRefToken extends SyntaxToken {
+        public List<TypeNameToken> typeNameList = new List<TypeNameToken>();
+//        : typeName (DOT typeName)* arraySubscripts
+    }
+
+    /////////////////////////////////////////////////////////////////
+    // arraySubscripts
+    //     : (LBRACK RBRACK)*
+    //     ;
+
+    /////////////////////////////////////////////////////////////////
+    // typeName
+    //     : LIST typeArguments?
+    //     | SET typeArguments?
+    //     | MAP typeArguments?
+    //     | id typeArguments?
+    //     ;
+
+    public class TypeNameToken  extends SyntaxToken {
+    }
+
+    private TypeNameToken parseTypeName() {
+        return null;
+
+    }
+
+    /////////////////////////////////////////////////////////////////
+    // typeArguments
+    //     : LT typeList GT
+    //     ;
+
+    /////////////////////////////////////////////////////////////////
+    // formalParameters
+    //     : LPAREN formalParameterList? RPAREN
+    //     ;
+
+    public class FormalParametersToken extends SyntaxToken {
+    }
+
+    /////////////////////////////////////////////////////////////////
+    // formalParameterList
+    //     : formalParameter (COMMA formalParameter)*
+    //     ;
+
+    /////////////////////////////////////////////////////////////////
+    // formalParameter
+    //     : modifier* typeRef id
+    //     ;
+
+    /////////////////////////////////////////////////////////////////
+    // qualifiedName
+    //     : id (DOT id)*
+    //     ;
+
+    // QualifiedNameToken は作らない。???
+
     private String parseQualifiedName() {
         String qualifiedName = '';
         RsvrApexLexicalParser.LexicalToken tok1 = input.readToken().getTokenList().get(0);
@@ -336,199 +534,8 @@ return null;
 
         return qualifiedName;
     }
-
-    /**
-     *     typeRef
-    : typeName (DOT typeName)* arraySubscripts
-    ;
-
-     */
-    private TypeRefToken parseTypeRef() {
-return null;
-    }
-
-
-
-    private TypeNameToken parseTypeName() {
-        return null;
-
-    }
-
     
-
-    //////////////////////////////
-    // 仕切り直し
-
-    // // entry point for Apex trigger files
-    // triggerUnit
-    //     : TRIGGER id ON id LPAREN triggerCase (COMMA triggerCase)* RPAREN block EOF
-    //     ;
-    // 
-    // triggerCase
-    //     : (BEFORE|AFTER) (INSERT|UPDATE|DELETE|UNDELETE)
-    //     ;
-    // 
-    // // entry point for Apex class files
-    // compilationUnit
-    //     : typeDeclaration EOF
-    //     ;
-
-    public class CompilationUnitToken extends SyntaxToken {
-        public TypeDeclarationToken typeDeclaration {get; set;}
-    }
-
-    // 
-    // typeDeclaration
-    //     : modifier* classDeclaration
-    //     | modifier* enumDeclaration
-    //     | modifier* interfaceDeclaration
-    //     ;
-    // 
-    // classDeclaration
-    //     : CLASS id
-    //       (EXTENDS typeRef)?
-    //       (IMPLEMENTS typeList)?
-    //       classBody
-    //     ;
-    // 
-    // enumDeclaration
-    //     : ENUM id
-    //       LBRACE enumConstants? RBRACE
-    //     ;
-    // 
-    // enumConstants
-    //  	: id (COMMA id)*
-    //    	;
-    // 
-    // interfaceDeclaration
-    //     : INTERFACE id (EXTENDS typeList)? interfaceBody
-    //     ;
-    // 
-    // typeList
-    //     : typeRef (COMMA typeRef)*
-    //     ;
-    // 
-    // classBody
-    //     : LBRACE classBodyDeclaration* RBRACE
-    //     ;
-    // 
-    // interfaceBody
-    //     : LBRACE interfaceMethodDeclaration* RBRACE
-    //     ;
-    // 
-    // classBodyDeclaration
-    //     : SEMI
-    //     | STATIC? block
-    //     | modifier* memberDeclaration
-    //     ;
-    // 
-    // /* Unify all annotation & modifiers so we can give better error messages */
-    // modifier
-    //     : annotation
-    //     | GLOBAL
-    //     | PUBLIC
-    //     | PROTECTED
-    //     | PRIVATE
-    //     | TRANSIENT
-    //     | STATIC
-    //     | ABSTRACT
-    //     | FINAL
-    //     | WEBSERVICE
-    //     | OVERRIDE
-    //     | VIRTUAL
-    //     | TESTMETHOD
-    //     | WITH SHARING
-    //     | WITHOUT SHARING
-    //     | INHERITED SHARING
-    //     ;
-    // 
-    // memberDeclaration
-    //     : methodDeclaration
-    //     | fieldDeclaration
-    //     | constructorDeclaration
-    //     | interfaceDeclaration
-    //     | classDeclaration
-    //     | enumDeclaration
-    //     | propertyDeclaration
-    //     ;
-    // 
-    // /* We use rule this even for void methods which cannot have [] after parameters.
-    //    This simplifies grammar and we can consider void to be a type, which
-    //    renders the [] matching as a context-sensitive issue or a semantic check
-    //    for invalid return type after parsing.
-    //  */
-    // 
-    // 
-    // methodDeclaration
-    //     : (typeRef|VOID) id formalParameters
-    //       (   block
-    //       |   SEMI
-    //       )
-    //     ;
-    // 
-    // constructorDeclaration
-    //     : qualifiedName formalParameters block
-    //     ;
-    // 
-    // fieldDeclaration
-    //     : typeRef variableDeclarators SEMI
-    //     ;
-    // 
-    // propertyDeclaration
-    //     : typeRef id LBRACE propertyBlock* RBRACE
-    //     ;
-    // 
-    // interfaceMethodDeclaration
-    //     : modifier* (typeRef|VOID) id formalParameters SEMI
-    //     ;
-    // 
-    // variableDeclarators
-    //     : variableDeclarator (COMMA variableDeclarator)*
-    //     ;
-    // 
-    // variableDeclarator
-    //     : id (ASSIGN expression)?
-    //     ;
-    // 
-    // arrayInitializer
-    //     : LBRACE (expression (COMMA expression)* (COMMA)? )? RBRACE
-    //     ;
-    // 
-    // typeRef
-    //     : typeName (DOT typeName)* arraySubscripts
-    //     ;
-    // 
-    // arraySubscripts
-    //     : (LBRACK RBRACK)*
-    //     ;
-    // 
-    // typeName
-    //     : LIST typeArguments?
-    //     | SET typeArguments?
-    //     | MAP typeArguments?
-    //     | id typeArguments?
-    //     ;
-    // 
-    // typeArguments
-    //     : LT typeList GT
-    //     ;
-    // 
-    // formalParameters
-    //     : LPAREN formalParameterList? RPAREN
-    //     ;
-    // 
-    // formalParameterList
-    //     : formalParameter (COMMA formalParameter)*
-    //     ;
-    // 
-    // formalParameter
-    //     : modifier* typeRef id
-    //     ;
-    // 
-    // qualifiedName
-    //     : id (DOT id)*
-    //     ;
-    // 
+    /////////////////////////////////////////////////////////////////
     // literal
     //     : IntegerLiteral
     //     | LongLiteral
@@ -537,46 +544,59 @@ return null;
     //     | BooleanLiteral
     //     | NULL
     //     ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // // ANNOTATIONS
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // annotation
     //     : ATSIGN qualifiedName ( LPAREN ( elementValuePairs | elementValue )? RPAREN )?
     //     ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // elementValuePairs
     //     : elementValuePair (COMMA? elementValuePair)*
     //     ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // elementValuePair
     //     : id ASSIGN elementValue
     //     ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // elementValue
     //     : expression
     //     | annotation
     //     | elementValueArrayInitializer
     //     ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // elementValueArrayInitializer
     //     : LBRACE (elementValue (COMMA elementValue)*)? (COMMA)? RBRACE
     //     ;
-    // 
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // // STATEMENTS / BLOCKS
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // block
     //     : LBRACE statement* RBRACE
     //     ;
-    // 
+
+    public class BlockToken extends SyntaxToken {
+    }
+
+    /////////////////////////////////////////////////////////////////
     // localVariableDeclarationStatement
     //     : localVariableDeclaration SEMI
     //     ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // localVariableDeclaration
     //     : modifier* typeRef variableDeclarators
     //     ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // statement
     //     : block
     //     | ifStatement
@@ -599,25 +619,30 @@ return null;
     //     | localVariableDeclarationStatement
     //     | expressionStatement
     //     ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // ifStatement
     //     : IF parExpression statement (ELSE statement)?
     //     ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // switchStatement
     //     : SWITCH ON expression LBRACE whenControl+ RBRACE
     //     ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // whenControl
     //     : WHEN whenValue block
     //     ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // whenValue
     //     : ELSE
     //     | whenLiteral (COMMA whenLiteral)*
     //     | id id
     //     ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // whenLiteral
     //     : (SUB)? IntegerLiteral
     //     | LongLiteral
@@ -628,119 +653,148 @@ return null;
     //     // although this is not explicitly documented.
     //     | LPAREN whenLiteral RPAREN
     //     ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // forStatement
     //     : FOR LPAREN forControl RPAREN (statement | SEMI)
     //     ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // whileStatement
     //     : WHILE parExpression (statement | SEMI)
     //     ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // doWhileStatement
     //     : DO statement WHILE parExpression SEMI
     //     ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // tryStatement
     //     : TRY block (catchClause+ finallyBlock? | finallyBlock)
     //     ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // returnStatement
     //     : RETURN expression? SEMI
     //     ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // throwStatement
     //     : THROW expression SEMI
     //     ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // breakStatement
     //     : BREAK SEMI
     //     ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // continueStatement
     //     : CONTINUE SEMI
     //     ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // insertStatement
     //     : INSERT expression SEMI
     //     ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // updateStatement
     //     : UPDATE expression SEMI
     //     ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // deleteStatement
     //     : DELETE expression SEMI
     //     ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // undeleteStatement
     //     : UNDELETE expression SEMI
     //     ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // upsertStatement
     //     : UPSERT expression qualifiedName? SEMI
     //     ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // mergeStatement
     //     : MERGE expression expression SEMI
     //     ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // runAsStatement
     //     : SYSTEMRUNAS LPAREN expressionList? RPAREN block
     //     ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // expressionStatement
     //     : expression SEMI
     //     ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // propertyBlock
     //     : modifier* (getter | setter)
     //     ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // getter
     //     : GET (SEMI | block)
     //     ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // setter
     //     : SET (SEMI | block)
     //     ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // catchClause
     //     : CATCH LPAREN modifier* qualifiedName id RPAREN block
     //     ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // finallyBlock
     //     : FINALLY block
     //     ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // forControl
     //     : enhancedForControl
     //     | forInit? SEMI expression? SEMI forUpdate?
     //     ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // forInit
     //     : localVariableDeclaration
     //     | expressionList
     //     ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // enhancedForControl
     //     : typeRef id COLON expression
     //     ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // forUpdate
     //     : expressionList
     //     ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // // EXPRESSIONS
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // parExpression
     //     : LPAREN expression RPAREN
     //     ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // expressionList
     //     : expression (COMMA expression)*
     //     ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // expression
     //     : primary                                                                                         # primaryExpression
     //     | expression (DOT | QUESTIONDOT)
@@ -782,7 +836,8 @@ return null;
     //       )
     //       expression                                                                                     # assignExpression
     //     ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // primary
     //     : THIS                                                                                           # thisPrimary
     //     | SUPER                                                                                          # superPrimary
@@ -792,64 +847,79 @@ return null;
     //     | soqlLiteral                                                                                    # soqlPrimary
     //     | soslLiteral                                                                                    # soslPrimary
     //     ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // methodCall
     //     : id LPAREN expressionList? RPAREN
     //     | THIS LPAREN expressionList? RPAREN
     //     | SUPER LPAREN expressionList? RPAREN
     //     ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // dotMethodCall
     //     : anyId LPAREN expressionList? RPAREN
     //     ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // creator
     //     :  createdName (noRest | classCreatorRest | arrayCreatorRest | mapCreatorRest | setCreatorRest)
     //     ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // createdName
     //     : idCreatedNamePair (DOT idCreatedNamePair)*
     //     ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // idCreatedNamePair
     //     : anyId (LT typeList GT)?
     //     ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // noRest
     //     : LBRACE RBRACE
     //     ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // classCreatorRest
     //     : arguments
     //     ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // arrayCreatorRest
     //     : LBRACK expression RBRACK
     //     | LBRACK RBRACK arrayInitializer?
     //     ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // mapCreatorRest
     //     : LBRACE mapCreatorRestPair (COMMA mapCreatorRestPair )* RBRACE
     //     ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // mapCreatorRestPair
     //     : expression MAPTO expression
     //     ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // setCreatorRest
     // 	: LBRACE expression (COMMA ( expression ))* RBRACE
     // 	;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // arguments
     //     : LPAREN expressionList? RPAREN
     //     ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // // SOQL
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // soqlLiteral
     //     : LBRACK query RBRACK
     //     ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // query
     //     : SELECT selectList
     //         FROM fromNameList
@@ -864,7 +934,8 @@ return null;
     //         forClauses
     //         (UPDATE updateList)?
     //         ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // subQuery
     //     : SELECT subFieldList
     //         FROM fromNameList
@@ -874,35 +945,43 @@ return null;
     //         forClauses
     //         (UPDATE updateList)?
     //         ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // selectList
     //     : selectEntry (COMMA selectEntry)*;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // selectEntry
     //     : fieldName soqlId?
     //     | soqlFunction soqlId?
     //     | LPAREN subQuery RPAREN soqlId?
     //     | typeOf
     //     ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // fieldName
     //     : soqlId (DOT soqlId)*;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // fromNameList
     //     : fieldName soqlId? (COMMA fieldName soqlId?)*;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // subFieldList
     //     : subFieldEntry (COMMA subFieldEntry)*;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // subFieldEntry
     //     : fieldName soqlId?
     //     | soqlFunction soqlId?;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // soqlFieldsParameter
     //     : ALL
     //     | CUSTOM
     //     | STANDARD;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // soqlFunction
     //     : AVG LPAREN fieldName RPAREN
     //     | COUNT LPAREN RPAREN
@@ -929,57 +1008,71 @@ return null;
     //     | FIELDS LPAREN soqlFieldsParameter RPAREN
     //     | DISTANCE LPAREN locationValue COMMA locationValue COMMA StringLiteral RPAREN
     //     ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     //  dateFieldName
     //     : CONVERT_TIMEZONE LPAREN fieldName RPAREN
     //     | fieldName
     //     ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // locationValue
     //     : fieldName
     //     | boundExpression
     //     | GEOLOCATION LPAREN coordinateValue COMMA coordinateValue  RPAREN
     //     ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // coordinateValue
     //     : signedNumber
     //     | boundExpression
     //     ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // typeOf
     //     : TYPEOF fieldName whenClause+ elseClause? END;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // whenClause
     //     : WHEN fieldName THEN fieldNameList;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // elseClause
     //     : ELSE fieldNameList;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // fieldNameList
     //     : fieldName (COMMA fieldName)*;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // usingScope
     //     : USING SCOPE soqlId;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // whereClause
     //     : WHERE logicalExpression;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // logicalExpression
     //     : conditionalExpression (SOQLAND conditionalExpression)*
     //     | conditionalExpression (SOQLOR conditionalExpression)*
     //     | NOT conditionalExpression;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // conditionalExpression
     //     : LPAREN logicalExpression RPAREN
     //     | fieldExpression;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // fieldExpression
     //     : fieldName comparisonOperator value
     //     | soqlFunction comparisonOperator value;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // comparisonOperator
     //     : ASSIGN | NOTEQUAL | LT | GT | LT ASSIGN | GT ASSIGN | LESSANDGREATER | LIKE | IN | NOT IN | INCLUDES | EXCLUDES;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // value
     //     : NULL
     //     | BooleanLiteral
@@ -993,64 +1086,81 @@ return null;
     //     | valueList
     //     | boundExpression
     //     ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // valueList
     //     : LPAREN value (COMMA value)* RPAREN;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // // TODO: NumberLiteral has trailing [dD]?, SOQL does not support this but a fix would need wider changes
     // signedNumber
     //     : (ADD | SUB)? (IntegerLiteral | NumberLiteral);
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // withClause
     //     : WITH DATA CATEGORY filteringExpression
     //     | WITH SECURITY_ENFORCED
     //     | WITH logicalExpression;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // filteringExpression
     //     : dataCategorySelection (AND dataCategorySelection)*;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // dataCategorySelection
     //     : soqlId filteringSelector dataCategoryName;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // dataCategoryName
     //     : soqlId
     //     | LPAREN soqlId (COMMA soqlId)* LPAREN;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // filteringSelector
     //     : AT | ABOVE | BELOW | ABOVE_OR_BELOW;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // groupByClause
     //     : GROUP BY selectList (HAVING logicalExpression)?
     //     | GROUP BY ROLLUP LPAREN fieldName (COMMA fieldName)* RPAREN
     //     | GROUP BY CUBE LPAREN fieldName (COMMA fieldName)* RPAREN;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // orderByClause
     //     : ORDER BY fieldOrderList;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // fieldOrderList
     //     : fieldOrder (COMMA fieldOrder)*;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // fieldOrder
     //     : fieldName (ASC | DESC)? (NULLS (FIRST|LAST))?
     //     | soqlFunction (ASC | DESC)? (NULLS (FIRST|LAST))?;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // limitClause
     //     : LIMIT IntegerLiteral
     //     | LIMIT boundExpression;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // offsetClause
     //     : OFFSET IntegerLiteral
     //     | OFFSET boundExpression;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // allRowsClause
     //     : ALL ROWS;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // forClauses
     //     : (FOR (VIEW | UPDATE | REFERENCE))*;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // boundExpression
     //     : COLON expression;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // dateFormula
     //     : YESTERDAY
     //     | TODAY
@@ -1090,23 +1200,28 @@ return null;
     //     | NEXT_N_FISCAL_YEARS_N COLON signedInteger
     //     | LAST_N_FISCAL_YEARS_N COLON signedInteger
     //     ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // signedInteger
     //     : (ADD | SUB)? IntegerLiteral;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // soqlId
     //     : id;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // // SOSL
     // soslLiteral
     //     : FindLiteral soslClauses RBRACK
     //     | LBRACK FIND boundExpression soslClauses RBRACK
     //     ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // soslLiteralAlt
     //     : FindLiteralAlt soslClauses RBRACK
     //     ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // soslClauses
     //     : (IN searchGroup)?
     //       (RETURNING fieldSpecList)?
@@ -1120,15 +1235,18 @@ return null;
     //       limitClause?
     //       (UPDATE updateList)?
     //     ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // searchGroup
     //     : (ALL|EMAIL|NAME|PHONE|SIDEBAR) FIELDS
     //     ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // fieldSpecList
     //     : fieldSpec (COMMA fieldSpecList)*
     //     ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // fieldSpec
     //     : soslId (LPAREN fieldList
     //         (WHERE logicalExpression)?
@@ -1138,25 +1256,31 @@ return null;
     //         offsetClause?
     //         RPAREN)?
     //     ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // fieldList
     //     : soslId (COMMA fieldList)*
     //     ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // updateList
     //     : updateType (COMMA updateList)?
     //     ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // updateType
     //     : TRACKING | VIEWSTAT;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // networkList
     //     : StringLiteral (COMMA networkList)?
     //     ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // soslId
     //     : id (DOT soslId)*;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // // Identifiers
     // 
     // // Some keywords can be used as general identifiers, this is likely an over simplification of the actual
@@ -1303,7 +1427,8 @@ return null;
     //     | RETURNING
     //     | LISTVIEW
     //     ;
-    // 
+
+    /////////////////////////////////////////////////////////////////
     // // In dot expressions we, can use a wider set of of identifiers, apparently any of them althogh I have excluding VOID
     // // in the interests of reducing ambiguity
     // anyId
