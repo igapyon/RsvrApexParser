@@ -161,6 +161,7 @@ public class RsvrApexSyntaxParser {
     //     ;
 
     public class ClassDeclarationToken extends SyntaxToken {
+        public String identifier {get; set;}
     }
 
     private ClassDeclarationToken parseClassDeclaration() {
@@ -181,6 +182,8 @@ public class RsvrApexSyntaxParser {
 
         // これで確定扱いとします。
         input.mark();
+        ClassDeclarationToken clsDecTok = new ClassDeclarationToken();
+        clsDecTok.identifier = idTok.target;
 
         for (;;) {
             RsvrApexLexicalParser.KeywordToken nextKeyTok = input.getFirstKeywordToken();
@@ -197,8 +200,7 @@ public class RsvrApexSyntaxParser {
             }
         }
 
-return null;
-        
+        return clsDecTok;
     }
     
     /////////////////////////////////////////////////////////////////
