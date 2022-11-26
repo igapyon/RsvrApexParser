@@ -30,10 +30,11 @@ private class RsvrApexSyntaxParserTest {
         final List<RsvrApexLexicalParser.LexicalToken> lexList = lexParser.parse(apexClassBody);
 
         RsvrApexSyntaxParser parser = new RsvrApexSyntaxParser();
-        List<RsvrApexSyntaxParser.UnknownToken> tokList = parser.unify(lexList);
+        List<RsvrApexSyntaxParser.SyntaxToken> tokList = parser.unify(lexList);
+        parser.parse(tokList);
 
-        for (RsvrApexSyntaxParser.UnknownToken token : tokList) {
-            System.debug('### ' + token.toString());
-        }
+        //for (RsvrApexSyntaxParser.UnknownToken token : tokList) {
+        //    System.debug('### ' + token.toString());
+        //}
     }
 }
