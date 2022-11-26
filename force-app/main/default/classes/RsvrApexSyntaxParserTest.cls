@@ -25,7 +25,16 @@
 private class RsvrApexSyntaxParserTest {
     @isTest(SeeAllData=false)
     static void test01() {
+        final RsvrApexLexicalParser lexParser = new RsvrApexLexicalParser();
+        final String apexClassBody = RsvrApexLexicalParserUtil.readApexClassBody('RsvrApexLexicalParserTest12');
+        final List<RsvrApexLexicalParser.LexicalToken> lexList = lexParser.parse(apexClassBody);
+
         RsvrApexSyntaxParser parser = new RsvrApexSyntaxParser();
-        parser.parse();
+        List<RsvrApexSyntaxParser.SyntaxToken> tokList = parser.unify(lexList);
+        parser.parse(tokList);
+
+        //for (RsvrApexSyntaxParser.UnknownToken token : tokList) {
+        //    System.debug('### ' + token.toString());
+        //}
     }
 }

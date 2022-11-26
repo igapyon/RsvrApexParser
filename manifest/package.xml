@@ -15,6 +15,7 @@
 		<members>RsvrApexLexicalParserUtilTest</members>
 		<members>RsvrApexSyntaxParser</members>
 		<members>RsvrApexSyntaxParserTest</members>
+		<members>RsvrApexSyntaxParserInput</members>
 		<members>RsvrProcTime</members>
 		<members>RsvrProcTimeTest</members>
 		<members>RsvrUnicodeConstants</members>

@@ -33,6 +33,7 @@ public class RsvrApexLexicalParser {
     }
 
     public class KeywordToken extends LexicalToken {
+        public Integer no {get; set;}
     }
 
     public class LiteralToken extends LexicalToken {
@@ -208,6 +209,8 @@ public class RsvrApexLexicalParser {
     ///////////////////////////////////////
     // Parse
 
+    private static Map<String,Integer> keywordNoMap = null;
+
     private LexicalToken parseKeyword() {
         procTime.enter('parseKeyword');
 
@@ -249,11 +252,19 @@ public class RsvrApexLexicalParser {
                 }
                 if (RsvrApexLexicalParserUtil.isKeyword(target)) {
                     // Hit
+                    if (keywordNoMap == null) {
+                        keywordNoMap = new Map<String,Integer>();
+                        Integer loopIndex = 0;
+                        for (String look : RsvrApexConstants.KEYWORDS) {
+                            keywordNoMap.put(look.toLowerCase(), loopIndex++);
+                        }
+                    }
                     input.mark();
                     KeywordToken result = new KeywordToken();
                     result.type = 'Keyword';
                     result.target = target;
                     result.original = result.target;
+                    result.no = keywordNoMap.get(result.target);
                     return result;
                 } else {
                     break;

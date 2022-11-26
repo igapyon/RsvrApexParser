@@ -23,6 +23,26 @@
  */
 public class RsvrApexSyntaxParser {
     public abstract class SyntaxToken {
+        final private List<RsvrApexLexicalParser.LexicalToken> relatedTokenList = new List<RsvrApexLexicalParser.LexicalToken>();
+        final private List<RsvrApexLexicalParser.LexicalToken> relatedWhitespaceList = new List<RsvrApexLexicalParser.LexicalToken>();
+
+        public List<RsvrApexLexicalParser.LexicalToken> getTokenList() {
+            return relatedTokenList;
+        }
+
+        public List<RsvrApexLexicalParser.LexicalToken> getWhitespaceList() {
+            return relatedWhitespaceList;
+        }
+    }
+
+    /**
+     * 一旦不明トークンにおまとめ。
+     */
+    public class UnknownToken extends SyntaxToken {
+    }
+
+    /** NO OPERATION TOKEN */
+    public class NopToken extends SyntaxToken {
     }
 
     public class CompilationUnitToken extends SyntaxToken {
@@ -30,9 +50,22 @@ public class RsvrApexSyntaxParser {
     }
 
     public class TypeDeclarationToken extends SyntaxToken {
+        public final List<ModifierToken> modifierList = new List<ModifierToken>();
+
+        public ClassDeclarationToken classDeclaration {get; set;}
+        public EnumDeclarationToken enumDeclaration {get; set;}
+        public InterfaceDeclarationToken interfaceDeclaration {get; set;}
     }
 
+    /**
+     * AnnotationToken は作らずに、ModifierToken を使用。
+     */
     public class ModifierToken extends SyntaxToken {
+        // 非Annotation用のフィールド。
+        public Integer no {get; set;}
+
+        // Annotation用のフィールド。
+        public String qualifiedName {get; set;}
     }
 
     public class ClassDeclarationToken extends SyntaxToken {
@@ -74,8 +107,41 @@ public class RsvrApexSyntaxParser {
     public class BlockToken extends SyntaxToken {
     }
 
-    private List<RsvrApexLexicalParser.LexicalToken> lexicalTokenList;
-    private Integer currentPos = 0;
+    public List<SyntaxToken> unify(List<RsvrApexLexicalParser.LexicalToken> lexicalTokenList) {
+        final List<SyntaxToken> result = new List<SyntaxToken>();
+
+        List<RsvrApexLexicalParser.LexicalToken> bufList = new List<RsvrApexLexicalParser.LexicalToken>();
+
+        for (RsvrApexLexicalParser.LexicalToken look : lexicalTokenList) {
+            if (look instanceof RsvrApexLexicalParser.WhitespaceToken
+             || look instanceof RsvrApexLexicalParser.CommentToken) {
+                bufList.add(look);
+            } else {
+                UnknownToken unkToken = new UnknownToken();
+                unkToken.getTokenList().add(look);
+                if (bufList.size() > 0) {
+                    unkToken.getWhitespaceList().addAll(bufList);
+                    bufList.clear();
+                }
+                result.add(unkToken);
+            }
+        }
+
+        // 10個のダミーを最後に付与。
+        RsvrApexLexicalParser.WhitespaceToken dummy = new RsvrApexLexicalParser.WhitespaceToken();
+        dummy.type = 'Whitespace';
+        dummy.target = '';
+        dummy.original = '';
+        for (Integer i = 0; i < 10; i++) {
+            NopToken nop = new NopToken();
+            nop.getTokenList().add(dummy);
+            result.add(nop);
+        }
+
+        return result;
+    }
+
+    RsvrApexSyntaxParserInput input;
 
     /**
      * // entry point for Apex trigger files
@@ -92,16 +158,16 @@ public class RsvrApexSyntaxParser {
             : typeDeclaration EOF
             ;
      */
-    public SyntaxToken parse(List<RsvrApexLexicalParser.LexicalToken> lexicalTokenList) {
-        this.lexicalTokenList = lexicalTokenList;
+    public SyntaxToken parse(List<SyntaxToken> tokenList) {
+        input = new RsvrApexSyntaxParserInput(tokenList);
 
         // TODO TRIGGER TBDE
 
         CompilationUnitToken compToken = new CompilationUnitToken();
 
-        TypeDeclarationToken tryToken = parseTypeDeclaration();
-        if (tryToken != null) {
-            compToken.typeDeclaration = tryToken;
+        TypeDeclarationToken typeDecToken = parseTypeDeclaration();
+        if (typeDecToken != null) {
+            compToken.typeDeclaration = typeDecToken;
         }
 
         return compToken;
@@ -114,24 +180,194 @@ public class RsvrApexSyntaxParser {
             | modifier* interfaceDeclaration
      * 
      */
-    public TypeDeclarationToken parseTypeDeclaration() {
+    private TypeDeclarationToken parseTypeDeclaration() {
+        TypeDeclarationToken typeDecToken = new TypeDeclarationToken();
+        for (;;) {
+            ModifierToken modifyToken = parseModifier();
+            if (modifyToken == null) {
+                break;
+            }
+            typeDecToken.modifierList.add(modifyToken);
+        }
+
+        ClassDeclarationToken classTok = parseClassDeclaration();
+        if (classTok != null) {
+            typeDecToken.classDeclaration = classTok;
+        }
+
+        return typeDecToken;
+    }
+
+    /**
+     * classDeclaration
+        : CLASS id
+        (EXTENDS typeRef)?
+        (IMPLEMENTS typeList)?
+        classBody
+     */
+    private ClassDeclarationToken parseClassDeclaration() {
+        input.mark();
+        RsvrApexLexicalParser.LexicalToken tok1 = input.readToken().getTokenList().get(0);
+        if ((tok1 instanceof RsvrApexLexicalParser.KeywordToken) == false) {
+            input.reset();
+            return null;
+        }
+        RsvrApexLexicalParser.KeywordToken keyTok1 = (RsvrApexLexicalParser.KeywordToken) tok1;
+        if ((keyTok1.no == RsvrApexConstants.KEY_CLASS) == false) {
+            input.reset();
+            return null;
+        }
+
+return null;
+        
+    }
+
+    /**
+    // /* Unify all annotation & modifiers so we can give better error messages 
+    modifier
+    : annotation
+    | GLOBAL
+    | PUBLIC
+    | PROTECTED
+    | PRIVATE
+    | TRANSIENT
+    | STATIC
+    | ABSTRACT
+    | FINAL
+    | WEBSERVICE
+    | OVERRIDE
+    | VIRTUAL
+    | TESTMETHOD
+    | WITH SHARING
+    | WITHOUT SHARING
+    | INHERITED SHARING
+    ;
+    */
+    private ModifierToken parseModifier() {
+        ModifierToken annoToken = parseAnnotation();
+        if (annoToken != null) {
+            return annoToken;
+        }
+
+        input.mark();
+        RsvrApexLexicalParser.LexicalToken tok1 = input.readToken().getTokenList().get(0);
+        if ((tok1 instanceof RsvrApexLexicalParser.KeywordToken) == false) {
+            input.reset();
+            return null;
+        }
+
+        RsvrApexLexicalParser.KeywordToken keyTok = (RsvrApexLexicalParser.KeywordToken) tok1;
+        if (keyTok.no == RsvrApexConstants.KEY_GLOBAL
+        || keyTok.no == RsvrApexConstants.KEY_PUBLIC
+        || keyTok.no == RsvrApexConstants.KEY_PROTECTED
+        || keyTok.no == RsvrApexConstants.KEY_PRIVATE
+        || keyTok.no == RsvrApexConstants.KEY_TRANSIENT
+        || keyTok.no == RsvrApexConstants.KEY_STATIC
+        || keyTok.no == RsvrApexConstants.KEY_ABSTRACT
+        || keyTok.no == RsvrApexConstants.KEY_FINAL
+        || keyTok.no == RsvrApexConstants.KEY_WEBSERVICE
+        || keyTok.no == RsvrApexConstants.KEY_OVERRIDE
+        || keyTok.no == RsvrApexConstants.KEY_VIRTUAL
+        || keyTok.no == RsvrApexConstants.KEY_TESTMETHOD) {
+            ModifierToken modTok = new ModifierToken();
+            modTok.no = keyTok.no;
+            modTok.getTokenList().add(tok1);
+            return modTok;
+        }
+
+        if (keyTok.no == RsvrApexConstants.KEY_WITH
+        || keyTok.no == RsvrApexConstants.KEY_WITHOUT
+        || keyTok.no == RsvrApexConstants.KEY_INHERITED) {
+            RsvrApexLexicalParser.LexicalToken tok2 = input.readToken().getTokenList().get(0);
+            if ((tok2 instanceof RsvrApexLexicalParser.KeywordToken) == false) {
+                input.reset();
+                return null;
+            }
+            RsvrApexLexicalParser.KeywordToken keyTok2 = (RsvrApexLexicalParser.KeywordToken) tok2;
+            if ((keyTok2.no == RsvrApexConstants.KEY_SHARING) == false) {
+                input.reset();
+                return null;
+            }
+
+            ModifierToken modTok = new ModifierToken();
+            modTok.no = keyTok.no;
+            modTok.getTokenList().add(tok1);
+            modTok.getTokenList().add(tok2);
+            return modTok;
+        }
+    
         return null;
     }
 
-    public ModifierToken parseModifier() {
-        return null;
+    /**
+     * annotation
+    : ATSIGN qualifiedName ( LPAREN ( elementValuePairs | elementValue )? RPAREN )?
+    ;
+     */
+    private ModifierToken parseAnnotation() {
+        input.mark();
+        RsvrApexLexicalParser.LexicalToken tok1 = input.readToken().getTokenList().get(0);
+        if ((tok1 instanceof RsvrApexLexicalParser.AtsignToken) == false) {
+            input.reset();
+            return null;
+        }
+
+        String qualifiedName = parseQualifiedName();
+        if (qualifiedName == null) {
+            input.reset();
+            return null;
+        }
+
+        // ここまででAnnotation は確定。
+        input.mark();
+        ModifierToken modToken = new ModifierToken();
+        modToken.qualifiedName = qualifiedName;
+
+        // TODO この先が未実装。
+
+
+        return modToken;
+    }
+
+    /**
+     * qualifiedName
+        : id (DOT id)*
+        ;
+     */
+    public String parseQualifiedName() {
+        String qualifiedName = '';
+        RsvrApexLexicalParser.LexicalToken tok1 = input.readToken().getTokenList().get(0);
+        if ((tok1 instanceof RsvrApexLexicalParser.IdentifierToken) == false) {
+            input.reset();
+            return null;
+        }
+        input.mark();
+        qualifiedName += tok1.target;
+
+        for (;;) {
+            RsvrApexLexicalParser.LexicalToken tok2 = input.readToken().getTokenList().get(0);
+            if (tok2.target != '.') {
+                input.reset();
+                break;
+            }
+
+            RsvrApexLexicalParser.LexicalToken tok3 = input.readToken().getTokenList().get(0);
+            if ((tok3 instanceof RsvrApexLexicalParser.IdentifierToken) == false) {
+                input.reset();
+                break;
+            }
+
+            qualifiedName += tok2.target;
+            qualifiedName += tok3.target;
+        }
+
+        return qualifiedName;
     }
 
 /*
 
     ;
 
-classDeclaration
-    : CLASS id
-      (EXTENDS typeRef)?
-      (IMPLEMENTS typeList)?
-      classBody
-    ;
 
 enumDeclaration
     : ENUM id
@@ -164,25 +400,7 @@ classBodyDeclaration
     | modifier* memberDeclaration
     ;
 
-// /* Unify all annotation & modifiers so we can give better error messages 
-modifier
-    : annotation
-    | GLOBAL
-    | PUBLIC
-    | PROTECTED
-    | PRIVATE
-    | TRANSIENT
-    | STATIC
-    | ABSTRACT
-    | FINAL
-    | WEBSERVICE
-    | OVERRIDE
-    | VIRTUAL
-    | TESTMETHOD
-    | WITH SHARING
-    | WITHOUT SHARING
-    | INHERITED SHARING
-    ;
+
 
 memberDeclaration
     : methodDeclaration
@@ -265,10 +483,6 @@ formalParameterList
 
 formalParameter
     : modifier* typeRef id
-    ;
-
-qualifiedName
-    : id (DOT id)*
     ;
 
 literal
