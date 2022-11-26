@@ -770,15 +770,18 @@ public class RsvrApexLexicalParser {
                         input.reset();
                         break;
                     }
-                    String hexTarget = RsvrApexLexicalParserUtil.int2string(hex1) + RsvrApexLexicalParserUtil.int2string(hex2) + RsvrApexLexicalParserUtil.int2string(hex3) + RsvrApexLexicalParserUtil.int2string(hex4);
                     targetOriginalList.add(hex1);
                     targetOriginalList.add(hex2);
                     targetOriginalList.add(hex3);
                     targetOriginalList.add(hex4);
                     // Hex錬成
-                    Blob blobHexTarget = EncodingUtil.convertFromHex(hexTarget);
-                    // TODO FIXME 多分バグっている
-                    targetList.add(blobHexTarget.toString().charAt(0));
+                    if (hex1 == RsvrUnicodeConstants.LETTER_Digit_Zero && hex2 == RsvrUnicodeConstants.LETTER_Digit_Zero) {
+                        String wrk = EncodingUtil.urlDecode('%' + RsvrApexLexicalParserUtil.int2string(hex3) + RsvrApexLexicalParserUtil.int2string(hex4), 'UTF-8');
+                        targetList.add(wrk.charAt(0));
+                    } else {
+                        String wrk = EncodingUtil.urlDecode('%' + RsvrApexLexicalParserUtil.int2string(hex1) + RsvrApexLexicalParserUtil.int2string(hex2) + '%' + RsvrApexLexicalParserUtil.int2string(hex3) + RsvrApexLexicalParserUtil.int2string(hex4), 'UTF-8');
+                        targetList.add(wrk.charAt(0));
+                    }
                     continue;
                 }
                 // エスケープ中の想定外のコース。ここに入ってはダメ。

@@ -340,15 +340,15 @@ public class RsvrApexLexicalParserTest {
 
     @isTest(SeeAllData=false)
     static void test18() {
-        final String apexClassText = '\'\\u0034\'';
+        final String apexClassText = '\'\\u0043\'';
         final RsvrApexLexicalParser parser = new RsvrApexLexicalParser();
         List<RsvrApexLexicalParser.LexicalToken> tokenList = parser.parse(apexClassText);
 
         Integer index = 0;
         RsvrApexLexicalParser.LexicalToken current = tokenList.get(index++);
         System.assertEquals('StringLiteral', current.type);
-        System.assertEquals('A', current.target);
-        System.assertEquals('\'\\u0034\'', current.original);
+        System.assertEquals('C', current.target);
+        System.assertEquals('\'\\u0043\'', current.original);
 
         System.assertEquals(1, tokenList.size());
     }
