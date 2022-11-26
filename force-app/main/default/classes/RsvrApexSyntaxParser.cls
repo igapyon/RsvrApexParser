@@ -23,15 +23,15 @@
  */
 public class RsvrApexSyntaxParser {
     public abstract class SyntaxToken {
-        final private List<RsvrApexLexicalParser.LexicalToken> relatedTokenList = new List<RsvrApexLexicalParser.LexicalToken>();
-        final private List<RsvrApexLexicalParser.LexicalToken> relatedWhitespaceList = new List<RsvrApexLexicalParser.LexicalToken>();
+        final private List<RsvrApexLexicalParser.LexicalToken> tokenList = new List<RsvrApexLexicalParser.LexicalToken>();
+        final private List<RsvrApexLexicalParser.LexicalToken> whitespaceList = new List<RsvrApexLexicalParser.LexicalToken>();
 
         public List<RsvrApexLexicalParser.LexicalToken> getTokenList() {
-            return relatedTokenList;
+            return tokenList;
         }
 
         public List<RsvrApexLexicalParser.LexicalToken> getWhitespaceList() {
-            return relatedWhitespaceList;
+            return whitespaceList;
         }
     }
 
@@ -117,6 +117,16 @@ public class RsvrApexSyntaxParser {
         
     public class CompilationUnitToken extends SyntaxToken {
         public TypeDeclarationToken typeDeclaration {get; set;}
+
+        public String dump(String indent) {
+            String strDump = '\n' + (indent + 'CompilationUnitToken:\n');
+
+            if (typeDeclaration != null) {
+                strDump += typeDeclaration.dump(indent + '  ');
+            }
+
+            return strDump;
+        }
     }
 
     /////////////////////////////////////////////////////////////////
@@ -132,6 +142,25 @@ public class RsvrApexSyntaxParser {
         public ClassDeclarationToken classDeclaration {get; set;}
         public EnumDeclarationToken enumDeclaration {get; set;}
         public InterfaceDeclarationToken interfaceDeclaration {get; set;}
+
+        public String dump(String indent) {
+            String strDump = (indent + 'TypeDeclaration:\n');
+
+            for (ModifierToken modTok : modifierList) {
+                strDump += modTok.dump(indent + '  ');
+            }
+            if (classDeclaration != null) {
+                strDump += classDeclaration.dump(indent + '  ');
+            }
+//            if (enumDeclaration != null) {
+//                
+//            }
+//            if (interfaceDeclaration != null) {
+//                
+//            }
+
+            return strDump;
+        }
     }
 
     private TypeDeclarationToken parseTypeDeclaration() {
@@ -161,9 +190,20 @@ public class RsvrApexSyntaxParser {
     //     ;
 
     public class ClassDeclarationToken extends SyntaxToken {
+        public String identifier {get; set;}
+
+        public String dump(String indent) {
+            String strDump = (indent + 'ClassDeclaration:\n');
+            strDump += (indent + '  identifier: ' + identifier + '\n');
+            return strDump;
+        }
     }
 
     private ClassDeclarationToken parseClassDeclaration() {
+        System.debug('parseClassDeclaration()');
+        input.dumpNextTokens();
+
+
         input.mark();
         // CLASS
         RsvrApexLexicalParser.KeywordToken keyTok = input.getFirstKeywordToken();
@@ -181,6 +221,8 @@ public class RsvrApexSyntaxParser {
 
         // これで確定扱いとします。
         input.mark();
+        ClassDeclarationToken clsDecTok = new ClassDeclarationToken();
+        clsDecTok.identifier = idTok.target;
 
         for (;;) {
             RsvrApexLexicalParser.KeywordToken nextKeyTok = input.getFirstKeywordToken();
@@ -197,8 +239,7 @@ public class RsvrApexSyntaxParser {
             }
         }
 
-return null;
-        
+        return clsDecTok;
     }
     
     /////////////////////////////////////////////////////////////////
@@ -208,6 +249,11 @@ return null;
     //     ;
 
     public class EnumDeclarationToken extends SyntaxToken {
+
+        public String dump(String indent) {
+            String strDump = (indent + 'EnumDeclaration:\n');
+            return strDump;
+        }
     }
 
     /////////////////////////////////////////////////////////////////
@@ -221,6 +267,11 @@ return null;
     //     ;
 
     public class InterfaceDeclarationToken extends SyntaxToken {
+
+        public String dump(String indent) {
+            String strDump = (indent + 'InterfaceDeclaration:\n');
+            return strDump;
+        }
     }
 
     /////////////////////////////////////////////////////////////////
@@ -234,6 +285,11 @@ return null;
     //     ;
 
     public class ClassBodyToken extends SyntaxToken {
+
+        public String dump(String indent) {
+            String strDump = (indent + 'ClassBody:\n');
+            return strDump;
+        }
     }
 
     /////////////////////////////////////////////////////////////////
@@ -249,6 +305,11 @@ return null;
     //     ;
 
     public class ClassBodyDeclarationToken extends SyntaxToken {
+
+        public String dump(String indent) {
+            String strDump = (indent + 'ClassBodyDeclaration:\n');
+            return strDump;
+        }
     }
 
     /////////////////////////////////////////////////////////////////
@@ -281,6 +342,13 @@ return null;
 
         // Annotation用のフィールド。
         public String qualifiedName {get; set;}
+
+        public String dump(String indent) {
+            String strDump = (indent + 'Modifier:\n');
+            strDump += indent + '  no: ' + no + '\n';
+            strDump += indent + '  qualifiedName: ' + qualifiedName + '\n';
+            return strDump;
+        }
     }
 
     private ModifierToken parseModifier() {
@@ -311,6 +379,7 @@ return null;
             input.mark();
             ModifierToken modTok = new ModifierToken();
             modTok.no = keyTok.no;
+            modTok.qualifiedName = keyTok.target;
             modTok.getTokenList().add(keyTok);
             return modTok;
         }
@@ -327,11 +396,13 @@ return null;
             input.mark();
             ModifierToken modTok = new ModifierToken();
             modTok.no = keyTok.no;
+            modTok.qualifiedName = keyTok.target + ' ' + keyTok2.target;
             modTok.getTokenList().add(keyTok);
             modTok.getTokenList().add(keyTok2);
             return modTok;
         }
     
+        input.reset();
         return null;
     }
 
@@ -383,6 +454,11 @@ return null;
     //  */
 
     public class MemberDeclarationToken extends SyntaxToken {
+
+        public String dump(String indent) {
+            String strDump = (indent + 'MemberDeclaration:\n');
+            return strDump;
+        }
     }
 
     /////////////////////////////////////////////////////////////////
@@ -394,6 +470,11 @@ return null;
     //     ;
 
     public class MethodDeclarationToken extends SyntaxToken {
+
+        public String dump(String indent) {
+            String strDump = (indent + 'MethodDeclaration:\n');
+            return strDump;
+        }
     }
 
     /////////////////////////////////////////////////////////////////
@@ -402,6 +483,11 @@ return null;
     //     ;
 
     public class ConstructorDeclarationToken extends SyntaxToken {
+
+        public String dump(String indent) {
+            String strDump = (indent + 'ConstructorDeclaration:\n');
+            return strDump;
+        }
     }
 
     /////////////////////////////////////////////////////////////////
@@ -410,6 +496,11 @@ return null;
     //     ;
 
     public class FieldDeclarationToken extends SyntaxToken {
+
+        public String dump(String indent) {
+            String strDump = (indent + 'FieldDeclaration:\n');
+            return strDump;
+        }
     }
 
     /////////////////////////////////////////////////////////////////
@@ -418,6 +509,11 @@ return null;
     //     ;
 
     public class PropertyDeclarationToken extends SyntaxToken {
+
+        public String dump(String indent) {
+            String strDump = (indent + 'PropertyDeclaration:\n');
+            return strDump;
+        }
     }
 
     /////////////////////////////////////////////////////////////////
@@ -451,7 +547,11 @@ return null;
 
     public class TypeRefToken extends SyntaxToken {
         public List<TypeNameToken> typeNameList = new List<TypeNameToken>();
-//        : typeName (DOT typeName)* arraySubscripts
+
+        public String dump(String indent) {
+            String strDump = (indent + 'TypeRef:\n');
+            return strDump;
+        }
     }
 
     /////////////////////////////////////////////////////////////////
@@ -468,6 +568,11 @@ return null;
     //     ;
 
     public class TypeNameToken  extends SyntaxToken {
+
+        public String dump(String indent) {
+            String strDump = (indent + 'TypeName:\n');
+            return strDump;
+        }
     }
 
     private TypeNameToken parseTypeName() {
@@ -486,6 +591,11 @@ return null;
     //     ;
 
     public class FormalParametersToken extends SyntaxToken {
+
+        public String dump(String indent) {
+            String strDump = (indent + 'FormalParameters:\n');
+            return strDump;
+        }
     }
 
     /////////////////////////////////////////////////////////////////

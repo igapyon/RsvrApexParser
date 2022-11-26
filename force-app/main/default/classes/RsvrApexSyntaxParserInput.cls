@@ -37,6 +37,14 @@ public class RsvrApexSyntaxParserInput {
         this.tokenList = tokenList;
     }
 
+    public void dumpNextTokens() {
+        String dump = 'dumpNextTokens\n'
+            + '  1: ' + tokenList.get(currentPos + 1) + '\n'
+            + '  2: ' + tokenList.get(currentPos + 2) + '\n'
+            + '  3: ' + tokenList.get(currentPos + 3) + '\n';
+        System.debug(dump);
+    }
+
     public RsvrApexSyntaxParser.SyntaxToken readToken() {
         currentPos++;
         if (tokenList.size() <= currentPos) {

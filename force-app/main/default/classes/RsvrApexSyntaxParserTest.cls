@@ -31,10 +31,21 @@ private class RsvrApexSyntaxParserTest {
 
         RsvrApexSyntaxParser parser = new RsvrApexSyntaxParser();
         List<RsvrApexSyntaxParser.SyntaxToken> tokList = parser.unify(lexList);
-        parser.parse(tokList);
-
-        //for (RsvrApexSyntaxParser.UnknownToken token : tokList) {
-        //    System.debug('### ' + token.toString());
-        //}
+        RsvrApexSyntaxParser.CompilationUnitToken compUnitTok = (RsvrApexSyntaxParser.CompilationUnitToken) parser.parse(tokList);
+        System.debug(compUnitTok.dump(''));
     }
+
+    @isTest(SeeAllData=false)
+    static void test02() {
+        final String apexClassBody = 'public with sharing class MyClass {}';
+        final RsvrApexLexicalParser lexParser = new RsvrApexLexicalParser();
+        final List<RsvrApexLexicalParser.LexicalToken> lexList = lexParser.parse(apexClassBody);
+
+        RsvrApexSyntaxParser parser = new RsvrApexSyntaxParser();
+        List<RsvrApexSyntaxParser.SyntaxToken> tokList = parser.unify(lexList);
+        RsvrApexSyntaxParser.CompilationUnitToken compUnitTok = (RsvrApexSyntaxParser.CompilationUnitToken) parser.parse(tokList);
+
+        System.debug(compUnitTok.dump(''));
+    }
+
 }
