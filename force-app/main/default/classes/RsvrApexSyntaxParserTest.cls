@@ -25,7 +25,27 @@
 private class RsvrApexSyntaxParserTest {
     @isTest(SeeAllData=false)
     static void test01() {
+        final RsvrApexLexicalParser lexParser = new RsvrApexLexicalParser();
+        final String apexClassBody = RsvrApexLexicalParserUtil.readApexClassBody('RsvrApexLexicalParserTest12');
+        final List<RsvrApexLexicalParser.LexicalToken> lexList = lexParser.parse(apexClassBody);
+
         RsvrApexSyntaxParser parser = new RsvrApexSyntaxParser();
-        parser.parse();
+        List<RsvrApexSyntaxParser.SyntaxToken> tokList = parser.unify(lexList);
+        RsvrApexSyntaxParser.CompilationUnitToken compUnitTok = (RsvrApexSyntaxParser.CompilationUnitToken) parser.parse(tokList);
+        System.debug(compUnitTok.dump(''));
     }
+
+    @isTest(SeeAllData=false)
+    static void test02() {
+        final String apexClassBody = 'public with sharing class MyClass {}';
+        final RsvrApexLexicalParser lexParser = new RsvrApexLexicalParser();
+        final List<RsvrApexLexicalParser.LexicalToken> lexList = lexParser.parse(apexClassBody);
+
+        RsvrApexSyntaxParser parser = new RsvrApexSyntaxParser();
+        List<RsvrApexSyntaxParser.SyntaxToken> tokList = parser.unify(lexList);
+        RsvrApexSyntaxParser.CompilationUnitToken compUnitTok = (RsvrApexSyntaxParser.CompilationUnitToken) parser.parse(tokList);
+
+        System.debug(compUnitTok.dump(''));
+    }
+
 }
