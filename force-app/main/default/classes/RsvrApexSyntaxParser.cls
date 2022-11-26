@@ -23,6 +23,22 @@
  */
 public class RsvrApexSyntaxParser {
     public abstract class SyntaxToken {
+        final private List<RsvrApexLexicalParser.LexicalToken> relatedTokenList = new List<RsvrApexLexicalParser.LexicalToken>();
+        final private List<RsvrApexLexicalParser.LexicalToken> relatedWhitespaceList = new List<RsvrApexLexicalParser.LexicalToken>();
+
+        public List<RsvrApexLexicalParser.LexicalToken> getRelatedTokenList() {
+            return relatedTokenList;
+        }
+
+        public List<RsvrApexLexicalParser.LexicalToken> getRelatedWhitespaceList() {
+            return relatedWhitespaceList;
+        }
+    }
+
+    /**
+     * 一旦不明トークンにおまとめ。
+     */
+    public class UnknownToken extends SyntaxToken {
     }
 
     public class CompilationUnitToken extends SyntaxToken {
@@ -72,6 +88,29 @@ public class RsvrApexSyntaxParser {
     }
 
     public class BlockToken extends SyntaxToken {
+    }
+
+    public List<UnknownToken> unify(List<RsvrApexLexicalParser.LexicalToken> lexicalTokenList) {
+        final List<UnknownToken> result = new List<UnknownToken>();
+
+        List<RsvrApexLexicalParser.LexicalToken> bufList = new List<RsvrApexLexicalParser.LexicalToken>();
+
+        for (RsvrApexLexicalParser.LexicalToken look : lexicalTokenList) {
+            if (look instanceof RsvrApexLexicalParser.WhitespaceToken
+             || look instanceof RsvrApexLexicalParser.CommentToken) {
+                bufList.add(look);
+            } else {
+                UnknownToken unkToken = new UnknownToken();
+                unkToken.getRelatedTokenList().add(look);
+                if (bufList.size() > 0) {
+                    unkToken.getRelatedWhitespaceList().addAll(bufList);
+                    bufList.clear();
+                }
+                result.add(unkToken);
+            }
+        }
+
+        return result;
     }
 
     private List<RsvrApexLexicalParser.LexicalToken> lexicalTokenList;
