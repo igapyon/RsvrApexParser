@@ -22,7 +22,7 @@
  * @since 2022-11-23
  */
 public class RsvrApexSyntaxParser {
-    private static final Boolean IS_DEBUG = false;
+    private static final Boolean IS_DEBUG = true;
 
     public abstract class SyntaxToken {
         final private List<RsvrApexLexicalParser.LexicalToken> tokenList = new List<RsvrApexLexicalParser.LexicalToken>();
@@ -371,11 +371,13 @@ public class RsvrApexSyntaxParser {
     //     ;
 
     public class ClassBodyToken extends SyntaxToken {
-        public ClassBodyDeclarationToken classBodyDeclaration {get; set;}
+        public List<ClassBodyDeclarationToken> classBodyDeclarationList = new List<ClassBodyDeclarationToken>();
 
         public String dump(String indent) {
             String strDump = (indent + 'ClassBody:\n');
-            strDump += classBodyDeclaration.dump(indent + '  ');
+            for (ClassBodyDeclarationToken look : classBodyDeclarationList) {
+                strDump += look.dump(indent + '  ');
+            }
             return strDump;
         }
     }
@@ -391,11 +393,13 @@ public class RsvrApexSyntaxParser {
             return null;
         }
         
-        ClassBodyDeclarationToken bodyDecTok = parseClassBodyDeclaration();
-        if (bodyDecTok == null) {
-            System.debug('PANIC: parseClassBody: #1: Do not enter here.: Missing Class Body Declaration.');
-            input.reset();
-            return null;
+        for (;;) {
+            ClassBodyDeclarationToken bodyDecTok = parseClassBodyDeclaration();
+            if (bodyDecTok == null) {
+                input.reset();
+                break;
+            }
+            bodyTok.classBodyDeclarationList.add(bodyDecTok);
         }
         
         RsvrApexLexicalParser.SeparatorToken rbrace1 = input.getFirstSeparatorToken();
@@ -404,8 +408,6 @@ public class RsvrApexSyntaxParser {
             input.reset();
             return null;
         }
-
-        bodyTok.classBodyDeclaration = bodyDecTok;
 
         return bodyTok;
     }
@@ -488,7 +490,9 @@ public class RsvrApexSyntaxParser {
             result.modifierList.add(modifyToken);
         }
 
+        if (IS_DEBUG) System.debug('TRACE: RsvrApexSyntaxParser#parseClassBodyDeclaration: on parseMemberDeclaration: begin.');
         MemberDeclarationToken memberDec = parseMemberDeclaration();
+        if (IS_DEBUG) System.debug('TRACE: RsvrApexSyntaxParser#parseClassBodyDeclaration: on parseMemberDeclaration: end: ' + memberDec);
         if (memberDec == null) {
             input.reset();
             return null;
