@@ -185,6 +185,7 @@ public class RsvrApexSyntaxParser {
         if (classTok != null) {
             input.mark();
             typeDecToken.classDeclaration = classTok;
+            return typeDecToken;
         } else {
             input.reset();
         }
@@ -193,6 +194,7 @@ public class RsvrApexSyntaxParser {
         if (enumTok != null) {
             input.mark();
             typeDecToken.enumDeclaration = enumTok;
+            return typeDecToken;
         } else {
             input.reset();
         }
@@ -201,11 +203,13 @@ public class RsvrApexSyntaxParser {
         if (interfaceTok != null) {
             input.mark();
             typeDecToken.interfaceDeclaration = interfaceTok;
+            return typeDecToken;
         } else {
             input.reset();
         }
 
-        return typeDecToken;
+        System.debug('PANIC: parseTypeDeclaration: Do not enter here.');
+        return null;
     }
 
     /////////////////////////////////////////////////////////////////
@@ -270,10 +274,12 @@ public class RsvrApexSyntaxParser {
                 if (nextKeyTok.no == RsvrApexConstants.KEY_EXTENDS) {
                     // EXTENDS
                     // TODO
+                    System.debug('PANIC: ERROR NOT IMPLEMENTED. RsvrApexConstants.KEY_EXTENDS');
                 }
                 if (nextKeyTok.no != RsvrApexConstants.KEY_IMPLEMENTS) {
                     // IMPLEMENTS
                     // TODO
+                    System.debug('PANIC: ERROR NOT IMPLEMENTED. RsvrApexConstants.KEY_IMPLEMENTS');
                 }
             }
         }
@@ -281,6 +287,7 @@ public class RsvrApexSyntaxParser {
         input.mark();
         ClassBodyToken cbody = parseClassBody();
         if (cbody == null) {
+            System.debug('PANIC: parseClassDeclaration: Do not enter here.');
             input.reset();
         } else {
             clsDecTok.classBody = cbody;
@@ -306,6 +313,8 @@ public class RsvrApexSyntaxParser {
     private EnumDeclarationToken parseEnumDeclaration() {
         if (IS_DEBUG) System.debug('TRACE: RsvrApexSyntaxParser#parseEnumDeclaration: begin');
 
+        System.debug('PANIC: ERROR NOT IMPLEMENTED. parseEnumDeclaration');
+
         return null;
     }
 
@@ -330,6 +339,8 @@ public class RsvrApexSyntaxParser {
     private InterfaceDeclarationToken parseInterfaceDeclaration() {
         if (IS_DEBUG) System.debug('TRACE: RsvrApexSyntaxParser#parseInterfaceDeclaration: begin');
 
+        System.debug('PANIC: ERROR NOT IMPLEMENTED. parseInterfaceDeclaration');
+
         return null;
     }
 
@@ -348,6 +359,8 @@ public class RsvrApexSyntaxParser {
 
     private TypeListToken parseTypeList() {
         if (IS_DEBUG) System.debug('TRACE: RsvrApexSyntaxParser#parseTypeList: begin');
+
+        System.debug('PANIC: ERROR NOT IMPLEMENTED. parseTypeList');
 
         return null;
     }
@@ -373,21 +386,20 @@ public class RsvrApexSyntaxParser {
 
         RsvrApexLexicalParser.SeparatorToken lbrace1 = input.getFirstSeparatorToken();
         if (lbrace1 == null || lbrace1.no != RsvrApexConstants.SEP_LBRACE) {
-            System.debug('TRACE: ERROR: MUST NOT parseClassBody: SEP_LBRACE ない');
             input.reset();
             return null;
         }
         
         ClassBodyDeclarationToken bodyDecTok = parseClassBodyDeclaration();
         if (bodyDecTok == null) {
-            System.debug('TRACE: ERROR: MUST NOT parseClassBody: parseClassBodyDeclaration ない');
+            System.debug('PANIC: parseClassBody: #1: Do not enter here.');
             input.reset();
             return null;
         }
         
         RsvrApexLexicalParser.SeparatorToken rbrace1 = input.getFirstSeparatorToken();
         if (rbrace1 == null || rbrace1.no != RsvrApexConstants.SEP_RBRACE) {
-            System.debug('TRACE: ERROR: MUST NOT parseClassBody: SEP_RBRACE ない');
+            System.debug('PANIC: parseClassBody: #2: Do not enter here.');
             // input.dumpNextTokens();
             input.reset();
             return null;
@@ -438,6 +450,7 @@ public class RsvrApexSyntaxParser {
         RsvrApexLexicalParser.SeparatorToken semi1 = input.getFirstSeparatorToken();
         if (semi1 == null || semi1.no != RsvrApexConstants.SEP_SEMI) {
             input.reset();
+            // to next.
         } else {
             // hit
             input.mark();
@@ -447,21 +460,22 @@ public class RsvrApexSyntaxParser {
 
         RsvrApexLexicalParser.KeywordToken key1 = input.getFirstKeywordToken();
         if (key1 == null || key1.no != RsvrApexConstants.KEY_STATIC) {
-            // ハズレ
             input.reset();
+            // to next.
         } else {
             // hit
             input.mark();
             result.getTokenList().add(key1);
-            return result;
-        }
 
-        BlockToken block = parseBlock();
-        if (block == null) {
-            input.reset();
-        } else {
-            input.mark();
-            result.block = block;
+            BlockToken block = parseBlock();
+            if (block == null) {
+                input.reset();
+                System.debug('PANIC: parseClassBodyDeclaration: #1: Do not enter here.');
+            } else {
+                input.mark();
+                result.block = block;
+            }
+            return result;
         }
 
         for (;;) {
@@ -474,15 +488,14 @@ public class RsvrApexSyntaxParser {
             result.modifierList.add(modifyToken);
         }
 
-        // input.dumpNextTokens();
         MemberDeclarationToken memberDec = parseMemberDeclaration();
         if (memberDec == null) {
             input.reset();
+            return null;
         } else {
             input.mark();
             result.memberDeclaration = memberDec;
         }
-        // input.dumpNextTokens();
 
         return result;
     }
