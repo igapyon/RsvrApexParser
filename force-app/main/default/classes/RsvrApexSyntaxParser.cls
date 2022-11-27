@@ -375,6 +375,7 @@ public class RsvrApexSyntaxParser {
 
         public String dump(String indent) {
             String strDump = (indent + 'ClassBody:\n');
+            strDump += classBodyDeclaration.dump(indent + '  ');
             return strDump;
         }
     }
@@ -392,7 +393,7 @@ public class RsvrApexSyntaxParser {
         
         ClassBodyDeclarationToken bodyDecTok = parseClassBodyDeclaration();
         if (bodyDecTok == null) {
-            System.debug('PANIC: parseClassBody: #1: Do not enter here.');
+            System.debug('PANIC: parseClassBody: #1: Do not enter here.: Missing Class Body Declaration.');
             input.reset();
             return null;
         }
@@ -852,9 +853,11 @@ public class RsvrApexSyntaxParser {
         }
         fieldDeclarationToken.variableDeclarators = decs;
 
+        input.dumpNextTokens();
+
         RsvrApexLexicalParser.SeparatorToken semi1 = input.getFirstSeparatorToken();
         if (semi1 == null || semi1.no != RsvrApexConstants.SEP_SEMI) {
-            System.debug('PANIC: parseFieldDeclaration: #2: Do not enter here.');
+            System.debug('PANIC: parseFieldDeclaration: #2: Do not enter here.: Missing SEMI (end of line).');
             input.dumpNextTokens();
             input.reset();
             return null;
@@ -974,8 +977,8 @@ public class RsvrApexSyntaxParser {
         VariableDeclaratorToken result = new VariableDeclaratorToken();
         result.identifier = iden1.target;
 
-        RsvrApexLexicalParser.SeparatorToken eq1 = input.getFirstSeparatorToken();
-        if (eq1 == null || eq1.no != RsvrApexConstants.OPE_EQUAL) {
+        RsvrApexLexicalParser.OperatorToken eq1 = input.getFirstOperatorToken();
+        if (eq1 == null || eq1.no != RsvrApexConstants.OPE_ASSIGN) {
             input.reset();
         } else {
             ExpressionToken exp = parseExpression();
