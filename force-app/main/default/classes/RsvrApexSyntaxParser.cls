@@ -232,12 +232,16 @@ public class RsvrApexSyntaxParser {
             } else {
                 if (nextKeyTok.no == RsvrApexConstants.KEY_EXTENDS) {
                     // EXTENDS
+                    // TODO
                 }
                 if (nextKeyTok.no != RsvrApexConstants.KEY_IMPLEMENTS) {
                     // IMPLEMENTS
+                    // TODO
                 }
             }
         }
+
+        //     //       classBody
 
         return clsDecTok;
     }
@@ -254,6 +258,12 @@ public class RsvrApexSyntaxParser {
             String strDump = (indent + 'EnumDeclaration:\n');
             return strDump;
         }
+    }
+
+    private EnumDeclarationToken parseEnumDeclaration() {
+        System.debug('parseEnumDeclaration()');
+
+        return null;
     }
 
     /////////////////////////////////////////////////////////////////
@@ -274,6 +284,11 @@ public class RsvrApexSyntaxParser {
         }
     }
 
+    private InterfaceDeclarationToken parseInterfaceDeclaration() {
+
+        return null;
+    }
+
     /////////////////////////////////////////////////////////////////
     // typeList
     //     : typeRef (COMMA typeRef)*
@@ -292,6 +307,16 @@ public class RsvrApexSyntaxParser {
         }
     }
 
+    private ClassBodyToken parseClassBody() {
+        System.debug('parseClassBody()');
+//        input.dumpNextTokens();
+
+        input.mark();
+
+
+        return null;
+    }
+    
     /////////////////////////////////////////////////////////////////
     // interfaceBody
     //     : LBRACE interfaceMethodDeclaration* RBRACE
@@ -310,6 +335,16 @@ public class RsvrApexSyntaxParser {
             String strDump = (indent + 'ClassBodyDeclaration:\n');
             return strDump;
         }
+    }
+
+    private ClassBodyDeclarationToken parseClassBodyDeclaration() {
+        System.debug('parseClassBodyDeclaration()');
+//        input.dumpNextTokens();
+
+        input.mark();
+
+
+        return null;
     }
 
     /////////////////////////////////////////////////////////////////
@@ -461,6 +496,12 @@ public class RsvrApexSyntaxParser {
         }
     }
 
+    private MemberDeclarationToken parseMemberDeclaration() {
+        input.mark();
+
+        return null;
+    }
+
     /////////////////////////////////////////////////////////////////
     // methodDeclaration
     //     : (typeRef|VOID) id formalParameters
@@ -477,6 +518,11 @@ public class RsvrApexSyntaxParser {
         }
     }
 
+    private MethodDeclarationToken parseMethodDeclaration() {
+
+        return null;
+    }
+
     /////////////////////////////////////////////////////////////////
     // constructorDeclaration
     //     : qualifiedName formalParameters block
@@ -488,6 +534,11 @@ public class RsvrApexSyntaxParser {
             String strDump = (indent + 'ConstructorDeclaration:\n');
             return strDump;
         }
+    }
+
+    private ConstructorDeclarationToken parseConstructorDeclaration() {
+
+        return null;
     }
 
     /////////////////////////////////////////////////////////////////
@@ -503,6 +554,11 @@ public class RsvrApexSyntaxParser {
         }
     }
 
+    private FieldDeclarationToken parseFieldDeclaration() {
+
+        return null;
+    }
+
     /////////////////////////////////////////////////////////////////
     // propertyDeclaration
     //     : typeRef id LBRACE propertyBlock* RBRACE
@@ -514,6 +570,11 @@ public class RsvrApexSyntaxParser {
             String strDump = (indent + 'PropertyDeclaration:\n');
             return strDump;
         }
+    }
+
+    private PropertyDeclarationToken parsePropertyDeclaration() {
+
+        return null;
     }
 
     /////////////////////////////////////////////////////////////////
@@ -596,6 +657,11 @@ public class RsvrApexSyntaxParser {
             String strDump = (indent + 'FormalParameters:\n');
             return strDump;
         }
+    }
+
+    private FormalParametersToken FormalParameters() {
+
+        return null;
     }
 
     /////////////////////////////////////////////////////////////////
