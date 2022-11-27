@@ -1082,6 +1082,7 @@ public class RsvrApexLexicalParser {
     // URSHIFT_ASSIGN  : '>>>=';
 
     public class OperatorToken extends LexicalToken {
+        public Integer no {get; set;}
     }
 
     private OperatorToken parseOperator() {
@@ -1117,6 +1118,7 @@ public class RsvrApexLexicalParser {
                     result.type = 'Operator';
                     result.target = target;
                     result.original = result.target;
+                    result.no = RsvrApexLexicalParserUtil.getOperatorNoMap().get(result.target);
                     // System.debug('TRACE: Operator: [' + result.target + ']');
                     return result;
                 } else {
@@ -1131,6 +1133,7 @@ public class RsvrApexLexicalParser {
                             result.type = 'Operator';
                             result.target = subTarget;
                             result.original = result.target;
+                            result.no = RsvrApexLexicalParserUtil.getOperatorNoMap().get(result.target);
                             return result;
                         }
                     }

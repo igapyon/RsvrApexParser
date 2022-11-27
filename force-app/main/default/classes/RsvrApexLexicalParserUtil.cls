@@ -193,6 +193,19 @@ public class RsvrApexLexicalParserUtil {
         return separatorNoMap;
     }
 
+    private static Map<String,Integer> operatorNoMap = null;
+
+    public static Map<String,Integer> getOperatorNoMap() {
+        if (operatorNoMap == null) {
+            operatorNoMap = new Map<String,Integer>();
+            Integer loopIndex = 0;
+            for (String look : RsvrApexConstants.OPERATORS) {
+                operatorNoMap.put(look.toLowerCase(), loopIndex++);
+            }
+        }
+        return operatorNoMap;
+    }
+
     // fragment
     // Digit
     //     :   [0-9]
