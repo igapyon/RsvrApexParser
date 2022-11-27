@@ -621,7 +621,7 @@ public class RsvrApexSyntaxParser {
         modToken.qualifiedName = qualifiedName;
 
         // TODO この先が未実装。
-
+        System.debug('PANIC: ERROR NOT IMPLEMENTED. parseAnnotation');
 
         return modToken;
     }
@@ -692,6 +692,7 @@ public class RsvrApexSyntaxParser {
         } else {
             input.mark();
             result.methodDeclaration = methodDec;
+            return result;
         }
 
         //     | fieldDeclaration
@@ -702,6 +703,7 @@ public class RsvrApexSyntaxParser {
         } else {
             input.mark();
             result.fieldDeclaration = fieldDec;
+            return result;
         }
 
         //     | constructorDeclaration
@@ -712,6 +714,7 @@ public class RsvrApexSyntaxParser {
         } else {
             input.mark();
             result.constructorDeclaration = constDec;
+            return result;
         }
 
         //     | interfaceDeclaration
@@ -722,6 +725,7 @@ public class RsvrApexSyntaxParser {
         } else {
             input.mark();
             result.interfaceDeclaration = interDec;
+            return result;
         }
 
         //     | classDeclaration
@@ -732,6 +736,7 @@ public class RsvrApexSyntaxParser {
         } else {
             input.mark();
             result.classDeclaration = classDec;
+            return result;
         }
 
         //     | enumDeclaration
@@ -742,6 +747,7 @@ public class RsvrApexSyntaxParser {
         } else {
             input.mark();
             result.enumDeclaration = enumDec;
+            return result;
         }
 
         //     | propertyDeclaration
@@ -752,9 +758,10 @@ public class RsvrApexSyntaxParser {
         } else {
             input.mark();
             result.propertyDeclaration = propTok;
+            return result;
         }
 
-        return result;
+        return null;
     }
 
     /////////////////////////////////////////////////////////////////
@@ -776,6 +783,8 @@ public class RsvrApexSyntaxParser {
     private MethodDeclarationToken parseMethodDeclaration() {
         if (IS_DEBUG) System.debug('TRACE: RsvrApexSyntaxParser#parseMethodDeclaration: begin');
 
+        System.debug('PANIC: ERROR NOT IMPLEMENTED. parseMethodDeclaration');
+
         return null;
     }
 
@@ -794,6 +803,8 @@ public class RsvrApexSyntaxParser {
 
     private ConstructorDeclarationToken parseConstructorDeclaration() {
         if (IS_DEBUG) System.debug('TRACE: RsvrApexSyntaxParser#parseConstructorDeclaration: begin');
+
+        System.debug('PANIC: ERROR NOT IMPLEMENTED. parseConstructorDeclaration');
 
         return null;
     }
@@ -828,7 +839,6 @@ public class RsvrApexSyntaxParser {
 
         TypeRefToken typeTok = parseTypeRef();
         if (typeTok == null) {
-            System.debug('TRACE: parseFieldDeclaration: typeRefなし');
             input.reset();
             return null;
         }
@@ -836,7 +846,7 @@ public class RsvrApexSyntaxParser {
 
         VariableDeclaratorsToken decs = parseVariableDeclarators();
         if (decs == null) {
-            System.debug('TRACE: parseFieldDeclaration: VariableDeclaratorsなし');
+            System.debug('PANIC: parseFieldDeclaration: #1: Do not enter here.');
             input.reset();
             return null;
         }
@@ -844,8 +854,8 @@ public class RsvrApexSyntaxParser {
 
         RsvrApexLexicalParser.SeparatorToken semi1 = input.getFirstSeparatorToken();
         if (semi1 == null || semi1.no != RsvrApexConstants.SEP_SEMI) {
-            System.debug('TRACE: parseFieldDeclaration: SEMIなし');
-            //input.dumpNextTokens();
+            System.debug('PANIC: parseFieldDeclaration: #2: Do not enter here.');
+            input.dumpNextTokens();
             input.reset();
             return null;
         }
@@ -870,6 +880,8 @@ public class RsvrApexSyntaxParser {
     private PropertyDeclarationToken parsePropertyDeclaration() {
         if (IS_DEBUG) System.debug('TRACE: RsvrApexSyntaxParser#parsePropertyDeclaration: begin');
         input.mark();
+
+        System.debug('PANIC: ERROR NOT IMPLEMENTED. parsePropertyDeclaration');
 
         return null;
     }
@@ -919,7 +931,7 @@ public class RsvrApexSyntaxParser {
             
             VariableDeclaratorToken tok2 = parseVariableDeclarator();
             if (tok2 == null) {
-                System.debug('TRACE: ERROR: これはだめ.');
+                System.debug('PANIC: parseVariableDeclarators: #1: Do not enter here.');
                 input.reset();
                 break;
             }
@@ -966,13 +978,11 @@ public class RsvrApexSyntaxParser {
         if (eq1 == null || eq1.no != RsvrApexConstants.OPE_EQUAL) {
             input.reset();
         } else {
-            System.debug('TRACE ###: entering parseVariableDeclarator + parseExpression');
             ExpressionToken exp = parseExpression();
             if (exp == null) {
-                System.debug('TRACDE ERROR expがnull');
+                System.debug('PANIC: parseVariableDeclarator: #1: Do not enter here.');
                 input.reset();
             } else {
-                System.debug('TRACE ###: entering parseVariableDeclarator + parseExpression: OK');
                 input.mark();
                 result.expression = exp;
             }
@@ -1022,7 +1032,7 @@ public class RsvrApexSyntaxParser {
 
             TypeNameToken typeName2 = parseTypeName();
             if (typeName2 == null) {
-                System.debug('ERROR: 想定外: これは値があるはず');
+                System.debug('PANIC: parseTypeRef: #1: Do not enter here.');
                 input.reset();
                 break;
             }
@@ -1056,7 +1066,8 @@ public class RsvrApexSyntaxParser {
     private ArraySubscriptsToken parseArraySubscripts() {
         if (IS_DEBUG) System.debug('TRACE: RsvrApexSyntaxParser#parseArraySubscripts: begin');
 
-        // TODO 11/27
+        System.debug('PANIC: ERROR NOT IMPLEMENTED. parseArraySubscripts');
+
         return null;
     }
 
@@ -1135,7 +1146,6 @@ public class RsvrApexSyntaxParser {
             }
         }
 
-        //input.dumpNextTokens();
         RsvrApexLexicalParser.IdentifierToken iden1 = input.getFirstIdentifierToken();
         if (iden1 != null) {
             input.mark();
@@ -1161,7 +1171,9 @@ public class RsvrApexSyntaxParser {
 
     private TypeArgumentsToken parseTypeArguments() {
         if (IS_DEBUG) System.debug('TRACE: RsvrApexSyntaxParser#parseTypeArguments: begin');
-        // TODO 11/27
+
+        System.debug('PANIC: ERROR NOT IMPLEMENTED. parseTypeArguments');
+
         return null;
     }
 
@@ -1180,6 +1192,8 @@ public class RsvrApexSyntaxParser {
 
     private FormalParametersToken parseFormalParameters() {
         if (IS_DEBUG) System.debug('TRACE: RsvrApexSyntaxParser#parseFormalParameters: begin');
+
+        System.debug('PANIC: ERROR NOT IMPLEMENTED. parseFormalParameters');
 
         return null;
     }
@@ -1346,8 +1360,7 @@ public class RsvrApexSyntaxParser {
         
         RsvrApexLexicalParser.SeparatorToken rbrace1 = input.getFirstSeparatorToken();
         if (rbrace1 == null || rbrace1.no != RsvrApexConstants.SEP_RBRACE) {
-            System.debug('TRACE: ERROR: parseBlock: SEP_RBRACE ない');
-            // input.dumpNextTokens();
+            System.debug('PANIC: parseBlock: #1: Do not enter here.');
             input.reset();
             return null;
         }
@@ -1400,6 +1413,8 @@ public class RsvrApexSyntaxParser {
     private StatementToken parseStatement() {
         if (IS_DEBUG) System.debug('TRACE: RsvrApexSyntaxParser#parseStatement: begin');
         input.mark();
+
+        System.debug('PANIC: ERROR NOT IMPLEMENTED. parseStatement');
 
         return null;
     }
@@ -1687,7 +1702,8 @@ public class RsvrApexSyntaxParser {
             return result;
         }
 
-        // 11/27
+        System.debug('PANIC: ERROR NOT IMPLEMENTED. parseExpression');
+
         return null;
     }
 
@@ -1742,8 +1758,7 @@ public class RsvrApexSyntaxParser {
         //     | soqlLiteral                                                                                    # soqlPrimary
         //     | soslLiteral                                                                                    # soslPrimary
 
-
-        // 11/27
+        System.debug('PANIC: ERROR NOT IMPLEMENTED. parsePrimary');
 
         return null;
     }
