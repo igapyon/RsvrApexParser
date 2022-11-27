@@ -121,6 +121,19 @@ public class RsvrApexLexicalParserUtil {
         return (keywordMap.get(val.toLowerCase()) != null);
     }
 
+    private static Map<String,Integer> keywordNoMap = null;
+
+    public static Map<String,Integer> getKeywordNoMap() {
+        if (keywordNoMap == null) {
+            keywordNoMap = new Map<String,Integer>();
+            Integer loopIndex = 0;
+            for (String look : RsvrApexConstants.KEYWORDS) {
+                keywordNoMap.put(look.toLowerCase(), loopIndex++);
+            }
+        }
+        return keywordNoMap;
+    }
+
     private static Map<Integer,String> separatorMap = null;
 
     public static Boolean isSeparator(final Integer val) {
@@ -165,6 +178,19 @@ public class RsvrApexLexicalParserUtil {
             return true;
         }
         return false;
+    }
+
+    private static Map<String,Integer> separatorNoMap = null;
+
+    public static Map<String,Integer> getSeparatorNoMap() {
+        if (separatorNoMap == null) {
+            separatorNoMap = new Map<String,Integer>();
+            Integer loopIndex = 0;
+            for (String look : RsvrApexConstants.SEPARATORS) {
+                separatorNoMap.put(look.toLowerCase(), loopIndex++);
+            }
+        }
+        return separatorNoMap;
     }
 
     // fragment
