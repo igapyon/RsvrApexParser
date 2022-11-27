@@ -22,6 +22,8 @@
  * @since 2022-11-23
  */
 public class RsvrApexSyntaxParser {
+    private static final Boolean IS_DEBUG = true;
+
     public abstract class SyntaxToken {
         final private List<RsvrApexLexicalParser.LexicalToken> tokenList = new List<RsvrApexLexicalParser.LexicalToken>();
         final private List<RsvrApexLexicalParser.LexicalToken> whitespaceList = new List<RsvrApexLexicalParser.LexicalToken>();
@@ -46,6 +48,7 @@ public class RsvrApexSyntaxParser {
     }
 
     public List<SyntaxToken> unify(List<RsvrApexLexicalParser.LexicalToken> lexicalTokenList) {
+        if (IS_DEBUG) System.debug('TRACE: RsvrApexSyntaxParser#unity: begin');
         final List<SyntaxToken> result = new List<SyntaxToken>();
 
         List<RsvrApexLexicalParser.LexicalToken> bufList = new List<RsvrApexLexicalParser.LexicalToken>();
@@ -82,6 +85,7 @@ public class RsvrApexSyntaxParser {
     RsvrApexSyntaxParserInput input;
 
     public SyntaxToken parse(List<SyntaxToken> tokenList) {
+        if (IS_DEBUG) System.debug('TRACE: RsvrApexSyntaxParser#parse: begin');
         input = new RsvrApexSyntaxParserInput(tokenList);
 
         // TODO TRIGGER TBDE
@@ -152,33 +156,60 @@ public class RsvrApexSyntaxParser {
             if (classDeclaration != null) {
                 strDump += classDeclaration.dump(indent + '  ');
             }
-//            if (enumDeclaration != null) {
-//                
-//            }
-//            if (interfaceDeclaration != null) {
-//                
-//            }
+            if (enumDeclaration != null) {
+                strDump += enumDeclaration.dump(indent + '  ');
+            }
+            if (interfaceDeclaration != null) {
+                strDump += interfaceDeclaration.dump(indent + '  ');
+            }
 
             return strDump;
         }
     }
 
     private TypeDeclarationToken parseTypeDeclaration() {
+        if (IS_DEBUG) System.debug('TRACE: RsvrApexSyntaxParser#parseTypeDeclaration: begin');
+        input.mark();
         TypeDeclarationToken typeDecToken = new TypeDeclarationToken();
         for (;;) {
             ModifierToken modifyToken = parseModifier();
             if (modifyToken == null) {
+                input.reset();
                 break;
             }
+            input.mark();
             typeDecToken.modifierList.add(modifyToken);
         }
 
         ClassDeclarationToken classTok = parseClassDeclaration();
         if (classTok != null) {
+            input.mark();
             typeDecToken.classDeclaration = classTok;
+            return typeDecToken;
+        } else {
+            input.reset();
         }
 
-        return typeDecToken;
+        EnumDeclarationToken enumTok = parseEnumDeclaration();
+        if (enumTok != null) {
+            input.mark();
+            typeDecToken.enumDeclaration = enumTok;
+            return typeDecToken;
+        } else {
+            input.reset();
+        }
+
+        InterfaceDeclarationToken interfaceTok = parseInterfaceDeclaration();
+        if (interfaceTok != null) {
+            input.mark();
+            typeDecToken.interfaceDeclaration = interfaceTok;
+            return typeDecToken;
+        } else {
+            input.reset();
+        }
+
+        System.debug('PANIC: parseTypeDeclaration: Do not enter here.');
+        return null;
     }
 
     /////////////////////////////////////////////////////////////////
@@ -191,18 +222,28 @@ public class RsvrApexSyntaxParser {
 
     public class ClassDeclarationToken extends SyntaxToken {
         public String identifier {get; set;}
+        public TypeRefToken extend {get; set;}
+        public TypeListToken implement {get; set;}
+        public ClassBodyToken classBody {get; set;}
 
         public String dump(String indent) {
             String strDump = (indent + 'ClassDeclaration:\n');
             strDump += (indent + '  identifier: ' + identifier + '\n');
+            if (extend != null) {
+                strDump += (indent + '  extends: ' + extend.dump(indent + '  ') + '\n');
+            }
+            if (implement != null) {
+                strDump += (indent + '  implements: ' + implement.dump(indent + '  ') + '\n');
+            }
+            if (classBody != null) {
+                strDump += (indent + '  classBody: ' + classBody.dump(indent + '  ') + '\n');
+            }
             return strDump;
         }
     }
 
     private ClassDeclarationToken parseClassDeclaration() {
-        System.debug('parseClassDeclaration()');
-        input.dumpNextTokens();
-
+        if (IS_DEBUG) System.debug('TRACE: RsvrApexSyntaxParser#parseClassDeclaration: begin');
 
         input.mark();
         // CLASS
@@ -232,11 +273,24 @@ public class RsvrApexSyntaxParser {
             } else {
                 if (nextKeyTok.no == RsvrApexConstants.KEY_EXTENDS) {
                     // EXTENDS
+                    // TODO
+                    System.debug('PANIC: ERROR NOT IMPLEMENTED. RsvrApexConstants.KEY_EXTENDS');
                 }
                 if (nextKeyTok.no != RsvrApexConstants.KEY_IMPLEMENTS) {
                     // IMPLEMENTS
+                    // TODO
+                    System.debug('PANIC: ERROR NOT IMPLEMENTED. RsvrApexConstants.KEY_IMPLEMENTS');
                 }
             }
+        }
+
+        input.mark();
+        ClassBodyToken cbody = parseClassBody();
+        if (cbody == null) {
+            System.debug('PANIC: parseClassDeclaration: Do not enter here.');
+            input.reset();
+        } else {
+            clsDecTok.classBody = cbody;
         }
 
         return clsDecTok;
@@ -254,6 +308,14 @@ public class RsvrApexSyntaxParser {
             String strDump = (indent + 'EnumDeclaration:\n');
             return strDump;
         }
+    }
+
+    private EnumDeclarationToken parseEnumDeclaration() {
+        if (IS_DEBUG) System.debug('TRACE: RsvrApexSyntaxParser#parseEnumDeclaration: begin');
+
+        System.debug('PANIC: ERROR NOT IMPLEMENTED. parseEnumDeclaration');
+
+        return null;
     }
 
     /////////////////////////////////////////////////////////////////
@@ -274,24 +336,82 @@ public class RsvrApexSyntaxParser {
         }
     }
 
+    private InterfaceDeclarationToken parseInterfaceDeclaration() {
+        if (IS_DEBUG) System.debug('TRACE: RsvrApexSyntaxParser#parseInterfaceDeclaration: begin');
+
+        System.debug('PANIC: ERROR NOT IMPLEMENTED. parseInterfaceDeclaration');
+
+        return null;
+    }
+
     /////////////////////////////////////////////////////////////////
     // typeList
     //     : typeRef (COMMA typeRef)*
     //     ;
 
+    public class TypeListToken extends SyntaxToken {
+
+        public String dump(String indent) {
+            String strDump = (indent + 'TypeListToken:\n');
+            return strDump;
+        }
+    }
+
+    private TypeListToken parseTypeList() {
+        if (IS_DEBUG) System.debug('TRACE: RsvrApexSyntaxParser#parseTypeList: begin');
+
+        System.debug('PANIC: ERROR NOT IMPLEMENTED. parseTypeList');
+
+        return null;
+    }
+    
     /////////////////////////////////////////////////////////////////
     // classBody
     //     : LBRACE classBodyDeclaration* RBRACE
     //     ;
 
     public class ClassBodyToken extends SyntaxToken {
+        public List<ClassBodyDeclarationToken> classBodyDeclarationList = new List<ClassBodyDeclarationToken>();
 
         public String dump(String indent) {
             String strDump = (indent + 'ClassBody:\n');
+            for (ClassBodyDeclarationToken look : classBodyDeclarationList) {
+                strDump += look.dump(indent + '  ');
+            }
             return strDump;
         }
     }
 
+    private ClassBodyToken parseClassBody() {
+        if (IS_DEBUG) System.debug('TRACE: RsvrApexSyntaxParser#parseClassBody: begin');
+        input.mark();
+        ClassBodyToken bodyTok = new ClassBodyToken();
+
+        RsvrApexLexicalParser.SeparatorToken lbrace1 = input.getFirstSeparatorToken();
+        if (lbrace1 == null || lbrace1.no != RsvrApexConstants.SEP_LBRACE) {
+            input.reset();
+            return null;
+        }
+        
+        for (;;) {
+            ClassBodyDeclarationToken bodyDecTok = parseClassBodyDeclaration();
+            if (bodyDecTok == null) {
+                input.reset();
+                break;
+            }
+            bodyTok.classBodyDeclarationList.add(bodyDecTok);
+        }
+        
+        RsvrApexLexicalParser.SeparatorToken rbrace1 = input.getFirstSeparatorToken();
+        if (rbrace1 == null || rbrace1.no != RsvrApexConstants.SEP_RBRACE) {
+            System.debug('PANIC: parseClassBody: #2: Do not enter here.');
+            input.reset();
+            return null;
+        }
+
+        return bodyTok;
+    }
+    
     /////////////////////////////////////////////////////////////////
     // interfaceBody
     //     : LBRACE interfaceMethodDeclaration* RBRACE
@@ -305,11 +425,83 @@ public class RsvrApexSyntaxParser {
     //     ;
 
     public class ClassBodyDeclarationToken extends SyntaxToken {
+        public BlockToken block {get; set;}
+        public List<ModifierToken> modifierList = new List<ModifierToken>();
+        public MemberDeclarationToken memberDeclaration {get; set;}
 
         public String dump(String indent) {
             String strDump = (indent + 'ClassBodyDeclaration:\n');
+            if (block != null) {
+                strDump += block.dump(indent + '  ');
+            }
+            for (ModifierToken tok : modifierList) {
+                strDump += tok.dump(indent + '  ');
+            }
+            if (memberDeclaration != null) {
+                strDump += memberDeclaration.dump(indent + '  ');
+            }
             return strDump;
         }
+    }
+
+    private ClassBodyDeclarationToken parseClassBodyDeclaration() {
+        if (IS_DEBUG) System.debug('TRACE: RsvrApexSyntaxParser#parseClassBodyDeclaration: begin');
+        input.mark();
+        ClassBodyDeclarationToken result = new ClassBodyDeclarationToken();
+
+        RsvrApexLexicalParser.SeparatorToken semi1 = input.getFirstSeparatorToken();
+        if (semi1 == null || semi1.no != RsvrApexConstants.SEP_SEMI) {
+            input.reset();
+            // to next.
+        } else {
+            // hit
+            input.mark();
+            result.getTokenList().add(semi1);
+            return result;
+        }
+
+        RsvrApexLexicalParser.KeywordToken key1 = input.getFirstKeywordToken();
+        if (key1 == null || key1.no != RsvrApexConstants.KEY_STATIC) {
+            input.reset();
+            // to next.
+        } else {
+            // hit
+            input.mark();
+            result.getTokenList().add(key1);
+
+            BlockToken block = parseBlock();
+            if (block == null) {
+                input.reset();
+                System.debug('PANIC: parseClassBodyDeclaration: #1: Do not enter here.');
+            } else {
+                input.mark();
+                result.block = block;
+            }
+            return result;
+        }
+
+        for (;;) {
+            ModifierToken modifyToken = parseModifier();
+            if (modifyToken == null) {
+                input.reset();
+                break;
+            }
+            input.mark();
+            result.modifierList.add(modifyToken);
+        }
+
+        if (IS_DEBUG) System.debug('TRACE: RsvrApexSyntaxParser#parseClassBodyDeclaration: on parseMemberDeclaration: begin.');
+        MemberDeclarationToken memberDec = parseMemberDeclaration();
+        if (IS_DEBUG) System.debug('TRACE: RsvrApexSyntaxParser#parseClassBodyDeclaration: on parseMemberDeclaration: end: ' + memberDec);
+        if (memberDec == null) {
+            input.reset();
+            return null;
+        } else {
+            input.mark();
+            result.memberDeclaration = memberDec;
+        }
+
+        return result;
     }
 
     /////////////////////////////////////////////////////////////////
@@ -352,6 +544,7 @@ public class RsvrApexSyntaxParser {
     }
 
     private ModifierToken parseModifier() {
+        if (IS_DEBUG) System.debug('TRACE: RsvrApexSyntaxParser#parseModifier: begin');
         ModifierToken annoToken = parseAnnotation();
         if (annoToken != null) {
             return annoToken;
@@ -412,6 +605,7 @@ public class RsvrApexSyntaxParser {
     ;
      */
     private ModifierToken parseAnnotation() {
+        if (IS_DEBUG) System.debug('TRACE: RsvrApexSyntaxParser#parseAnnotation: begin');
         input.mark();
         RsvrApexLexicalParser.LexicalToken tok1 = input.readToken().getTokenList().get(0);
         if ((tok1 instanceof RsvrApexLexicalParser.AtsignToken) == false) {
@@ -431,7 +625,7 @@ public class RsvrApexSyntaxParser {
         modToken.qualifiedName = qualifiedName;
 
         // TODO この先が未実装。
-
+        System.debug('PANIC: ERROR NOT IMPLEMENTED. parseAnnotation');
 
         return modToken;
     }
@@ -454,11 +648,132 @@ public class RsvrApexSyntaxParser {
     //  */
 
     public class MemberDeclarationToken extends SyntaxToken {
+        public MethodDeclarationToken methodDeclaration {get; set;}
+        public FieldDeclarationToken fieldDeclaration {get; set;}
+        public ConstructorDeclarationToken constructorDeclaration {get; set;}
+        public InterfaceDeclarationToken interfaceDeclaration {get; set;}
+        public ClassDeclarationToken classDeclaration {get; set;}
+        public EnumDeclarationToken enumDeclaration {get; set;}
+        public PropertyDeclarationToken propertyDeclaration {get; set;}
 
         public String dump(String indent) {
             String strDump = (indent + 'MemberDeclaration:\n');
+            if (methodDeclaration != null) {
+                strDump += methodDeclaration.dump(indent + '  ');
+            }
+            if (fieldDeclaration != null) {
+                strDump += fieldDeclaration.dump(indent + '  ');
+            }
+            if (constructorDeclaration != null) {
+                strDump += constructorDeclaration.dump(indent + '  ');
+            }
+            if (interfaceDeclaration != null) {
+                strDump += interfaceDeclaration.dump(indent + '  ');
+            }
+            if (classDeclaration != null) {
+                strDump += classDeclaration.dump(indent + '  ');
+            }
+            if (enumDeclaration != null) {
+                strDump += enumDeclaration.dump(indent + '  ');
+            }
+            if (propertyDeclaration != null) {
+                strDump += propertyDeclaration.dump(indent + '  ');
+            }
             return strDump;
         }
+    }
+
+    private MemberDeclarationToken parseMemberDeclaration() {
+        if (IS_DEBUG) System.debug('TRACE: RsvrApexSyntaxParser#parseMemberDeclaration: begin');
+        input.mark();
+        MemberDeclarationToken result = new MemberDeclarationToken();
+
+        //     : methodDeclaration
+
+        final Integer originalPos = input.pos();
+        MethodDeclarationToken methodDec = parseMethodDeclaration();
+        if (methodDec == null) {
+            // 明示的に元の場所に戻す。
+            input.move(originalPos);
+        } else {
+            input.mark();
+            result.methodDeclaration = methodDec;
+            return result;
+        }
+
+        //     | fieldDeclaration
+
+        FieldDeclarationToken fieldDec = parseFieldDeclaration();
+        if (fieldDec == null) {
+            // 明示的に元の場所に戻す。
+            input.move(originalPos);
+        } else {
+            input.mark();
+            result.fieldDeclaration = fieldDec;
+            return result;
+        }
+
+        //     | constructorDeclaration
+
+        ConstructorDeclarationToken constDec = parseConstructorDeclaration();
+        if (constDec == null) {
+            // 明示的に元の場所に戻す。
+            input.move(originalPos);
+        } else {
+            input.mark();
+            result.constructorDeclaration = constDec;
+            return result;
+        }
+
+        //     | interfaceDeclaration
+
+        InterfaceDeclarationToken interDec = parseInterfaceDeclaration();
+        if (interDec == null) {
+            // 明示的に元の場所に戻す。
+            input.move(originalPos);
+        } else {
+            input.mark();
+            result.interfaceDeclaration = interDec;
+            return result;
+        }
+
+        //     | classDeclaration
+
+        ClassDeclarationToken classDec = parseClassDeclaration();
+        if (classDec == null) {
+            // 明示的に元の場所に戻す。
+            input.move(originalPos);
+        } else {
+            input.mark();
+            result.classDeclaration = classDec;
+            return result;
+        }
+
+        //     | enumDeclaration
+
+        EnumDeclarationToken enumDec = parseEnumDeclaration();
+        if (enumDec == null) {
+            // 明示的に元の場所に戻す。
+            input.move(originalPos);
+        } else {
+            input.mark();
+            result.enumDeclaration = enumDec;
+            return result;
+        }
+
+        //     | propertyDeclaration
+
+        PropertyDeclarationToken propTok = parsePropertyDeclaration();
+        if (propTok == null) {
+            // 明示的に元の場所に戻す。
+            input.move(originalPos);
+        } else {
+            input.mark();
+            result.propertyDeclaration = propTok;
+            return result;
+        }
+
+        return null;
     }
 
     /////////////////////////////////////////////////////////////////
@@ -477,6 +792,14 @@ public class RsvrApexSyntaxParser {
         }
     }
 
+    private MethodDeclarationToken parseMethodDeclaration() {
+        if (IS_DEBUG) System.debug('TRACE: RsvrApexSyntaxParser#parseMethodDeclaration: begin');
+
+        System.debug('PANIC: ERROR NOT IMPLEMENTED. parseMethodDeclaration');
+
+        return null;
+    }
+
     /////////////////////////////////////////////////////////////////
     // constructorDeclaration
     //     : qualifiedName formalParameters block
@@ -490,17 +813,67 @@ public class RsvrApexSyntaxParser {
         }
     }
 
+    private ConstructorDeclarationToken parseConstructorDeclaration() {
+        if (IS_DEBUG) System.debug('TRACE: RsvrApexSyntaxParser#parseConstructorDeclaration: begin');
+
+        System.debug('PANIC: ERROR NOT IMPLEMENTED. parseConstructorDeclaration');
+
+        return null;
+    }
+
     /////////////////////////////////////////////////////////////////
     // fieldDeclaration
     //     : typeRef variableDeclarators SEMI
     //     ;
 
     public class FieldDeclarationToken extends SyntaxToken {
+        TypeRefToken typeRef {get; set;}
+        VariableDeclaratorsToken variableDeclarators {get; set;}
 
         public String dump(String indent) {
             String strDump = (indent + 'FieldDeclaration:\n');
+            if (typeRef != null) {
+                strDump += typeRef.dump(indent + '  ');
+            }
+            if (variableDeclarators != null) {
+                strDump += variableDeclarators.dump(indent + '  ');
+            }
             return strDump;
         }
+    }
+
+    private FieldDeclarationToken parseFieldDeclaration() {
+        if (IS_DEBUG) System.debug('TRACE: RsvrApexSyntaxParser#parseFieldDeclaration: begin');
+
+        input.mark();
+        FieldDeclarationToken fieldDeclarationToken = new FieldDeclarationToken();
+
+        final Integer originalPos = input.pos();
+        TypeRefToken typeTok = parseTypeRef();
+        if (typeTok == null) {
+            input.reset();
+            return null;
+        }
+        fieldDeclarationToken.typeRef = typeTok;
+
+        VariableDeclaratorsToken decs = parseVariableDeclarators();
+        if (decs == null) {
+            System.debug('PANIC: parseFieldDeclaration: #1: Do not enter here.');
+            input.reset();
+            return null;
+        }
+        fieldDeclarationToken.variableDeclarators = decs;
+
+        RsvrApexLexicalParser.SeparatorToken semi1 = input.getFirstSeparatorToken();
+        if (semi1 == null || semi1.no != RsvrApexConstants.SEP_SEMI) {
+            // プロパティの場合にはここを通過。
+            // オリジナル値に戻す必要がある点に注意。
+            input.move(originalPos);
+            return null;
+        }
+
+        input.mark();
+        return fieldDeclarationToken;
     }
 
     /////////////////////////////////////////////////////////////////
@@ -509,11 +882,75 @@ public class RsvrApexSyntaxParser {
     //     ;
 
     public class PropertyDeclarationToken extends SyntaxToken {
+        public TypeRefToken typeRef {get; set;}
+        public String identifier {get; set;}
+        public List<PropertyBlockToken> propertyBlockList = new List<PropertyBlockToken>();
 
         public String dump(String indent) {
             String strDump = (indent + 'PropertyDeclaration:\n');
+            if (typeRef != null) {
+                strDump += typeRef.dump(indent + '  ');
+            }
+            if (identifier != null) {
+                strDump += (indent + '  identifier: ' + identifier + '\n');
+            }
+            for (PropertyBlockToken look : propertyBlockList) {
+                strDump += look.dump(indent + '  ');
+            }
             return strDump;
         }
+    }
+
+    private PropertyDeclarationToken parsePropertyDeclaration() {
+        if (IS_DEBUG) System.debug('TRACE: RsvrApexSyntaxParser#parsePropertyDeclaration: begin');
+        input.mark();
+
+        TypeRefToken typeTok = parseTypeRef();
+        if (typeTok == null) {
+            input.reset();
+            return null;
+        }
+        PropertyDeclarationToken result = new PropertyDeclarationToken();
+        result.typeRef = typeTok;
+
+        RsvrApexLexicalParser.IdentifierToken iden1 = input.getFirstIdentifierToken();
+        if (iden1 == null) {
+            System.debug('PANIC: parsePropertyDeclaration: #1: Do not enter here.');
+            input.reset();
+            return null;
+        }
+
+        input.mark();
+        result.identifier = iden1.target;
+
+        RsvrApexLexicalParser.SeparatorToken lbrace1 = input.getFirstSeparatorToken();
+        if (lbrace1 == null || lbrace1.no != RsvrApexConstants.SEP_LBRACE) {
+            System.debug('PANIC: parsePropertyDeclaration: #2: Do not enter here.');
+            input.reset();
+            return null;
+        }
+
+        input.mark();
+    
+        for (;;) {
+            PropertyBlockToken block = parsePropertyBlock();
+            if (block == null) {
+                input.reset();
+                break;
+            }
+            input.mark();
+            result.propertyBlockList.add(block);
+        }
+
+        RsvrApexLexicalParser.SeparatorToken rbrace1 = input.getFirstSeparatorToken();
+        if (rbrace1 == null || rbrace1.no != RsvrApexConstants.SEP_RBRACE) {
+            System.debug('PANIC: parsePropertyDeclaration: #3: Do not enter here.');
+            input.dumpNextTokens();
+            input.reset();
+            return null;
+        }
+
+        return result;
     }
 
     /////////////////////////////////////////////////////////////////
@@ -526,10 +963,100 @@ public class RsvrApexSyntaxParser {
     //     : variableDeclarator (COMMA variableDeclarator)*
     //     ;
 
+    public class VariableDeclaratorsToken extends SyntaxToken {
+        List<VariableDeclaratorToken> variableDeclaratorList = new List<VariableDeclaratorToken>();
+
+        public String dump(String indent) {
+            String strDump = (indent + 'VariableDeclarators:\n');
+            for (VariableDeclaratorToken tok : variableDeclaratorList) {
+                strDump += tok.dump(indent + '  ');
+
+            }
+            return strDump;
+        }
+    }
+
+    private VariableDeclaratorsToken parseVariableDeclarators() {
+        if (IS_DEBUG) System.debug('TRACE: RsvrApexSyntaxParser#parseVariableDeclarators: begin');
+        input.mark();
+        VariableDeclaratorsToken decls = new VariableDeclaratorsToken();
+        VariableDeclaratorToken tok1 = parseVariableDeclarator();
+        if (tok1 == null) {
+            input.reset();
+            return null;
+        }
+
+        input.mark();
+        decls.variableDeclaratorList.add(tok1);
+
+        for (;;) {
+            RsvrApexLexicalParser.SeparatorToken dot1 = input.getFirstSeparatorToken();
+            if (dot1 == null || dot1.no != RsvrApexConstants.SEP_COMMA) {
+                input.reset();
+                break;
+            }
+            
+            VariableDeclaratorToken tok2 = parseVariableDeclarator();
+            if (tok2 == null) {
+                System.debug('PANIC: parseVariableDeclarators: #1: Do not enter here.');
+                input.reset();
+                break;
+            }
+            input.mark();
+            decls.variableDeclaratorList.add(tok2);
+        }
+
+        return decls;
+    }
+
     /////////////////////////////////////////////////////////////////
     // variableDeclarator
     //     : id (ASSIGN expression)?
     //     ;
+
+    public class VariableDeclaratorToken extends SyntaxToken {
+        public String identifier {get; set;}
+        public ExpressionToken expression {get; set;}
+
+        public String dump(String indent) {
+            String strDump = (indent + 'VariableDeclarator:\n');
+            strDump += (indent + '  ' + 'identifier: ' + identifier + '\n');
+            if (expression != null) {
+                strDump += (indent + '  ' + 'ASSIGN\n');
+                strDump += expression.dump(indent + '  ');
+            }
+            return strDump;
+        }
+    }
+
+    private VariableDeclaratorToken parseVariableDeclarator() {
+        if (IS_DEBUG) System.debug('TRACE: RsvrApexSyntaxParser#parseVariableDeclarator: begin');
+        input.mark();
+        RsvrApexLexicalParser.IdentifierToken iden1 = input.getFirstIdentifierToken();
+        if (iden1 == null) {
+            input.reset();
+            return null;
+        }
+
+        input.mark();
+        VariableDeclaratorToken result = new VariableDeclaratorToken();
+        result.identifier = iden1.target;
+
+        RsvrApexLexicalParser.OperatorToken eq1 = input.getFirstOperatorToken();
+        if (eq1 == null || eq1.no != RsvrApexConstants.OPE_ASSIGN) {
+            input.reset();
+        } else {
+            ExpressionToken exp = parseExpression();
+            if (exp == null) {
+                System.debug('PANIC: parseVariableDeclarator: #1: Do not enter here.');
+                input.reset();
+            } else {
+                input.mark();
+                result.expression = exp;
+            }
+        }
+        return result;
+    }
 
     /////////////////////////////////////////////////////////////////
     // arrayInitializer
@@ -541,23 +1068,82 @@ public class RsvrApexSyntaxParser {
     //     : typeName (DOT typeName)* arraySubscripts
     //     ;
 
-    private TypeRefToken parseTypeRef() {
-        return null;
-    }
-
     public class TypeRefToken extends SyntaxToken {
         public List<TypeNameToken> typeNameList = new List<TypeNameToken>();
+        public ArraySubscriptsToken arraySubscripts {get; set;}
 
         public String dump(String indent) {
             String strDump = (indent + 'TypeRef:\n');
+            for (TypeNameToken look : typeNameList) {
+                strDump += look.dump(indent + '  ');
+            }
+            if (arraySubscripts != null) {
+                strDump += arraySubscripts.dump(indent + '  ');
+            }
             return strDump;
         }
+    }
+
+    private TypeRefToken parseTypeRef() {
+        if (IS_DEBUG) System.debug('TRACE: RsvrApexSyntaxParser#parseTypeRef: begin');
+        input.mark();
+        TypeRefToken typeR = new TypeRefToken();
+
+        TypeNameToken typeName1 = parseTypeName();
+        if (typeName1 == null) {
+            input.reset();
+            return null;
+        }
+        input.mark();
+        typeR.typeNameList.add(typeName1);
+
+        for (;;) {
+            RsvrApexLexicalParser.SeparatorToken dot1 = input.getFirstSeparatorToken();
+            if (dot1 == null || dot1.no != RsvrApexConstants.SEP_COMMA) {
+                input.reset();
+                break;
+            }
+
+            TypeNameToken typeName2 = parseTypeName();
+            if (typeName2 == null) {
+                System.debug('PANIC: parseTypeRef: #1: Do not enter here.');
+                input.reset();
+                break;
+            }
+            input.mark();
+            typeR.typeNameList.add(typeName2);
+        }
+
+        ArraySubscriptsToken arraySub = parseArraySubscripts();
+        if (arraySub == null) {
+            input.reset();
+        } else {
+            typeR.arraySubscripts = arraySub;
+        }
+
+        return typeR;
     }
 
     /////////////////////////////////////////////////////////////////
     // arraySubscripts
     //     : (LBRACK RBRACK)*
     //     ;
+
+    public class ArraySubscriptsToken extends SyntaxToken {
+
+        public String dump(String indent) {
+            String strDump = (indent + 'ArraySubscripts:\n');
+            return strDump;
+        }
+    }
+
+    private ArraySubscriptsToken parseArraySubscripts() {
+        if (IS_DEBUG) System.debug('TRACE: RsvrApexSyntaxParser#parseArraySubscripts: begin');
+
+        System.debug('PANIC: ERROR NOT IMPLEMENTED. parseArraySubscripts');
+
+        return null;
+    }
 
     /////////////////////////////////////////////////////////////////
     // typeName
@@ -568,22 +1154,102 @@ public class RsvrApexSyntaxParser {
     //     ;
 
     public class TypeNameToken  extends SyntaxToken {
+        String collectionName {get; set;}
+        String identifier {get; set;}
+        TypeArgumentsToken typeArguments {get; set;}
 
         public String dump(String indent) {
             String strDump = (indent + 'TypeName:\n');
+            if (collectionName != null) {
+                strDump += indent + collectionName + '\n';
+            }
+            if (identifier != null) {
+                strDump += indent + identifier + '\n';
+            }
+            if (typeArguments != null) {
+                strDump += indent + typeArguments.dump(indent + '  ');
+            }
             return strDump;
         }
     }
 
     private TypeNameToken parseTypeName() {
-        return null;
+        if (IS_DEBUG) System.debug('TRACE: RsvrApexSyntaxParser#parseTypeName: begin');
+        input.mark();
+        TypeNameToken result = new TypeNameToken();
 
+        RsvrApexLexicalParser.KeywordToken key1 = input.getFirstKeywordToken();
+        if (key1 == null) {
+            input.reset();
+        } else {
+            if (key1.no == RsvrApexConstants.KEY_LIST) {
+                input.mark();
+                result.collectionName = 'LIST';
+                TypeArgumentsToken arg = parseTypeArguments();
+                if (arg == null) {
+                    input.reset();
+                } else {
+                    input.mark();
+                    result.typeArguments = arg;
+                }
+                return result;
+            }
+            if (key1.no == RsvrApexConstants.KEY_SET) {
+                input.mark();
+                result.collectionName = 'SET';
+                TypeArgumentsToken arg = parseTypeArguments();
+                if (arg == null) {
+                    input.reset();
+                } else {
+                    input.mark();
+                    result.typeArguments = arg;
+                }
+                return result;
+            }
+            if (key1.no == RsvrApexConstants.KEY_MAP) {
+                input.mark();
+                result.collectionName = 'MAP';
+                TypeArgumentsToken arg = parseTypeArguments();
+                if (arg == null) {
+                    input.reset();
+                } else {
+                    input.mark();
+                    result.typeArguments = arg;
+                }
+                return result;
+            }
+        }
+
+        RsvrApexLexicalParser.IdentifierToken iden1 = input.getFirstIdentifierToken();
+        if (iden1 != null) {
+            input.mark();
+            result.identifier = iden1.target;
+            return result;
+        }
+
+        return null;
     }
 
     /////////////////////////////////////////////////////////////////
     // typeArguments
     //     : LT typeList GT
     //     ;
+
+    public class TypeArgumentsToken  extends SyntaxToken {
+
+        public String dump(String indent) {
+            String strDump = (indent + 'TypeArguments:\n');
+            return strDump;
+        }
+    }
+
+    private TypeArgumentsToken parseTypeArguments() {
+        if (IS_DEBUG) System.debug('TRACE: RsvrApexSyntaxParser#parseTypeArguments: begin');
+
+        System.debug('PANIC: ERROR NOT IMPLEMENTED. parseTypeArguments');
+
+        return null;
+    }
 
     /////////////////////////////////////////////////////////////////
     // formalParameters
@@ -596,6 +1262,14 @@ public class RsvrApexSyntaxParser {
             String strDump = (indent + 'FormalParameters:\n');
             return strDump;
         }
+    }
+
+    private FormalParametersToken parseFormalParameters() {
+        if (IS_DEBUG) System.debug('TRACE: RsvrApexSyntaxParser#parseFormalParameters: begin');
+
+        System.debug('PANIC: ERROR NOT IMPLEMENTED. parseFormalParameters');
+
+        return null;
     }
 
     /////////////////////////////////////////////////////////////////
@@ -616,6 +1290,7 @@ public class RsvrApexSyntaxParser {
     // QualifiedNameToken は作らない。???
 
     private String parseQualifiedName() {
+        if (IS_DEBUG) System.debug('TRACE: RsvrApexSyntaxParser#parseQualifiedName: begin');
         String qualifiedName = '';
         RsvrApexLexicalParser.LexicalToken tok1 = input.readToken().getTokenList().get(0);
         if ((tok1 instanceof RsvrApexLexicalParser.IdentifierToken) == false) {
@@ -654,6 +1329,33 @@ public class RsvrApexSyntaxParser {
     //     | BooleanLiteral
     //     | NULL
     //     ;
+
+    public class LiteralToken extends SyntaxToken {
+        public RsvrApexLexicalParser.LiteralToken literal {get; set;}
+
+        public String dump(String indent) {
+            String strDump = (indent + 'Literal:\n');
+            if (literal != null) {
+                strDump += (indent + '  tok: ' + literal.target + ' (' + literal.type + ')\n');
+            }
+            return strDump;
+        }
+    }
+
+    private LiteralToken parseLiteral() {
+        if (IS_DEBUG) System.debug('TRACE: RsvrApexSyntaxParser#parseLiteral: begin');
+        input.mark();
+        LiteralToken result = new LiteralToken();
+
+        RsvrApexLexicalParser.LiteralToken lit1 = input.getFirstLiteralToken();
+        if (lit1 != null) {
+            input.mark();
+            result.literal = lit1;
+            return result;
+        }
+
+        return null;
+    }
 
     /////////////////////////////////////////////////////////////////
     // // ANNOTATIONS
@@ -694,6 +1396,49 @@ public class RsvrApexSyntaxParser {
     //     ;
 
     public class BlockToken extends SyntaxToken {
+        public List<StatementToken> statements = new List<StatementToken>();
+
+        public String dump(String indent) {
+            String strDump = (indent + 'BlockToken:\n');
+
+            for (StatementToken stmt : statements) {
+                strDump += (stmt.dump(indent + '  '));
+            }
+
+            return strDump;
+        }
+    }
+
+    private BlockToken parseBlock() {
+        if (IS_DEBUG) System.debug('TRACE: RsvrApexSyntaxParser#parseBlock: begin');
+        input.mark();
+        BlockToken block = new BlockToken();
+
+        RsvrApexLexicalParser.SeparatorToken lbrace1 = input.getFirstSeparatorToken();
+        if (lbrace1 == null || lbrace1.no != RsvrApexConstants.SEP_LBRACE) {
+            input.reset();
+            return null;
+        }
+
+        // 確定とする。
+        input.mark();
+        for (;;) {
+            StatementToken statementTok = parseStatement();
+            if (statementTok == null) {
+                input.reset();
+                break;
+            }
+            block.statements.add(statementTok);
+        }
+        
+        RsvrApexLexicalParser.SeparatorToken rbrace1 = input.getFirstSeparatorToken();
+        if (rbrace1 == null || rbrace1.no != RsvrApexConstants.SEP_RBRACE) {
+            System.debug('PANIC: parseBlock: #1: Do not enter here.');
+            input.reset();
+            return null;
+        }
+
+        return block;
     }
 
     /////////////////////////////////////////////////////////////////
@@ -729,6 +1474,23 @@ public class RsvrApexSyntaxParser {
     //     | localVariableDeclarationStatement
     //     | expressionStatement
     //     ;
+
+    public class StatementToken extends SyntaxToken {
+
+        public String dump(String indent) {
+            String strDump = (indent + 'StatementToken:\n');
+            return strDump;
+        }
+    }
+
+    private StatementToken parseStatement() {
+        if (IS_DEBUG) System.debug('TRACE: RsvrApexSyntaxParser#parseStatement: begin');
+        input.mark();
+
+        System.debug('PANIC: ERROR NOT IMPLEMENTED. parseStatement');
+
+        return null;
+    }
 
     /////////////////////////////////////////////////////////////////
     // ifStatement
@@ -849,16 +1611,170 @@ public class RsvrApexSyntaxParser {
     //     : modifier* (getter | setter)
     //     ;
 
+    public class PropertyBlockToken extends SyntaxToken {
+        public final List<ModifierToken> modifierList = new List<ModifierToken>();
+        public GetterToken getter {get; set;}
+        public SetterToken setter {get; set;}
+
+        public String dump(String indent) {
+            String strDump = (indent + 'PropertyBlockToken:\n');
+            for (ModifierToken modTok : modifierList) {
+                strDump += modTok.dump(indent + '  ');
+            }
+            if (getter != null) {
+                strDump += getter.dump(indent + '  ');
+            }
+            if (setter != null) {
+                strDump += setter.dump(indent + '  ');
+            }
+            return strDump;
+        }
+    }
+
+    private PropertyBlockToken parsePropertyBlock() {
+        if (IS_DEBUG) System.debug('TRACE: RsvrApexSyntaxParser#PropertyBlockToken: begin');
+        input.mark();
+
+        PropertyBlockToken result = new PropertyBlockToken();
+        for (;;) {
+            ModifierToken modifyToken = parseModifier();
+            if (modifyToken == null) {
+                input.reset();
+                break;
+            }
+            input.mark();
+            result.modifierList.add(modifyToken);
+        }
+
+        GetterToken gtok = parseGetter();
+        if (gtok == null) {
+            input.reset();
+        } else {
+            input.mark();
+            result.getter = gtok;
+            return result;
+        }
+
+        SetterToken stok = parseSetter();
+        if (stok == null) {
+            input.reset();
+        } else {
+            input.mark();
+            result.setter = stok;
+            return result;
+        }
+
+        return null;
+    }
+
     /////////////////////////////////////////////////////////////////
     // getter
     //     : GET (SEMI | block)
     //     ;
 
+    public class GetterToken extends SyntaxToken {
+        public BlockToken block {get; set;}
+
+        public String dump(String indent) {
+            String strDump = (indent + 'GetterToken:\n');
+            if (block != null) {
+                strDump += block.dump(indent + '  ');
+            }
+            return strDump;
+        }
+    }
+
+    private GetterToken parseGetter() {
+        if (IS_DEBUG) System.debug('TRACE: RsvrApexSyntaxParser#parseGetter: begin');
+        input.mark();
+
+        RsvrApexLexicalParser.KeywordToken key1 = input.getFirstKeywordToken();
+        if (key1 == null || key1.no != RsvrApexConstants.KEY_GET) {
+            input.reset();
+            return null;
+        }
+
+        input.mark();
+        GetterToken result = new GetterToken();
+
+        RsvrApexLexicalParser.SeparatorToken sep1 = input.getFirstSeparatorToken();
+        if (sep1 != null) {
+            if (sep1.no != RsvrApexConstants.SEP_SEMI) {
+                System.debug('PANIC: parseGetter: #1: Do not enter here.');
+                input.reset();
+                return null;
+            }
+            // SEMI
+            input.mark();
+            return result;
+        }
+
+        BlockToken block = parseBlock();
+        if (block == null) {
+            input.reset();
+            System.debug('PANIC: parseGetter: #2: Do not enter here.');
+            return null;
+        }
+
+        input.mark();
+        result.block = block;
+        return result;
+    }
+    
     /////////////////////////////////////////////////////////////////
     // setter
     //     : SET (SEMI | block)
     //     ;
 
+    public class SetterToken extends SyntaxToken {
+        public BlockToken block {get; set;}
+
+        public String dump(String indent) {
+            String strDump = (indent + 'SetterToken:\n');
+            if (block != null) {
+                strDump += block.dump(indent + '  ');
+            }
+            return strDump;
+        }
+    }
+
+    private SetterToken parseSetter() {
+        if (IS_DEBUG) System.debug('TRACE: RsvrApexSyntaxParser#parseSetter: begin');
+        input.mark();
+
+        RsvrApexLexicalParser.KeywordToken key1 = input.getFirstKeywordToken();
+        if (key1 == null || key1.no != RsvrApexConstants.KEY_SET) {
+            input.reset();
+            return null;
+        }
+
+        input.mark();
+        SetterToken result = new SetterToken();
+
+        RsvrApexLexicalParser.SeparatorToken sep1 = input.getFirstSeparatorToken();
+        if (sep1 != null) {
+            if (sep1.no != RsvrApexConstants.SEP_SEMI) {
+                System.debug('PANIC: parseSetter: #1: Do not enter here.');
+                input.reset();
+                return null;
+            }
+            // SEMI
+            input.mark();
+            return result;
+        }
+
+        BlockToken block = parseBlock();
+        if (block == null) {
+            input.reset();
+            System.debug('PANIC: parseSetter: #2: Do not enter here.');
+            return null;
+        }
+
+        input.mark();
+        result.block = block;
+        return result;
+    }
+    
     /////////////////////////////////////////////////////////////////
     // catchClause
     //     : CATCH LPAREN modifier* qualifiedName id RPAREN block
@@ -947,6 +1863,78 @@ public class RsvrApexSyntaxParser {
     //       expression                                                                                     # assignExpression
     //     ;
 
+    public class ExpressionToken extends SyntaxToken {
+        public PrimaryToken primary {get; set;}
+
+        public String dump(String indent) {
+            String strDump = (indent + 'Expression:\n');
+            if (primary != null) {
+                strDump += primary.dump(indent + '  ');
+            }
+            return strDump;
+        }
+    }
+
+    private ExpressionToken parseExpression() {
+        if (IS_DEBUG) System.debug('TRACE: RsvrApexSyntaxParser#parseExpression: begin');
+
+        //     : primary                                                                                         # primaryExpression
+        //     | expression (DOT | QUESTIONDOT)
+        //         ( dotMethodCall
+        //         | anyId
+        //         )                                                                                             # dotExpression
+        //     | expression LBRACK expression RBRACK                                                             # arrayExpression
+        //     | methodCall                                                                                      # methodCallExpression
+        //     | NEW creator                                                                                     # newExpression
+        //     | LPAREN typeRef RPAREN expression                                                                # castExpression
+        //     | LPAREN expression RPAREN                                                                        # subExpression
+        //     | expression (INC | DEC)                                                                          # postOpExpression
+        //     | (ADD|SUB|INC|DEC) expression                                                                    # preOpExpression
+        //     | (TILDE|BANG) expression                                                                         # negExpression
+        //     | expression (MUL|DIV) expression                                                             # arth1Expression
+        //     | expression (ADD|SUB) expression                                                                 # arth2Expression
+        //     | expression (LT LT | GT GT GT | GT GT) expression                                                # bitExpression
+        //     | expression (GT | LT) ASSIGN? expression                                                         # cmpExpression
+        //     | expression INSTANCEOF typeRef                                                                   # instanceOfExpression
+        //     | expression (TRIPLEEQUAL | TRIPLENOTEQUAL | EQUAL | NOTEQUAL | LESSANDGREATER ) expression       # equalityExpression
+        //     | expression BITAND expression                                                                    # bitAndExpression
+        //     | expression CARET expression                                                                     # bitNotExpression
+        //     | expression BITOR expression                                                                     # bitOrExpression
+        //     | expression AND expression                                                                       # logAndExpression
+        //     | expression OR expression                                                                        # logOrExpression
+        //     | <assoc=right> expression QUESTION expression COLON expression                                   # condExpression
+        //     | <assoc=right> expression
+        //       (   ASSIGN
+        //       |   ADD_ASSIGN
+        //       |   SUB_ASSIGN
+        //       |   MUL_ASSIGN
+        //       |   DIV_ASSIGN
+        //       |   AND_ASSIGN
+        //       |   OR_ASSIGN
+        //       |   XOR_ASSIGN
+        //       |   RSHIFT_ASSIGN
+        //       |   URSHIFT_ASSIGN
+        //       |   LSHIFT_ASSIGN
+        //       )
+        //       expression                                                                                     # assignExpression
+        //     ;
+
+        input.mark();
+        ExpressionToken result = new ExpressionToken();
+
+        PrimaryToken pri1 = parsePrimary();
+        if (pri1 != null) {
+            input.mark();
+            result.primary = pri1;
+            return result;
+        }
+
+        System.debug('PANIC: ERROR NOT IMPLEMENTED. parseExpression');
+
+        return null;
+    }
+
+
     /////////////////////////////////////////////////////////////////
     // primary
     //     : THIS                                                                                           # thisPrimary
@@ -957,6 +1945,50 @@ public class RsvrApexSyntaxParser {
     //     | soqlLiteral                                                                                    # soqlPrimary
     //     | soslLiteral                                                                                    # soslPrimary
     //     ;
+
+    public class PrimaryToken extends SyntaxToken {
+        //     : THIS                                                                                           # thisPrimary
+        //     | SUPER                                                                                          # superPrimary
+        public LiteralToken literal {get; set;}
+        //     | typeRef DOT CLASS                                                                              # typeRefPrimary
+        //     | id                                                                                             # idPrimary
+        public String identifier {get; set;}
+
+        public String dump(String indent) {
+            String strDump = (indent + 'Primary:\n');
+            if (literal != null) {
+                strDump += literal.dump(indent + '  ');
+            }
+            if (identifier != null) {
+                strDump += indent + ': ' + identifier;
+            }
+            return strDump;
+        }
+    }
+
+    private PrimaryToken parsePrimary() {
+        if (IS_DEBUG) System.debug('TRACE: RsvrApexSyntaxParser#parsePrimary: begin');
+        input.mark();
+        PrimaryToken result = new PrimaryToken();
+        //     : THIS                                                                                           # thisPrimary
+        //     | SUPER                                                                                          # superPrimary
+        //     | literal                                                                                        # literalPrimary
+        LiteralToken lit1 = parseLiteral();
+        if (lit1 != null) {
+            input.mark();
+            result.literal = lit1;
+            return result;
+        }
+
+        //     | typeRef DOT CLASS                                                                              # typeRefPrimary
+        //     | id                                                                                             # idPrimary
+        //     | soqlLiteral                                                                                    # soqlPrimary
+        //     | soslLiteral                                                                                    # soslPrimary
+
+        System.debug('PANIC: ERROR NOT IMPLEMENTED. parsePrimary');
+
+        return null;
+    }
 
     /////////////////////////////////////////////////////////////////
     // methodCall

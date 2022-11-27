@@ -37,7 +37,10 @@ private class RsvrApexSyntaxParserTest {
 
     @isTest(SeeAllData=false)
     static void test02() {
-        final String apexClassBody = 'public with sharing class MyClass {}';
+        final String apexClassBody = 'public with sharing class MyClass\n' //
+            + '{\n'
+            + '    public String def = null;\n'
+            + '}\n';
         final RsvrApexLexicalParser lexParser = new RsvrApexLexicalParser();
         final List<RsvrApexLexicalParser.LexicalToken> lexList = lexParser.parse(apexClassBody);
 
@@ -48,4 +51,33 @@ private class RsvrApexSyntaxParserTest {
         System.debug(compUnitTok.dump(''));
     }
 
+    @isTest(SeeAllData=false)
+    static void test03() {
+        final String apexClassBody = 'public with sharing class MyClass\n' //
+            + '{\n'
+            + '    public String def = null;\n'
+            + '    public String abc {get; set;}\n'
+            + '    public Integer plus(Integer i1, Integer i2) {\n'
+            + '        return i1 + i2;\n'
+            + '    }\n'
+            + '}\n';
+        final RsvrApexLexicalParser lexParser = new RsvrApexLexicalParser();
+        final List<RsvrApexLexicalParser.LexicalToken> lexList = lexParser.parse(apexClassBody);
+
+        RsvrApexSyntaxParser parser = new RsvrApexSyntaxParser();
+        List<RsvrApexSyntaxParser.SyntaxToken> tokList = parser.unify(lexList);
+        RsvrApexSyntaxParser.CompilationUnitToken compUnitTok = (RsvrApexSyntaxParser.CompilationUnitToken) parser.parse(tokList);
+
+        System.debug(compUnitTok.dump(''));
+    }
+
+
+    @isTest(SeeAllData=false)
+    static void test90() {
+        Integer loc = 0;
+        for (String look : RsvrApexConstants.KEYWORDS) {
+            System.debug('[' + loc + '] ' + look);
+            loc++;
+        }
+    }    
 }
