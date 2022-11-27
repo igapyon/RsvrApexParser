@@ -71,4 +71,13 @@ private class RsvrApexSyntaxParserTest {
         System.debug(compUnitTok.dump(''));
     }
 
+
+    @isTest(SeeAllData=false)
+    static void test90() {
+        Integer loc = 0;
+        for (String look : RsvrApexConstants.KEYWORDS) {
+            System.debug('[' + loc + '] ' + look);
+            loc++;
+        }
+    }    
 }
