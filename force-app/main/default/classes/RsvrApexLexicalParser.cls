@@ -188,8 +188,6 @@ public class RsvrApexLexicalParser {
         public Integer no {get; set;}
     }
 
-    private static Map<String,Integer> keywordNoMap = null;
-
     private LexicalToken parseKeyword() {
         procTime.enter('parseKeyword');
 
@@ -231,19 +229,12 @@ public class RsvrApexLexicalParser {
                 }
                 if (RsvrApexLexicalParserUtil.isKeyword(target)) {
                     // Hit
-                    if (keywordNoMap == null) {
-                        keywordNoMap = new Map<String,Integer>();
-                        Integer loopIndex = 0;
-                        for (String look : RsvrApexConstants.KEYWORDS) {
-                            keywordNoMap.put(look.toLowerCase(), loopIndex++);
-                        }
-                    }
                     input.mark();
                     KeywordToken result = new KeywordToken();
                     result.type = 'Keyword';
                     result.target = target;
                     result.original = result.target;
-                    result.no = keywordNoMap.get(result.target);
+                    result.no = RsvrApexLexicalParserUtil.getKeywordNoMap().get(result.target);
                     return result;
                 } else {
                     break;
@@ -1021,7 +1012,10 @@ public class RsvrApexLexicalParser {
     // DOT             : '.';
 
     public class SeparatorToken extends LexicalToken {
+        public Integer no {get; set;}
     }
+
+    private static Map<String,Integer> separatorNoMap = null;
 
     /**
      * Parse separator.
@@ -1039,6 +1033,7 @@ public class RsvrApexLexicalParser {
             result.type = 'Separator';
             result.target = RsvrApexLexicalParserUtil.int2string(next);
             result.original = result.target;
+            result.no = RsvrApexLexicalParserUtil.getSeparatorNoMap().get(result.target);
             return result;
         }
 

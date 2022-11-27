@@ -103,4 +103,16 @@ public class RsvrApexSyntaxParserInput {
         }
         return null;
     }
+
+    /**
+     * 最初の(Lexical)SeparatorTokenを取得。
+     * 成功しようが失敗しようが、ポジションは一つ進みます。
+     */
+    public RsvrApexLexicalParser.SeparatorToken getFirstSeparatorToken() {
+        RsvrApexLexicalParser.LexicalToken lexToken = readToken().getTokenList().get(0);
+        if (lexToken instanceof RsvrApexLexicalParser.SeparatorToken) {
+            return (RsvrApexLexicalParser.SeparatorToken) lexToken;
+        }
+        return null;
+    }
 }
