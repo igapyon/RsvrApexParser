@@ -39,6 +39,7 @@ private class RsvrApexSyntaxParserTest {
     static void test02() {
         final String apexClassBody = 'public with sharing class MyClass\n' //
             + '{\n'
+            + '    public String def = null;\n'
             + '    public String abc {get; set;}\n'
             + '    public Integer plus(Integer i1, Integer i2) {\n'
             + '        return i1 + i2;\n'
