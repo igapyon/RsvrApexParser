@@ -164,18 +164,40 @@ public class RsvrApexSyntaxParser {
     }
 
     private TypeDeclarationToken parseTypeDeclaration() {
+        input.mark();
         TypeDeclarationToken typeDecToken = new TypeDeclarationToken();
         for (;;) {
             ModifierToken modifyToken = parseModifier();
             if (modifyToken == null) {
+                input.reset();
                 break;
             }
+            input.mark();
             typeDecToken.modifierList.add(modifyToken);
         }
 
         ClassDeclarationToken classTok = parseClassDeclaration();
         if (classTok != null) {
+            input.mark();
             typeDecToken.classDeclaration = classTok;
+        } else {
+            input.reset();
+        }
+
+        EnumDeclarationToken enumTok = parseEnumDeclaration();
+        if (enumTok != null) {
+            input.mark();
+            typeDecToken.enumDeclaration = enumTok;
+        } else {
+            input.reset();
+        }
+
+        InterfaceDeclarationToken interfaceTok = parseInterfaceDeclaration();
+        if (interfaceTok != null) {
+            input.mark();
+            typeDecToken.interfaceDeclaration = interfaceTok;
+        } else {
+            input.reset();
         }
 
         return typeDecToken;
@@ -191,6 +213,9 @@ public class RsvrApexSyntaxParser {
 
     public class ClassDeclarationToken extends SyntaxToken {
         public String identifier {get; set;}
+        public TypeRefToken extend {get; set;}
+        public TypeListToken inplement {get; set;}
+        public ClassBodyToken classBody {get; set;}
 
         public String dump(String indent) {
             String strDump = (indent + 'ClassDeclaration:\n');
@@ -241,7 +266,13 @@ public class RsvrApexSyntaxParser {
             }
         }
 
-        //     //       classBody
+        input.mark();
+        ClassBodyToken cbody = parseClassBody();
+        if (cbody == null) {
+            input.reset();
+        } else {
+            clsDecTok.classBody = cbody;
+        }
 
         return clsDecTok;
     }
@@ -294,6 +325,19 @@ public class RsvrApexSyntaxParser {
     //     : typeRef (COMMA typeRef)*
     //     ;
 
+    public class TypeListToken extends SyntaxToken {
+
+        public String dump(String indent) {
+            String strDump = (indent + 'TypeListToken:\n');
+            return strDump;
+        }
+    }
+
+    private TypeListToken parseTypeList() {
+
+        return null;
+    }
+    
     /////////////////////////////////////////////////////////////////
     // classBody
     //     : LBRACE classBodyDeclaration* RBRACE
