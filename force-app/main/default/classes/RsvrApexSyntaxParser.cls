@@ -22,7 +22,7 @@
  * @since 2022-11-23
  */
 public class RsvrApexSyntaxParser {
-    private static final Boolean IS_DEBUG = true;
+    private static final Boolean IS_DEBUG = false;
 
     public abstract class SyntaxToken {
         final private List<RsvrApexLexicalParser.LexicalToken> tokenList = new List<RsvrApexLexicalParser.LexicalToken>();
@@ -401,7 +401,6 @@ public class RsvrApexSyntaxParser {
         RsvrApexLexicalParser.SeparatorToken rbrace1 = input.getFirstSeparatorToken();
         if (rbrace1 == null || rbrace1.no != RsvrApexConstants.SEP_RBRACE) {
             System.debug('PANIC: parseClassBody: #2: Do not enter here.');
-            // input.dumpNextTokens();
             input.reset();
             return null;
         }
@@ -833,7 +832,6 @@ public class RsvrApexSyntaxParser {
 
     private FieldDeclarationToken parseFieldDeclaration() {
         if (IS_DEBUG) System.debug('TRACE: RsvrApexSyntaxParser#parseFieldDeclaration: begin');
-        //input.dumpNextTokens();
 
         input.mark();
         FieldDeclarationToken fieldDeclarationToken = new FieldDeclarationToken();
@@ -853,12 +851,9 @@ public class RsvrApexSyntaxParser {
         }
         fieldDeclarationToken.variableDeclarators = decs;
 
-        input.dumpNextTokens();
-
         RsvrApexLexicalParser.SeparatorToken semi1 = input.getFirstSeparatorToken();
         if (semi1 == null || semi1.no != RsvrApexConstants.SEP_SEMI) {
             System.debug('PANIC: parseFieldDeclaration: #2: Do not enter here.: Missing SEMI (end of line).');
-            input.dumpNextTokens();
             input.reset();
             return null;
         }
@@ -956,8 +951,9 @@ public class RsvrApexSyntaxParser {
 
         public String dump(String indent) {
             String strDump = (indent + 'VariableDeclarator:\n');
-            strDump += (indent + '  ' + 'identifier: ' + identifier);
+            strDump += (indent + '  ' + 'identifier: ' + identifier + '\n');
             if (expression != null) {
+                strDump += (indent + '  ' + 'ASSIGN\n');
                 strDump += expression.dump(indent + '  ');
             }
             return strDump;
@@ -1265,7 +1261,7 @@ public class RsvrApexSyntaxParser {
         public String dump(String indent) {
             String strDump = (indent + 'Literal:\n');
             if (literal != null) {
-                strDump += (indent + '  literal: ' + literal.target);
+                strDump += (indent + '  tok: ' + literal.target + ' (' + literal.type + ')\n');
             }
             return strDump;
         }
@@ -1345,7 +1341,6 @@ public class RsvrApexSyntaxParser {
 
         RsvrApexLexicalParser.SeparatorToken lbrace1 = input.getFirstSeparatorToken();
         if (lbrace1 == null || lbrace1.no != RsvrApexConstants.SEP_LBRACE) {
-            //input.dumpNextTokens();
             input.reset();
             return null;
         }
